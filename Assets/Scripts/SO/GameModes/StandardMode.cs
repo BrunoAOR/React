@@ -8,6 +8,15 @@ public class StandardMode : GameModeLogic {
 	public int buttonsOnPerRound = 1;
 	public Color[] lightColors = new Color[] {Color.white, Color.red, Color.green, Color.blue, Color.cyan, Color.magenta, Color.yellow};
 
+
+	void OnEnable () {
+		InitializeGameMode ();
+	}
+
+	public override void InitializeGameMode () {
+		// No initialization needed.
+	}
+
 	public override int TurnOnButtons (Button[] buttons)	{
 		int changeInButtonsOnAmount = 0;
 		for (int i = 0; i < buttonsOnPerRound; i++) {

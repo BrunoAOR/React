@@ -82,6 +82,11 @@ public class AnimatedUIText : MonoBehaviour {
 	}
 
 
+	void OnEnable () {
+		_rectTransform.rotation = _referenceRotation;
+	}
+
+
 	void Update () {
 		if (!animatingOnTime)
 			return;

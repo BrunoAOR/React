@@ -11,15 +11,13 @@ public class InverseMode : GameModeLogic {
 	private int buttonsOffRemaining;
 
 
-	private void OnEnable () {
-		buttonsOffRemaining = 0;
+	void OnEnable () {
+		InitializeGameMode ();
 	}
 
-
-	private void OnDisable () {
+	public override void InitializeGameMode () {
 		buttonsOffRemaining = 0;
 	}
-
 
 	public override int TurnOnButtons (Button[] buttons)	{
 		int totalButtonCount = RoundManager.S.boardManager.gridSize * RoundManager.S.boardManager.gridSize;

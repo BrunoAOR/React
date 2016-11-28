@@ -122,6 +122,7 @@ public class RoundManager : MonoBehaviour {
 
 	public void StartGame (GameModeLogic selectedModeLogic, ButtonsBehaviour[] selectedButtonBehaviours) {
 		modeLogic = selectedModeLogic;
+		modeLogic.InitializeGameMode ();
 		modeBehaviours = selectedButtonBehaviours;
 
 		menuController.gameObject.SetActive (false);
@@ -305,6 +306,9 @@ public class RoundManager : MonoBehaviour {
 		boardManager.ClearGrid ();
 		animatedTimerText.gameObject.SetActive (false);
 
+		// Turn off the TargetModeCanvas
+		targetModeCanvas.SetActive (false);
+
 		// Save highscores if achieved and show a message about the score reached and if highscore was beaten or not.
 		endGameText.gameObject.SetActive (true);
 		_score = Managers.Score.GetScore ().ToString ();
@@ -361,6 +365,9 @@ public class RoundManager : MonoBehaviour {
 		// Remove all buttons and timer
 		boardManager.ClearGrid ();
 		animatedTimerText.gameObject.SetActive (false);
+
+		// Turn off the TargetModeCanvas
+		targetModeCanvas.SetActive (false);
 
 		// Turn off the HUD (Timer, score, highscore)
 		HUDCanvas.SetActive (false);

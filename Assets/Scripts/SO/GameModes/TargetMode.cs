@@ -14,19 +14,16 @@ public class TargetMode : GameModeLogic {
 	private Color targetColor;
 	private int goodButtonsOnRemaining;
 
-	private void OnEnable () {
+
+	void OnEnable () {
+		InitializeGameMode ();
+	}
+
+	public override void InitializeGameMode () {
 		targetImage = null;
 		targetColor = Color.clear;
 		goodButtonsOnRemaining = 0;
 	}
-
-
-	private void OnDisable () {
-		targetImage = null;
-		targetColor = Color.clear;
-		goodButtonsOnRemaining = 0;
-	}
-
 
 	public override int TurnOnButtons (Button[] buttons)	{
 		int changeInButtonsOnAmount = 0;
@@ -57,7 +54,7 @@ public class TargetMode : GameModeLogic {
 				int randomBIndex = Random.Range (0, buttons.Length);
 				if (!buttons [randomBIndex].isLit) {
 					Color selectedColor;
-					if (i < goodButtonsOnPerRound) {	// First button that will be turned on should have targetColor
+					if (i < goodButtonsOnPerRound) {	// First buttons that will be turned on should have targetColor
 						selectedColor = targetColor;
 						goodButtonsOnRemaining++;
 					} else {	// All other buttons get their color from the usableColors array
@@ -91,9 +88,9 @@ public class TargetMode : GameModeLogic {
 	public override int ButtonPressed (Button button, out float timeBonus)	{
 		timeBonus = 0;
 		int changeInButtonsOnAmount = 0;
-		if (button.isLit) {		// CORRECT Button pressed (button was ON)
+		if (button.isLit) {
 			Debug.Log ("Buton Color: " + button.GetLightColor () + " | Target: " + targetColor);
-			if (button.GetLightColor () == targetColor) {	// This is a good result for the player
+			if (button.GetLightColor () == targetColor) {	// CORRECT Button pressed (button was ON)
 				button.TurnLightOff ();
 				button.SpawnGoodTimeBonus (goodTimeBonus);
 				changeInButtonsOnAmount--;

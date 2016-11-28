@@ -141,6 +141,9 @@ public class MenuController : MonoBehaviour {
 		_paceIndex = 0;
 		_gridSizeIndex = 0;
 		_behavioursIndex = 0;
+
+		SetAllIconsActiveState (false);
+		SetAllLabelsActiveState (false);
 	}
 		
 

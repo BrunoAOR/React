@@ -20,6 +20,11 @@ public abstract class GameModeLogic : ScriptableObject {
 	public float badTimeBonus = -0.1f;
 
 	/// <summary>
+	/// Initializes the game mode.
+	/// </summary>
+	public abstract void InitializeGameMode ();
+
+	/// <summary>
 	/// Turns buttons on according to the selected Game Logic. Returns the change in the number of buttons that are lit ON (positive if buttons were lit ON and negative if buttons were turned OFF).
 	/// </summary>
 	/// <returns>The change in number of buttons that are lit ON.</returns>
