@@ -63,6 +63,10 @@ public class LivesManager : MonoBehaviour {
 	}
 
 
+	public int GetLivesCount () {
+		return (currentLivesCount);
+	}
+
 	public bool AddLife () {
 		if (currentLivesCount < maxLivesCount) {
 			currentLivesCount++;

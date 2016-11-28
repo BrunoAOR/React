@@ -4,18 +4,46 @@ using UnityEngine.Advertisements;
 
 public class AdsController : MonoBehaviour {
 
+	public GameObject noAdsPrompt;
+	public GameObject noLivesPrompt;
 	public GameObject watchAdPrompt;
 	public GameObject afterAdPrompt;
 
 
 	void OnEnable () {
-		watchAdPrompt.SetActive (true);
+		noAdsPrompt.SetActive (false);
+		noLivesPrompt.SetActive (false);
+		watchAdPrompt.SetActive (false);
 		afterAdPrompt.SetActive (false);
+
+		if (Managers.Ads.IsReady ()) {
+			watchAdPrompt.SetActive (true);
+		} else {
+			Debug.Log ("Ads are NOT ready to be shown!");
+			if (Managers.Lives.GetLivesCount () <= 0) {
+				noLivesPrompt.SetActive (true);
+			} else {
+				noAdsPrompt.SetActive (true);
+			}
+		}
+
 	}
 
 
 	public void OnWatchAd () {
 		ShowAd ();
+	}
+
+
+	public void OnCloseNoAdsPrompt () {
+		noAdsPrompt.SetActive (false);
+		gameObject.SetActive (false);
+	}
+
+
+	public void OnCloseNoLivesPrompt () {
+		noLivesPrompt.SetActive (false);
+		gameObject.SetActive (false);
 	}
 
 

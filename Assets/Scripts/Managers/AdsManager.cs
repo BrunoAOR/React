@@ -12,6 +12,10 @@ public class AdsManager : MonoBehaviour {
 		ShowAd (zoneId, null);
 	}
 
+	public bool IsReady (string zoneId = null) {
+		return Advertisement.IsReady (zoneId);
+	}
+
 
 	public void ShowAd (string zoneId, System.Action<ShowResult> ResultHandler) {
 
