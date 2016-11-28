@@ -58,13 +58,20 @@ public class InverseMode : GameModeLogic {
 	public override int ButtonPressed (Button button, out float timeBonus)	{
 		timeBonus = 0;
 		int changeInButtonsOnAmount = 0;
-		if (!button.isLit) {
+		if (!button.isLit) {	// CORRECT button pressed (button was OFF)
 			button.TurnLightOn ();
 			button.SpawnGoodTimeBonus (goodTimeBonus);
 			changeInButtonsOnAmount++;
 			buttonsOffRemaining--;
 			timeBonus = goodTimeBonus;
 			Managers.Score.AddPoints ();
+		} else {	// WRONG button pressed (button was ON)
+			// Light remains on
+			button.SpawnBadTimeBonus (badTimeBonus);
+			// No change in buttonsOn
+			timeBonus = badTimeBonus;
+			// No points are added, but the multiplier is reset
+			Managers.Score.ResetMultiplier ();
 		}
 
 		if (buttonsOffRemaining == 0) {

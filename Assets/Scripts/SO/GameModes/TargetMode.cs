@@ -91,7 +91,7 @@ public class TargetMode : GameModeLogic {
 	public override int ButtonPressed (Button button, out float timeBonus)	{
 		timeBonus = 0;
 		int changeInButtonsOnAmount = 0;
-		if (button.isLit) {
+		if (button.isLit) {		// CORRECT Button pressed (button was ON)
 			Debug.Log ("Buton Color: " + button.GetLightColor () + " | Target: " + targetColor);
 			if (button.GetLightColor () == targetColor) {	// This is a good result for the player
 				button.TurnLightOff ();
@@ -100,13 +100,21 @@ public class TargetMode : GameModeLogic {
 				goodButtonsOnRemaining--;
 				timeBonus = goodTimeBonus;
 				Managers.Score.AddPoints ();
-			} else {	// So, the wrong button was pushed
+			} else {	// WRONG button pressed (button was ON)
 				// Light remains on
 				button.SpawnBadTimeBonus (badTimeBonus);
 				// No change in buttonsOn
 				timeBonus = badTimeBonus;
-				// No points are added;
+				// No points are added, but the multiplier is reset
+				Managers.Score.ResetMultiplier ();
 			}
+		} else {	// WRONG button pressed (button was oFF)
+			// Light remains off
+			button.SpawnBadTimeBonus (badTimeBonus);
+			// No change in buttonsOn
+			timeBonus = badTimeBonus;
+			// No points are added, but the multiplier is reset
+			Managers.Score.ResetMultiplier ();
 		}
 
 		Debug.Log (goodButtonsOnRemaining + " good buttons remain on");
