@@ -38,7 +38,6 @@ public class BGLineMover : MonoBehaviour {
 		yield return new WaitForSeconds (lifeTime);
 
 		if (pooledGameObject != null) {
-			Debug.Log ("Returning");
 			pooledGameObject.pool.ReturnGameObject (gameObject);
 		} else {
 			Destroy (gameObject);

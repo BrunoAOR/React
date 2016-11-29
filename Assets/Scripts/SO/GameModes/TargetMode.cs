@@ -11,6 +11,7 @@ public class TargetMode : GameModeLogic {
 	public Color[] lightColors = new Color[] {Color.white, Color.red, Color.green, Color.blue, Color.cyan, Color.magenta, Color.yellow};
 
 	[HideInInspector] public Image targetImage;
+	private UIAnchorPosition targetImagePositioner;
 	private Color targetColor;
 	private int goodButtonsOnRemaining;
 
@@ -21,11 +22,19 @@ public class TargetMode : GameModeLogic {
 
 	public override void InitializeGameMode () {
 		targetImage = null;
+		targetImagePositioner = null;
 		targetColor = Color.clear;
 		goodButtonsOnRemaining = 0;
 	}
 
 	public override int TurnOnButtons (Button[] buttons)	{
+		if (targetImagePositioner == null) {
+			targetImagePositioner = targetImage.GetComponent<UIAnchorPosition> ();
+			if (targetImagePositioner == null) {
+				targetImagePositioner = targetImage.gameObject.AddComponent<UIAnchorPosition> ();
+			}
+		}
+
 		int changeInButtonsOnAmount = 0;
 
 		// Select the target color for this set of buttons
@@ -41,6 +50,15 @@ public class TargetMode : GameModeLogic {
 			}
 			usableColors [i] = lightColors [LCAIndex];
 			LCAIndex++;
+		}
+
+		// Move the targetImage left or right (random)
+		if (Random.value < 0.5) {
+			// LEFT
+			targetImagePositioner.MoveToAnchorPointX (0.25f);
+		} else {
+			// RIGHT
+			targetImagePositioner.MoveToAnchorPointX (0.75f);
 		}
 
 		// Turn on the targetImage and set it to the targetColor
@@ -67,7 +85,6 @@ public class TargetMode : GameModeLogic {
 				}
 			}
 		}
-		Debug.Log ("Turned on " + goodButtonsOnRemaining + " good buttons");
 		return changeInButtonsOnAmount;
 	}
 
@@ -89,7 +106,6 @@ public class TargetMode : GameModeLogic {
 		timeBonus = 0;
 		int changeInButtonsOnAmount = 0;
 		if (button.isLit) {
-			Debug.Log ("Buton Color: " + button.GetLightColor () + " | Target: " + targetColor);
 			if (button.GetLightColor () == targetColor) {	// CORRECT Button pressed (button was ON)
 				button.TurnLightOff ();
 				button.SpawnGoodTimeBonus (goodTimeBonus);
@@ -113,8 +129,6 @@ public class TargetMode : GameModeLogic {
 			// No points are added, but the multiplier is reset
 			Managers.Score.ResetMultiplier ();
 		}
-
-		Debug.Log (goodButtonsOnRemaining + " good buttons remain on");
 
 		if (goodButtonsOnRemaining == 0) {
 			RoundManager.S.TurnOffButtons ();
