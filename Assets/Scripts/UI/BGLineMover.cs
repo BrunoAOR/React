@@ -20,13 +20,29 @@ public class BGLineMover : MonoBehaviour {
 
 	void Start () {
 		screenWidth = Camera.main.pixelWidth;
-		Destroy (gameObject, lifeTime);
 	}
 
 	void Update () {
 
 		transform.Translate (Vector3.right * screenWidth * speed * Time.deltaTime, Space.Self);
 
+	}
+
+	public void ReturnToPoolAfterLifeTime () {
+		StartCoroutine (ReturnToPoolCoroutine ());
+	}
+
+	private IEnumerator ReturnToPoolCoroutine () {
+		PooledGameObject pooledGameObject = GetComponent<PooledGameObject> ();
+
+		yield return new WaitForSeconds (lifeTime);
+
+		if (pooledGameObject != null) {
+			Debug.Log ("Returning");
+			pooledGameObject.pool.ReturnGameObject (gameObject);
+		} else {
+			Destroy (gameObject);
+		}
 	}
 
 }

@@ -5,6 +5,7 @@ using System.Collections;
 public class BGLineSpawner : MonoBehaviour {
 
 	public GameObject linePrefab;
+	public GameObjectPool lineObjectPool;
 
 	public bool shouldSpawn = true;
 	public int spawnRate = 5;
@@ -32,7 +33,7 @@ public class BGLineSpawner : MonoBehaviour {
 		_canvasScaler = GetComponent <CanvasScaler> ();
 		_canvasGroup = GetComponent <CanvasGroup> ();
 
-		if (linePrefab == null)
+		if (lineObjectPool == null)
 			enabled = false;
 	}
 
@@ -88,7 +89,7 @@ public class BGLineSpawner : MonoBehaviour {
 		if (_timeWaited >= 1f / spawnRate) {
 			// Spawn new line
 			_timeWaited = 0;
-			GameObject tGO = Instantiate (linePrefab) as GameObject;
+			GameObject tGO = lineObjectPool.GetGameObject ();
 			tGO.transform.SetParent (transform);
 			tGO.transform.localScale = Vector3.one;
 
@@ -132,7 +133,7 @@ public class BGLineSpawner : MonoBehaviour {
 				tBGLineMover.lifeTime = (scalableLineLength + _screenWidthPx) / (lineSpeed * _screenWidthPx);
 			}
 
-
+			tBGLineMover.ReturnToPoolAfterLifeTime ();
 
 		}
 	}
