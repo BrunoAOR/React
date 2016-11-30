@@ -122,7 +122,6 @@ public class AnimatedUIText : MonoBehaviour {
 
 
 	public void SetDisplayText (string message) {
-		Debug.Log ("Set message to " + message);
 		_text.text = message;
 	}
 

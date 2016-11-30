@@ -101,6 +101,7 @@ public class ScoreManager : MonoBehaviour {
 
 
 	public void ResetMultiplier () {
+		cameraShaker.Shake ();
 		multiplier = 1;
 	}
 
