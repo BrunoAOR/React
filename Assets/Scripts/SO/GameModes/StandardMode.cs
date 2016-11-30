@@ -54,7 +54,9 @@ public class StandardMode : GameModeLogic {
 			button.SpawnGoodTimeBonus (goodTimeBonus);
 			changeInButtonsOnAmount--;
 			timeBonus = goodTimeBonus;
-			Managers.Score.AddPoints ();
+
+			Vector2 buttonViewportPos = Camera.main.WorldToViewportPoint (button.transform.position);
+			Managers.Score.AnimateAddPoints (buttonViewportPos);
 		} else {	// WRONG button pressed (button was OFF)
 			// Light remains off
 			button.SpawnBadTimeBonus (badTimeBonus);

@@ -6,6 +6,8 @@ using System.Collections.Generic;
 public class ScoreManager : MonoBehaviour {
 
 	public Text scoreText;
+	public PointsSpawner pointsSpawner;
+	public CameraShaker cameraShaker;
 	public int defaultPointsPerButton = 100;
 
 	[Header ("Text Animation")]
@@ -47,19 +49,21 @@ public class ScoreManager : MonoBehaviour {
 	}
 
 
-	public void AddPoints () {
-		AddPoints (defaultPointsPerButton);
+	public int AddPoints () {
+		return (AddPoints (defaultPointsPerButton));
 	}
 
 
-	public void AddPoints (int points) {
+	public int AddPoints (int points) {
 		if (points == 0)
-			return;
+			return (0);
 
 		if (points < 0)
 			ResetMultiplier ();
 
-		score += points * multiplier;
+		int pointsAdded = points * multiplier;
+
+		score += pointsAdded;
 
 		if (points > 0)
 			multiplier++;
@@ -70,6 +74,22 @@ public class ScoreManager : MonoBehaviour {
 		}
 		currentAnimation = AnimateScore (points > 0);
 		StartCoroutine (currentAnimation);
+
+		return pointsAdded;
+	}
+
+
+	public void AnimateAddPoints (Vector2 source) {
+		AnimateAddPoints (defaultPointsPerButton, source);
+	}
+
+
+	public void AnimateAddPoints (int points, Vector2 source) {
+		int pointsAdded = AddPoints (points);
+		Vector2 target = scoreText.rectTransform.position;
+		target = Camera.main.ScreenToViewportPoint (target);
+
+		pointsSpawner.AnimatePoints (pointsAdded.ToString(), source, target);
 	}
 
 

@@ -110,8 +110,9 @@ public class AnimatedUIText : MonoBehaviour {
 
 
 	public void ApplyStartConditions () {
-		
-		_text.text = timeStart.ToString ("F1");
+
+		if (!animatingOnTime)
+			_text.text = timeStart.ToString ("F1");
 
 		_rectTransform.anchorMin = startAnchor;
 		_rectTransform.anchorMax = startAnchor;
@@ -119,6 +120,11 @@ public class AnimatedUIText : MonoBehaviour {
 		_text.color = startColor;
 	}
 
+
+	public void SetDisplayText (string message) {
+		Debug.Log ("Set message to " + message);
+		_text.text = message;
+	}
 
 	public void AdjustFreeTimeScale (float timeStart, float timeEnd = 0f) {
 		float newRange = Mathf.Abs (timeStart - timeEnd);

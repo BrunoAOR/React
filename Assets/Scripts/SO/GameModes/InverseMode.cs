@@ -62,7 +62,9 @@ public class InverseMode : GameModeLogic {
 			changeInButtonsOnAmount++;
 			buttonsOffRemaining--;
 			timeBonus = goodTimeBonus;
-			Managers.Score.AddPoints ();
+
+			Vector2 buttonViewportPos = Camera.main.WorldToViewportPoint (button.transform.position);
+			Managers.Score.AnimateAddPoints (buttonViewportPos);
 		} else {	// WRONG button pressed (button was ON)
 			// Light remains on
 			button.SpawnBadTimeBonus (badTimeBonus);
