@@ -87,6 +87,7 @@ public class MenuController : MonoBehaviour {
 	public ButtonsBehaviour[] behaviours;
 
 	[Header ("Icons")]
+	public MultiTextGroup descriptionText;
 	public IconSet[] iconSets;
 
 	private bool _iconsClickable;
@@ -95,6 +96,7 @@ public class MenuController : MonoBehaviour {
 	private int _paceIndex;
 	private int _gridSizeIndex;
 	private int _behavioursIndex;
+	private int[] _selectedIconNumbersPerIconSet;
 
 	[Header ("Welcome Screen")]
 	public UIMover logoMover;
@@ -141,6 +143,7 @@ public class MenuController : MonoBehaviour {
 		_paceIndex = 0;
 		_gridSizeIndex = 0;
 		_behavioursIndex = 0;
+		_selectedIconNumbersPerIconSet = new int[4] {0, 0, 0, 0};
 
 		SetAllIconsActiveState (false);
 		SetAllLabelsActiveState (false);
@@ -200,6 +203,9 @@ public class MenuController : MonoBehaviour {
 		_labelsWereOn = paceText.IsActive ();
 		SetAllLabelsActiveState (false);
 
+		descriptionText.SetUIText ("");
+		descriptionText.gameObject.SetActive (false);
+
 	}
 
 
@@ -219,11 +225,13 @@ public class MenuController : MonoBehaviour {
 		StartCoroutine (menuBGBlender.StartColorBlend ());
 		yield return (_menuBGScaler.ScaleToTargetCoroutine());
 
-		_iconsClickable = true;
 		buttonsParent.SetActive (true);
+		// The first run through, the buttons are not Active, so only the next button becomes activated.
+		//	From the 2nd time onwards, all buttons are active, but only some are interactable
 		nextButton.gameObject.SetActive (true);
 
-		if (_labelsWereOn) {
+		if (_labelsWereOn) {	// So this is not the first run through
+			_iconsClickable = true;
 			SetAllLabelsActiveState (true);
 			_currentIconSetIndex = iconSets.Length;
 			homeButton.interactable = true;
@@ -231,14 +239,14 @@ public class MenuController : MonoBehaviour {
 			startButton.interactable = true;
 			nextButton.interactable = false;
 			endButton.interactable = false;
-		} else {
+		} else {	// This is the first time the player goes through the menu (default start to Standard Mode)
 			_currentIconSetIndex = 0;
 			homeButton.interactable = false;
 			backButton.interactable = false;
 			startButton.interactable = true;
 			nextButton.interactable = true;
 			endButton.interactable = true;
-			StartCoroutine (PopIconsOut ());
+			yield return (PopIconsOut ());
 		}
 			
 	}
@@ -254,6 +262,8 @@ public class MenuController : MonoBehaviour {
 
 		yield return (iconsCover.StartColorBlend (true));
 
+		descriptionText.gameObject.SetActive (true);
+		UpdateDescriptionText (_currentIconSetIndex, _selectedIconNumbersPerIconSet [_currentIconSetIndex]);
 		UpdateLabels ();
 
 		_iconsClickable = true;
@@ -266,15 +276,25 @@ public class MenuController : MonoBehaviour {
 		iconsCover.gameObject.SetActive (true);
 		iconsCover.UseStartColor ();
 
+		descriptionText.gameObject.SetActive (false);
 		yield return (StartCoroutine (iconSets[_currentIconSetIndex].PopIconsBack (this)));
 
 		_iconsClickable = true;
 
 	}
 
+
+	private void UpdateDescriptionText (int iconSetIndex, int iconNumber) {
+		descriptionText.SelectUIText (iconSetIndex, iconNumber);
+		//descriptionText.SetUIText("IconSet: " + iconSetIndex + " and IconNumber: " + iconNumber);
+	}
+
 	public void OnIconClicked (int iconNumber) {
 		if (!_iconsClickable)
 			return;
+
+		_selectedIconNumbersPerIconSet [_currentIconSetIndex] = iconNumber;
+		UpdateDescriptionText (_currentIconSetIndex, iconNumber);
 
 		switch (_currentIconSetIndex) {
 		case 0:		// GameMode IconSet
