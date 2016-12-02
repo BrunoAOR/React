@@ -102,6 +102,7 @@ public class MenuController : MonoBehaviour {
 	public UIMover logoMover;
 	public Text welcomeText;
 	public GameObject tapPrompt;
+	public GameObject livesPanel;
 
 	private ColorBlenderUIGraphic _welcomeTextBlender;
 
@@ -145,6 +146,8 @@ public class MenuController : MonoBehaviour {
 		_behavioursIndex = 0;
 		_selectedIconNumbersPerIconSet = new int[4] {0, 0, 0, 0};
 
+		livesPanel.SetActive (false);
+
 		SetAllIconsActiveState (false);
 		SetAllLabelsActiveState (false);
 	}
@@ -187,6 +190,8 @@ public class MenuController : MonoBehaviour {
 		StartCoroutine (logoMover.GetComponent<ColorBlenderUIGraphic> ().StartColorBlend (false));
 		// ... as it moves up
 		yield return (logoMover.MoveToTarget ());
+
+		livesPanel.SetActive (true);
 
 		yield return (PopMenu ());
 
@@ -286,7 +291,6 @@ public class MenuController : MonoBehaviour {
 
 	private void UpdateDescriptionText (int iconSetIndex, int iconNumber) {
 		descriptionText.SelectUIText (iconSetIndex, iconNumber);
-		//descriptionText.SetUIText("IconSet: " + iconSetIndex + " and IconNumber: " + iconNumber);
 	}
 
 	public void OnIconClicked (int iconNumber) {
