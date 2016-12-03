@@ -5,6 +5,8 @@ using System.Collections;
 [RequireComponent (typeof (ScoreManager))]
 [RequireComponent (typeof (LivesManager))]
 [RequireComponent (typeof (AdsManager))]
+[RequireComponent (typeof (StatsManager))]
+[RequireComponent (typeof (UnlockablesManager))]
 public class Managers : MonoBehaviour {
 
 	private static Managers Manager;
@@ -12,6 +14,8 @@ public class Managers : MonoBehaviour {
 	public static ScoreManager Score;
 	public static LivesManager Lives;
 	public static AdsManager Ads;
+	public static StatsManager Stats;
+	public static UnlockablesManager Unlockables;
 
 	public bool killData = false;
 
@@ -29,6 +33,8 @@ public class Managers : MonoBehaviour {
 		Score = GetComponent<ScoreManager> ();
 		Lives = GetComponent<LivesManager> ();
 		Ads = GetComponent<AdsManager> ();
+		Stats = GetComponent<StatsManager> ();
+		Unlockables = GetComponent<UnlockablesManager> ();
 
 
 		if (killData) {

@@ -10,16 +10,20 @@ public static class DataManager {
 	[System.Serializable]
 	private class SaveData {
 
-		public SaveData () {
-			highscores = new Highscores ();
-			livesData = new LivesData ();
-		}
-
 		// For ScoreManager
 		public Highscores highscores;
 
 		// For LivesManager
 		public LivesData livesData;
+
+		// For StatsManager
+		public StatsData statsData;
+
+		public SaveData () {
+			highscores = new Highscores ();
+			livesData = new LivesData ();
+			statsData = new StatsData ();
+		}
 	}
 
 	private static string fileName = "gameData.dat";
@@ -90,5 +94,22 @@ public static class DataManager {
 			Load ();
 
 		return (localData.livesData);
+	}
+
+
+	public static void Save_StatsData (StatsData newStatsData) {
+		if (localData == null)
+			Load ();
+
+		localData.statsData = newStatsData;
+		Save ();
+	}
+
+
+	public static StatsData Load_StatsData () {
+		if (localData == null)
+			Load ();
+
+		return (localData.statsData);
 	}
 }

@@ -323,6 +323,9 @@ public class RoundManager : MonoBehaviour {
 			Debug.Log ("Score: " + Managers.Score.GetScore() + "|High Score of " + Managers.Score.GetHighscore (modeLogic, boardManager.gridSize, modeBehaviours) + " remains undefeated.");
 		}
 
+		// Register the round in the StatsManager
+		Managers.Stats.RegisterPlay (GetStatsGameMode (), GetStatsGamePace (), GetStatsGridSize (), GetStatsBehaviour (), Managers.Score.GetScore() );
+
 		endGameTapPrompt.SetActive (true);
 		// Wait for a tap
 		while (!Input.GetMouseButtonDown (0)) {
@@ -384,6 +387,30 @@ public class RoundManager : MonoBehaviour {
 
 	}
 
+
+	private GameMode GetStatsGameMode () {
+		return modeLogic.gameMode;
+	}
+
+	private GamePace GetStatsGamePace () {
+		return modeLogic.gamePace;
+	}
+
+	private GridSize GetStatsGridSize () {
+		return ((GridSize)boardManager.gridSize);
+	}
+
+	private Behaviour GetStatsBehaviour () {
+		if (modeBehaviours.Length == 0) {
+			return Behaviour.None;
+		}
+
+		if (modeBehaviours.Length == 2) {
+			return Behaviour.GhostMotion;
+		}
+
+		return modeBehaviours [0].statsBehaviour;
+	}
 
 	public void PromptForAds () {
 		AdsController.gameObject.SetActive (true);

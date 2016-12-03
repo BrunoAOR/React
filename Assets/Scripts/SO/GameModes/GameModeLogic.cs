@@ -9,6 +9,9 @@ public abstract class GameModeLogic : ScriptableObject {
 	/// </summary>
 	public string modeName = "Mode name";
 	public string modeDescription = "Mode description";
+	[Header ("Stats info")]
+	public GameMode gameMode;
+	public GamePace gamePace;
 	[Header ("Round timer")]
 	public int startTime = 10;
 	[Header ("Wait time to turn on buttons")]
