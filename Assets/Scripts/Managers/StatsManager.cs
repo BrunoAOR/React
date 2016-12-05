@@ -167,19 +167,35 @@ public class StatsManager : MonoBehaviour {
 	}
 
 	public int GetPlayCount (GameMode gameMode) {
-		return stats.gameModePlayCount [gameMode];
+		if (stats.gameModePlayCount.ContainsKey (gameMode)) {
+			return stats.gameModePlayCount [gameMode];
+		} else {
+			return 0;
+		}
 	}
 
 	public int GetPlayCount (GamePace gamePace) {
-		return stats.gamePacePlayCount [gamePace];
+		if (stats.gamePacePlayCount.ContainsKey (gamePace)) {
+			return stats.gamePacePlayCount [gamePace];
+		} else {
+			return 0;
+		}
 	}
 
 	public int GetPlayCount (GridSize gridSize) {
-		return stats.gridSizePlayCount [gridSize];
+		if (stats.gridSizePlayCount.ContainsKey (gridSize)) {
+			return stats.gridSizePlayCount [gridSize];
+		} else {
+			return 0;
+		}
 	}
 
 	public int GetPlayCount (Behaviour behaviour) {
-		return stats.behaviourPlayCount [behaviour];
+		if (stats.behaviourPlayCount.ContainsKey (behaviour)) {
+			return stats.behaviourPlayCount [behaviour];
+		} else {
+			return 0;
+		}
 	}
 
 	public int GetPlayCount (GameMode gameMode, GamePace gamePace, GridSize gridSize, Behaviour behaviour) {
@@ -207,19 +223,35 @@ public class StatsManager : MonoBehaviour {
 	}
 
 	public int GetCumulativeScore (GameMode gameMode) {
-		return stats.gameModeCumulativeScore [gameMode];
+		if (stats.gameModeCumulativeScore.ContainsKey(gameMode)) {
+			return stats.gameModeCumulativeScore [gameMode];
+		} else {
+			return 0;
+		}
 	}
 
 	public int GetCumulativeScore (GamePace gamePace) {
-		return stats.gamePaceCumulativeScore [gamePace];
+		if (stats.gamePaceCumulativeScore.ContainsKey (gamePace)) {
+			return stats.gamePaceCumulativeScore [gamePace];
+		} else {
+			return 0;
+		}
 	}
 
 	public int GetCumulativeScore (GridSize gridSize) {
-		return stats.gridSizeCumulativeScore [gridSize];
+		if (stats.gridSizeCumulativeScore.ContainsKey (gridSize)) {
+			return stats.gridSizeCumulativeScore [gridSize];
+		} else {
+			return 0;
+		}
 	}
 
 	public int GetCumulativeScore (Behaviour behaviour) {
-		return stats.behaviourCumulativeScore [behaviour];
+		if (stats.behaviourCumulativeScore.ContainsKey (behaviour)) {
+			return stats.behaviourCumulativeScore [behaviour];
+		} else {
+			return 0;
+		}
 	}
 
 	public int GetCumulativeScore (GameMode gameMode, GamePace gamePace, GridSize gridSize, Behaviour behaviour) {
