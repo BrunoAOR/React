@@ -13,10 +13,17 @@ public class MenuController : MonoBehaviour {
 		public float rotateDuration = 0.5f;
 		public MoveRotateUI[] iconDocks;
 
+		[HideInInspector] public IconDockImage[] iconImages;
 		private bool _isInitialized = false;
 
-		void Initialize () {
+		public void Initialize () {
 			SetUpIconDocks ();
+
+			iconImages = new IconDockImage[iconDocks.Length];
+			for (int i = 0; i < iconDocks.Length; i++) {
+				iconImages [i] = iconDocks [i].GetComponentInChildren<IconDockImage> ();
+			}
+
 			_isInitialized = true;
 		}
 
@@ -89,6 +96,8 @@ public class MenuController : MonoBehaviour {
 	[Header ("Icons")]
 	public MultiTextGroup descriptionText;
 	public IconSet[] iconSets;
+	[Range (0f, 5f)]
+	public float showUnlockConditionDuration = 2f;
 
 	private bool _iconsClickable;
 	private int _currentIconSetIndex;
@@ -97,6 +106,7 @@ public class MenuController : MonoBehaviour {
 	private int _gridSizeIndex;
 	private int _behavioursIndex;
 	private int[] _selectedIconNumbersPerIconSet;
+	private IEnumerator _currentShowUnlockConditionCoroutine;
 
 	[Header ("Welcome Screen")]
 	public UIMover logoMover;
@@ -145,6 +155,7 @@ public class MenuController : MonoBehaviour {
 		_gridSizeIndex = 0;
 		_behavioursIndex = 0;
 		_selectedIconNumbersPerIconSet = new int[4] {0, 0, 0, 0};
+		_currentShowUnlockConditionCoroutine = null;
 
 		livesPanel.SetActive (false);
 
@@ -154,6 +165,8 @@ public class MenuController : MonoBehaviour {
 		
 
 	IEnumerator Start () {
+		InitializeIconSets ();
+
 		logoMover.SnapToStart ();
 		welcomeText.gameObject.SetActive (true);
 		menuBGBlender.gameObject.SetActive (false);
@@ -177,6 +190,13 @@ public class MenuController : MonoBehaviour {
 
 
 		StartCoroutine (LogoToMenu() );
+	}
+
+
+	private void InitializeIconSets () {
+		for (int i = 0; i < iconSets.Length; i++) {
+			iconSets [i].Initialize ();
+		}
 	}
 
 
@@ -224,7 +244,21 @@ public class MenuController : MonoBehaviour {
 	}
 
 
+	private void UpdateIconsUnlockState () {
+		bool[][] iconsUnlockState = Managers.Unlockables.GetUnlockStates ();
+
+		for (int i = 0; i < iconSets.Length; i++) {
+			for (int j = 0; j < iconSets [i].iconImages.Length; j++) {
+				iconSets [i].iconImages [j].UpdateUnlockState (iconsUnlockState[i][j]);
+			}
+		}
+	}
+
+
 	public IEnumerator PopMenu () {
+
+		// Verify and update UnlockState of icons
+		UpdateIconsUnlockState ();
 
 		_menuBGScaler.SnapToStartScale ();
 		StartCoroutine (menuBGBlender.StartColorBlend ());
@@ -268,7 +302,7 @@ public class MenuController : MonoBehaviour {
 		yield return (iconsCover.StartColorBlend (true));
 
 		descriptionText.gameObject.SetActive (true);
-		UpdateDescriptionText (_currentIconSetIndex, _selectedIconNumbersPerIconSet [_currentIconSetIndex]);
+		UpdateDescriptionText (_currentIconSetIndex, _selectedIconNumbersPerIconSet [_currentIconSetIndex], true);
 		UpdateLabels ();
 
 		_iconsClickable = true;
@@ -289,16 +323,69 @@ public class MenuController : MonoBehaviour {
 	}
 
 
-	private void UpdateDescriptionText (int iconSetIndex, int iconNumber) {
-		descriptionText.SelectUIText (iconSetIndex, iconNumber);
+	private void UpdateDescriptionText (int iconSetIndex, int iconNumber, bool iconIsUnlocked) {
+		if (iconIsUnlocked) {
+			descriptionText.SelectUIText (iconSetIndex, iconNumber);
+		} else {
+			if (_currentShowUnlockConditionCoroutine != null) {
+				StopCoroutine (_currentShowUnlockConditionCoroutine);
+				_currentShowUnlockConditionCoroutine = null;
+			}
+			_currentShowUnlockConditionCoroutine = ShowUnlockConditionInDescriptionText (iconSetIndex, iconNumber);
+			StartCoroutine (_currentShowUnlockConditionCoroutine);
+		}
+
 	}
 
-	public void OnIconClicked (int iconNumber) {
+
+	private IEnumerator ShowUnlockConditionInDescriptionText (int iconSetIndex, int iconNumber) {
+		string message;
+
+		message = "LOCKED!!!" + "\n";
+		message += "To unlock, ";
+
+		UnlockCondition condition = Managers.Unlockables.GetUnlockCondition (iconSetIndex, iconNumber);
+
+		switch (condition.fieldB) {
+		case UnlockCondition.FieldB.PlayCount:
+			message += "play a minimum of " + condition.minValue + " times ";
+			break;
+		case UnlockCondition.FieldB.CumulativeScore:
+			message += "reach a total of " + condition.minValue + " points ";
+			break;
+		}
+
+		switch (condition.fieldA) {
+		case UnlockCondition.FieldA.GameMode:
+			message += "in " + condition.gameMode.ToString () + " game mode.";
+			break;
+		case UnlockCondition.FieldA.GamePace:
+			message += "at " + condition.gamePace.ToString () + " pace.";
+			break;
+		case UnlockCondition.FieldA.GridSize:
+			message += "in a " + condition.gridSize.ToString () + " grid size.";
+			break;
+		case UnlockCondition.FieldA.Behaviour:
+			message += "using the " + condition.behaviour.ToString () + " modifier.";
+			break;
+		}
+
+		descriptionText.SetUIText (message);
+		yield return new WaitForSeconds (showUnlockConditionDuration);
+		UpdateDescriptionText (_currentIconSetIndex, _selectedIconNumbersPerIconSet [_currentIconSetIndex], true);
+	}
+
+
+	public void OnIconClicked (int iconNumber, bool iconIsUnlocked) {
 		if (!_iconsClickable)
+			return;
+		
+		UpdateDescriptionText (_currentIconSetIndex, iconNumber, iconIsUnlocked);
+
+		if (!iconIsUnlocked)
 			return;
 
 		_selectedIconNumbersPerIconSet [_currentIconSetIndex] = iconNumber;
-		UpdateDescriptionText (_currentIconSetIndex, iconNumber);
 
 		switch (_currentIconSetIndex) {
 		case 0:		// GameMode IconSet

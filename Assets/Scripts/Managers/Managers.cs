@@ -6,7 +6,7 @@ using System.Collections;
 [RequireComponent (typeof (LivesManager))]
 [RequireComponent (typeof (AdsManager))]
 [RequireComponent (typeof (StatsManager))]
-//[RequireComponent (typeof (UnlockablesManager))]
+[RequireComponent (typeof (UnlockablesManager))]
 public class Managers : MonoBehaviour {
 
 	private static Managers Manager;
@@ -15,7 +15,7 @@ public class Managers : MonoBehaviour {
 	public static LivesManager Lives;
 	public static AdsManager Ads;
 	public static StatsManager Stats;
-	//public static UnlockablesManager Unlockables;
+	public static UnlockablesManager Unlockables;
 
 	public bool killData = false;
 
@@ -34,13 +34,22 @@ public class Managers : MonoBehaviour {
 		Lives = GetComponent<LivesManager> ();
 		Ads = GetComponent<AdsManager> ();
 		Stats = GetComponent<StatsManager> ();
-		//Unlockables = GetComponent<UnlockablesManager> ();
+		Unlockables = GetComponent<UnlockablesManager> ();
 
 
 		if (killData) {
 			killData = false;
-			DataManager.DeleteData ();
+			KillData ();
 		}
+	}
+
+	public void KillData () {
+		DataManager.DeleteData ();
+		Application.Quit ();
+
+		#if UNITY_EDITOR
+			UnityEditor.EditorApplication.isPlaying = false;
+		#endif
 	}
 
 }
