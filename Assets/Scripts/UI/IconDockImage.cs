@@ -64,9 +64,6 @@ public class IconDockImage : MonoBehaviour, IPointerClickHandler {
 	}
 
 	public void Unlock () {
-		if (_isUnlocked)
-			return;
-
 		if (_image == null)
 			_image = GetComponent<UnityEngine.UI.Image> ();
 		
@@ -77,9 +74,6 @@ public class IconDockImage : MonoBehaviour, IPointerClickHandler {
 	}
 
 	public void Lock () {
-		if (!_isUnlocked)
-			return;
-
 		if (_image == null)
 			_image = GetComponent<UnityEngine.UI.Image> ();
 		
