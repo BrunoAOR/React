@@ -67,6 +67,9 @@ public class IconDockImage : MonoBehaviour, IPointerClickHandler {
 		if (_isUnlocked)
 			return;
 
+		if (_image == null)
+			_image = GetComponent<UnityEngine.UI.Image> ();
+		
 		_image.enabled = true;
 		lockImage.gameObject.SetActive (false);
 		_isUnlocked = true;
@@ -77,6 +80,9 @@ public class IconDockImage : MonoBehaviour, IPointerClickHandler {
 		if (!_isUnlocked)
 			return;
 
+		if (_image == null)
+			_image = GetComponent<UnityEngine.UI.Image> ();
+		
 		_image.enabled = false;
 		lockImage.gameObject.SetActive (true);
 		_isUnlocked = false;
