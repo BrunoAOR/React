@@ -132,13 +132,9 @@ public class MenuController : MonoBehaviour {
 
 	[Header ("Labels and Texts")]
 	public MultiTextGroup instructionsLabel;
-	public Text gameModeLabel;
 	public Text gameModeText;
-	public Text paceLabel;
 	public Text paceText;
-	public Text gridSizeLabel;
 	public Text gridSizeText;
-	public Text behavioursLabel;
 	public Text behavioursText;
 	public Text highscoreLabel;
 	public Text highscoreText;
@@ -551,13 +547,9 @@ public class MenuController : MonoBehaviour {
 
 	private void SetAllLabelsActiveState (bool value) {
 		instructionsLabel.gameObject.SetActive (value);
-		gameModeLabel.gameObject.SetActive (value);
 		gameModeText.gameObject.SetActive (value);
-		paceLabel.gameObject.SetActive (value);
 		paceText.gameObject.SetActive (value);
-		gridSizeLabel.gameObject.SetActive (value);
 		gridSizeText.gameObject.SetActive (value);
-		behavioursLabel.gameObject.SetActive (value);
 		behavioursText.gameObject.SetActive (value);
 		highscoreLabel.gameObject.SetActive (value);
 		highscoreText.gameObject.SetActive (value);
@@ -569,7 +561,6 @@ public class MenuController : MonoBehaviour {
 
 		switch (_currentIconSetIndex) {
 		case 0:		// GameMode Selection
-			gameModeLabel.gameObject.SetActive (true);
 			gameModeText.gameObject.SetActive (true);
 			switch (_gameModeIndex) {
 			case 0:
@@ -586,7 +577,6 @@ public class MenuController : MonoBehaviour {
 			break;
 		
 		case 1:		// Pace Selection
-			paceLabel.gameObject.SetActive (true);
 			paceText.gameObject.SetActive (true);
 			switch (_paceIndex) {
 			case 0:
@@ -600,7 +590,6 @@ public class MenuController : MonoBehaviour {
 			break;
 
 		case 2:		// GridSize Selection
-			gridSizeLabel.gameObject.SetActive (true);
 			gridSizeText.gameObject.SetActive (true);
 			switch (_gridSizeIndex) {
 			case 0:
@@ -617,7 +606,6 @@ public class MenuController : MonoBehaviour {
 			break;
 
 		case 3:		// Behaviours Selection
-			behavioursLabel.gameObject.SetActive (true);
 			behavioursText.gameObject.SetActive (true);
 			switch (_behavioursIndex) {
 			case 0:
