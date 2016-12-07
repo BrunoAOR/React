@@ -131,6 +131,7 @@ public class MenuController : MonoBehaviour {
 	private Scaler _menuBGScaler;
 
 	[Header ("Labels and Texts")]
+	public MultiTextGroup instructionsLabel;
 	public Text gameModeLabel;
 	public Text gameModeText;
 	public Text paceLabel;
@@ -301,7 +302,9 @@ public class MenuController : MonoBehaviour {
 
 		yield return (iconsCover.StartColorBlend (true));
 
+		instructionsLabel.gameObject.SetActive (true);
 		descriptionText.gameObject.SetActive (true);
+		UpdateInstructionsText (_currentIconSetIndex);
 		UpdateDescriptionText (_currentIconSetIndex, _selectedIconNumbersPerIconSet [_currentIconSetIndex], true);
 		UpdateLabels ();
 
@@ -315,11 +318,17 @@ public class MenuController : MonoBehaviour {
 		iconsCover.gameObject.SetActive (true);
 		iconsCover.UseStartColor ();
 
+		instructionsLabel.gameObject.SetActive (false);
 		descriptionText.gameObject.SetActive (false);
 		yield return (StartCoroutine (iconSets[_currentIconSetIndex].PopIconsBack (this)));
 
 		_iconsClickable = true;
 
+	}
+
+
+	private void UpdateInstructionsText (int iconSetIndex) {
+		instructionsLabel.SelectUIText (0, iconSetIndex);
 	}
 
 
@@ -541,6 +550,7 @@ public class MenuController : MonoBehaviour {
 
 
 	private void SetAllLabelsActiveState (bool value) {
+		instructionsLabel.gameObject.SetActive (value);
 		gameModeLabel.gameObject.SetActive (value);
 		gameModeText.gameObject.SetActive (value);
 		paceLabel.gameObject.SetActive (value);
