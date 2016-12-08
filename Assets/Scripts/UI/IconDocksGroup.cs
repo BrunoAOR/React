@@ -19,8 +19,6 @@ public class IconDocksGroup : MonoBehaviour {
 				iconDocksImages [i] = tImage;
 			}
 		}
-
-		iconDocksImages [0].color = selectedColor;
 	}
 
 

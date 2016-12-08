@@ -147,11 +147,11 @@ public class MenuController : MonoBehaviour {
 
 		_labelsWereOn = false;
 
-		_gameModeIndex = 0;
-		_paceIndex = 0;
-		_gridSizeIndex = 0;
-		_behavioursIndex = 0;
-		_selectedIconNumbersPerIconSet = new int[4] {0, 0, 0, 0};
+		_gameModeIndex = -1;
+		_paceIndex = -1;
+		_gridSizeIndex = -1;
+		_behavioursIndex = -1;
+		_selectedIconNumbersPerIconSet = new int[4] {-1, -1, -1, -1};
 		_currentShowUnlockConditionCoroutine = null;
 
 		livesPanel.SetActive (false);
@@ -262,26 +262,15 @@ public class MenuController : MonoBehaviour {
 		yield return (_menuBGScaler.ScaleToTargetCoroutine());
 
 		buttonsParent.SetActive (true);
-		// The first run through, the buttons are not Active, so only the next button becomes activated.
-		//	From the 2nd time onwards, all buttons are active, but only some are interactable
-		nextButton.gameObject.SetActive (true);
 
 		if (_labelsWereOn) {	// So this is not the first run through
 			_iconsClickable = true;
 			SetAllLabelsActiveState (true);
 			_currentIconSetIndex = iconSets.Length;
-			homeButton.interactable = true;
-			backButton.interactable = true;
-			startButton.interactable = true;
-			nextButton.interactable = false;
-			endButton.interactable = false;
+			UpdateButtonsInteractability ();
 		} else {	// This is the first time the player goes through the menu (default start to Standard Mode)
 			_currentIconSetIndex = 0;
-			homeButton.interactable = false;
-			backButton.interactable = false;
-			startButton.interactable = true;
-			nextButton.interactable = true;
-			endButton.interactable = true;
+			UpdateButtonsInteractability ();
 			yield return (PopIconsOut ());
 		}
 			
@@ -329,6 +318,11 @@ public class MenuController : MonoBehaviour {
 
 
 	private void UpdateDescriptionText (int iconSetIndex, int iconNumber, bool iconIsUnlocked) {
+		if (iconNumber == -1) {
+			descriptionText.SetUIText ("");
+			return;
+		}
+
 		if (iconIsUnlocked) {
 			descriptionText.SelectUIText (iconSetIndex, iconNumber);
 		} else {
@@ -384,13 +378,17 @@ public class MenuController : MonoBehaviour {
 	public void OnIconClicked (int iconNumber, bool iconIsUnlocked) {
 		if (!_iconsClickable)
 			return;
-		
+
 		UpdateDescriptionText (_currentIconSetIndex, iconNumber, iconIsUnlocked);
 
 		if (!iconIsUnlocked)
 			return;
 
 		_selectedIconNumbersPerIconSet [_currentIconSetIndex] = iconNumber;
+
+		// With the _selectedIconNumbersPerIconSet assigned, we can update make the nextButton.interactable = true
+		nextButton.gameObject.SetActive (true);
+		nextButton.interactable = true;
 
 		switch (_currentIconSetIndex) {
 		case 0:		// GameMode IconSet
@@ -471,10 +469,7 @@ public class MenuController : MonoBehaviour {
 
 		_currentIconSetIndex = 0;
 
-		homeButton.interactable = false;
-		backButton.interactable = false;
-		nextButton.interactable = true;
-		endButton.interactable = true;
+		UpdateButtonsInteractability ();
 
 		yield return (PopIconsOut ());
 	}
@@ -486,13 +481,7 @@ public class MenuController : MonoBehaviour {
 
 		_currentIconSetIndex--;
 
-		nextButton.interactable = true;
-		endButton.interactable = true;
-
-		if (_currentIconSetIndex == 0) {
-			homeButton.interactable = false;
-			backButton.interactable = false;
-		}
+		UpdateButtonsInteractability ();
 
 		yield return (PopIconsOut ());
 	}
@@ -501,7 +490,6 @@ public class MenuController : MonoBehaviour {
 	private IEnumerator LaunchGame () {
 
 		yield return new WaitForSeconds (1);
-		startButton.GetComponent<UnityEngine.UI.Button> ().interactable = true;
 		startButton.interactable = false;
 		SetAllIconsActiveState (false);
 		RoundManager.S.boardManager.gridSize = GetGridSize ();
@@ -514,13 +502,9 @@ public class MenuController : MonoBehaviour {
 
 		_currentIconSetIndex++;
 
-		homeButton.interactable = true;
-		backButton.interactable = true;
+		UpdateButtonsInteractability ();
 
 		if (_currentIconSetIndex == iconSets.Length) {
-			nextButton.interactable = false;
-			endButton.interactable = false;
-
 			UpdateLabels ();
 			yield return (iconsCover.StartColorBlend (true));
 		} else {
@@ -535,10 +519,7 @@ public class MenuController : MonoBehaviour {
 
 		_currentIconSetIndex = iconSets.Length;
 
-		homeButton.interactable = true;
-		backButton.interactable = true;
-		nextButton.interactable = false;
-		endButton.interactable = false;
+		UpdateButtonsInteractability ();
 
 		UpdateLabels ();
 		yield return (iconsCover.StartColorBlend (true));
@@ -630,8 +611,47 @@ public class MenuController : MonoBehaviour {
 			break;
 		}
 
-		// Highscore is always updated, so that (if showing) it will update accoding to the selection.
-		highscoreText.text = (GetHighscore ()).ToString ();
+		// Highscore is always updated (if the selection indexes have been changed from the default -1), so that (if showing) it will update accoding to the selection.
+		if (_gameModeIndex != -1 && _paceIndex != -1 && _gridSizeIndex != -1 && _behavioursIndex != -1) {
+			highscoreText.text = (GetHighscore ()).ToString ();
+		}
+
+	}
+
+
+	private void UpdateButtonsInteractability () {
+
+		if (_currentIconSetIndex == iconSets.Length) {
+			nextButton.interactable = false;
+			endButton.interactable = false;
+		} else {
+			if (_selectedIconNumbersPerIconSet [_currentIconSetIndex] == -1) {
+				nextButton.interactable = false;
+				endButton.interactable = false;
+			} else {
+				nextButton.interactable = true;
+				endButton.interactable = true;
+			}
+		}
+
+		if (_currentIconSetIndex == 0) {
+			homeButton.interactable = false;
+			backButton.interactable = false;
+		} else {
+			homeButton.interactable = true;
+			backButton.interactable = true;
+		}
+
+		bool shouldMakeStartButtonInteractable = true;
+		for (int i = 0; i < _selectedIconNumbersPerIconSet.Length; i++) {
+			shouldMakeStartButtonInteractable &= (_selectedIconNumbersPerIconSet[i] != -1);
+		}
+		if (shouldMakeStartButtonInteractable) {
+			startButton.interactable = true;
+		} else {
+			startButton.interactable = false;
+		}
+
 
 	}
 
