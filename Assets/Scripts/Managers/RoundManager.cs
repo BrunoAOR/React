@@ -66,7 +66,7 @@ public class RoundManager : MonoBehaviour {
 	public Animated3DText pausePenalty3DText;
 
 	private float _lastUnpauseStartTime;
-	private float _lastUnpauseDuration;
+	private float _lastUnpauseDuration = 0f;
 
 	[Header ("End Game")]
 	public Text endGameText;
@@ -437,12 +437,18 @@ public class RoundManager : MonoBehaviour {
 
 
 	public void UnpausingStarted () {
-		_lastUnpauseStartTime = Time.time;
+		if (gameStage == GameStage.Timed) {
+			_lastUnpauseStartTime = Time.time;
+		} else {
+			_lastUnpauseStartTime = -1;
+		}
 	}
 
 
 	public void Unpause () {
-		_lastUnpauseDuration = Time.time - _lastUnpauseStartTime;
+		if (gameStage == GameStage.Timed && _lastUnpauseStartTime != -1) {
+			_lastUnpauseDuration = Time.time - _lastUnpauseStartTime;
+		}
 		_isPaused = false;
 	}
 
