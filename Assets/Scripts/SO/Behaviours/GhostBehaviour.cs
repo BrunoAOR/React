@@ -66,8 +66,7 @@ public class GhostBehaviour : ButtonsBehaviour {
 		if (!_started) {
 			StartBehaviour ();
 		}
-		if (unpauseDuration != 0) 
-			Debug.Log ("unpauseDuration = " + unpauseDuration);
+
 		pauseDurations += unpauseDuration;
 
 		float elapsedTime = Time.time - startTime - pauseDurations;
