@@ -56,6 +56,12 @@ public class Button : MonoBehaviour {
 	}
 
 
+	public void SetLightAlphaMultiplier (float alphaMultiplier) {
+		alphaMultiplier = Mathf.Clamp01 (alphaMultiplier);
+		_lightRim.SetAlphaMultiplier (alphaMultiplier);
+	}
+
+
 	public Color GetButtonColor () {
 		return _spriteRenderer.color;
 	}

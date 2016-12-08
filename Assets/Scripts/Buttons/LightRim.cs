@@ -8,14 +8,16 @@ public class LightRim : MonoBehaviour {
 	[Range (0,1)]
 	public float alphaValue = 0.75f;
 
-	[Space (10)]
 	[HideInInspector] public bool isLit;
 
 	private SpriteRenderer _spriteRenderer;
+	private IEnumerator _currentAlphaAnimation;
+	private float alphaMultiplier = 1f;
 
 	void Awake () {
 		_spriteRenderer = GetComponent<SpriteRenderer> ();
 		gameObject.SetActive (false);
+		alphaMultiplier = 1f;
 	}
 
 
@@ -31,17 +33,31 @@ public class LightRim : MonoBehaviour {
 	}
 
 
+	public void SetAlphaMultiplier (float newAlphaMultiplier) {
+		alphaMultiplier = Mathf.Clamp01 (newAlphaMultiplier);
+	}
+
+
 	public void TurnLightOn () {
 		isLit = true;
 		gameObject.SetActive (true);
-		StartCoroutine (AlphaAnimation ());
+
+		if (_currentAlphaAnimation != null) {
+			StopCoroutine (_currentAlphaAnimation);
+			_currentAlphaAnimation = null;
+		}
+		_currentAlphaAnimation = AlphaAnimation ();
+		StartCoroutine (_currentAlphaAnimation);
 	}
 
 
 	public void TurnLightOff () {
 		isLit = false;
 		gameObject.SetActive (false);
-		StopCoroutine (AlphaAnimation ());
+		if (_currentAlphaAnimation != null) {
+			StopCoroutine (_currentAlphaAnimation);
+			_currentAlphaAnimation = null;
+		}
 		Color tColor = _spriteRenderer.color;
 		tColor.a = 1;
 		_spriteRenderer.color = tColor;
@@ -59,16 +75,21 @@ public class LightRim : MonoBehaviour {
 
 		while (isLit) {
 			float startTime = Time.time;
+			Color currentColor;
 			// During the first half of the cycle, lower the alpha to alphaValue 
 			while (Time.time - startTime < cycleDuration / 2) {
 				float u = (Time.time - startTime) / (cycleDuration / 2);
-				_spriteRenderer.color = Color.Lerp (startColor, finalColor, u);
-				yield return null; 
+				currentColor = Color.Lerp (startColor, finalColor, u);
+				currentColor.a *= alphaMultiplier;
+				_spriteRenderer.color = currentColor;
+				yield return null;
 			}
 			// During the second half of the cycle, increase the alpha back to the original value
 			while (Time.time - startTime < cycleDuration) {
 				float u = (Time.time - startTime - cycleDuration / 2) / (cycleDuration / 2);
-				_spriteRenderer.color = Color.Lerp (finalColor, startColor, u);
+				currentColor = Color.Lerp (finalColor, startColor, u);
+				currentColor.a *= alphaMultiplier;
+				_spriteRenderer.color = currentColor;
 				yield return null;
 			}
 		}

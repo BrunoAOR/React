@@ -66,7 +66,8 @@ public class GhostBehaviour : ButtonsBehaviour {
 		if (!_started) {
 			StartBehaviour ();
 		}
-
+		if (unpauseDuration != 0) 
+			Debug.Log ("unpauseDuration = " + unpauseDuration);
 		pauseDurations += unpauseDuration;
 
 		float elapsedTime = Time.time - startTime - pauseDurations;
@@ -88,8 +89,10 @@ public class GhostBehaviour : ButtonsBehaviour {
 			}
 
 			for (int i = 0; i < buttons.Length; i++) {
-				if (!buttons [i].isAnimating)
+				if (!buttons [i].isAnimating) {
 					buttons [i].SetButtonColor (currentColor);
+					buttons [i].SetLightAlphaMultiplier (currentColor.a);
+				}
 			}
 		} else {
 			// Used if there IS offset in Animation
@@ -108,11 +111,8 @@ public class GhostBehaviour : ButtonsBehaviour {
 				}
 				
 				if (!buttons [i].isAnimating) {
-					if (buttons [i].isLit) {
-						buttons [i].SetButtonColor (buttonsStartColors [i]);
-					} else {
-						buttons [i].SetButtonColor (currentColor);
-					}
+					buttons [i].SetButtonColor (currentColor);
+					buttons [i].SetLightAlphaMultiplier (currentColor.a);
 				}
 			}
 		}
