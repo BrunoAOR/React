@@ -48,6 +48,9 @@ public class IconDockImage : MonoBehaviour, IPointerClickHandler {
 
 	public void OnPointerClick (PointerEventData eventData)
 	{
+		if (!menuController.IconsInteractable ())
+			return;
+
 		menuController.OnIconClicked (iconIndex, _isUnlocked);
 
 		if (_isUnlocked) {

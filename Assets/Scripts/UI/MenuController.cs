@@ -656,6 +656,11 @@ public class MenuController : MonoBehaviour {
 	}
 
 
+	public bool IconsInteractable () {
+		return _iconsClickable;
+	}
+
+
 	private GameModeLogic GetGameModeLogic () {
 		return gameModes[_gameModeIndex * 2 + _paceIndex];
 	}
