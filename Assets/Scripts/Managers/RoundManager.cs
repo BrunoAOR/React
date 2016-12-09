@@ -18,7 +18,7 @@ public class RoundManager : MonoBehaviour {
 	public ButtonsBehaviour[] modeBehaviours;
 
 	[Header ("For Target Mode")]
-	public GameObject targetModeCanvas;
+	public GameObject targetModeSection;
 	public Image targetImage;
 
 	[Header ("Menu and Background Reference")]
@@ -36,7 +36,7 @@ public class RoundManager : MonoBehaviour {
 	public AdsController AdsController;
 
 	[Header ("Game Stage")]
-	public GameObject HUDCanvas;
+	public GameObject HUDSection;
 	public GameStage gameStage;
 
 	[Header ("Game Description")]
@@ -100,6 +100,14 @@ public class RoundManager : MonoBehaviour {
 		}
 
 		boardManager = GetComponent<BoardManager> ();
+
+		// Turn off all UICanvas sections
+		background.gameObject.SetActive (false);
+		targetModeSection.SetActive (false);
+		menuController.gameObject.SetActive (false);
+		HUDSection.SetActive (false);
+		pauseMenuController.gameObject.SetActive (false);
+		AdsController.gameObject.SetActive (false);
 	}
 
 
@@ -107,16 +115,11 @@ public class RoundManager : MonoBehaviour {
 
 		Managers.Audio.PlayMusic1 ();
 
+		background.gameObject.SetActive (true);
 		background.SetAlpha (alphaAtMenu);
-
-		AdsController.gameObject.SetActive (false);
-		HUDCanvas.SetActive (false);
-		pauseMenuController.gameObject.SetActive (false);
-		targetModeCanvas.SetActive (false);
 
 		// Control is passed on to MenuController.cs (runs Start method)
 		menuController.gameObject.SetActive (true);
-
 	}
 
 
@@ -128,7 +131,7 @@ public class RoundManager : MonoBehaviour {
 		menuController.gameObject.SetActive (false);
 		endGameText.gameObject.SetActive (false);
 		endGameTapPrompt.SetActive (false);
-		HUDCanvas.SetActive (true);
+		HUDSection.SetActive (true);
 		_timer = modeLogic.startTime;
 		animatedTimerText.AdjustFreeTimeScale (modeLogic.startTime, 0f);
 		animatedTimerText.ApplyStartConditions ();
@@ -233,7 +236,7 @@ public class RoundManager : MonoBehaviour {
 		bool wasPaused = false;
 
 		if (modeLogic.GetType() == typeof(TargetMode)) {
-			targetModeCanvas.SetActive (true);
+			targetModeSection.SetActive (true);
 			targetImage.gameObject.SetActive (false);
 			TargetMode targetMode = modeLogic as TargetMode;
 			targetMode.targetImage = targetImage;
@@ -268,7 +271,7 @@ public class RoundManager : MonoBehaviour {
 	private IEnumerator GameEnd () {
 		Debug.Log ("GAME ENDED");
 		gameStage = GameStage.GameEnd;
-		targetModeCanvas.SetActive (false);
+		targetModeSection.SetActive (false);
 
 		for (int i = 0; i < modeBehaviours.Length; i++) {
 			modeBehaviours [i].StopBehaviour ();
@@ -307,7 +310,7 @@ public class RoundManager : MonoBehaviour {
 		animatedTimerText.gameObject.SetActive (false);
 
 		// Turn off the TargetModeCanvas
-		targetModeCanvas.SetActive (false);
+		targetModeSection.SetActive (false);
 
 		// Save highscores if achieved and show a message about the score reached and if highscore was beaten or not.
 		endGameText.gameObject.SetActive (true);
@@ -335,7 +338,7 @@ public class RoundManager : MonoBehaviour {
 		endGameTapPrompt.SetActive (false);
 
 		// Turn off the HUD (Timer, score, highscore)
-		HUDCanvas.SetActive (false);
+		HUDSection.SetActive (false);
 
 		// Set background alpha
 		background.SetAlpha (alphaAtMenu);
@@ -370,10 +373,10 @@ public class RoundManager : MonoBehaviour {
 		animatedTimerText.gameObject.SetActive (false);
 
 		// Turn off the TargetModeCanvas
-		targetModeCanvas.SetActive (false);
+		targetModeSection.SetActive (false);
 
 		// Turn off the HUD (Timer, score, highscore)
-		HUDCanvas.SetActive (false);
+		HUDSection.SetActive (false);
 
 		// Change music
 		Managers.Audio.PlayMusic1 ();

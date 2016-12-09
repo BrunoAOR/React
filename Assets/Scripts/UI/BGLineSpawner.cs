@@ -30,7 +30,7 @@ public class BGLineSpawner : MonoBehaviour {
 
 	// Use this for initialization
 	void Awake () {
-		_canvasScaler = GetComponent <CanvasScaler> ();
+		_canvasScaler = GetComponentInParent <CanvasScaler> ();
 		_canvasGroup = GetComponent <CanvasGroup> ();
 
 		if (lineObjectPool == null)
