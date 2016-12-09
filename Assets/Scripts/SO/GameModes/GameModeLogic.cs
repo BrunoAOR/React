@@ -8,6 +8,7 @@ public abstract class GameModeLogic : ScriptableObject {
 	/// The name of the mode.
 	/// </summary>
 	public string modeName = "Mode name";
+	[TextArea (1,5)]
 	public string modeDescription = "Mode description";
 	[Header ("Stats info")]
 	public GameMode gameMode;

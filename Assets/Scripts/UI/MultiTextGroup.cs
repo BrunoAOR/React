@@ -7,7 +7,7 @@ public class MultiTextGroup : MonoBehaviour {
 	[System.Serializable]
 	public class TextGroup {
 		public string groupName;
-		[TextArea (1,3)]
+		[TextArea (1,4)]
 		public string[] texts;
 	}
 
