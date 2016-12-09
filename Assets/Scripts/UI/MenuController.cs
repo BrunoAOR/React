@@ -268,6 +268,7 @@ public class MenuController : MonoBehaviour {
 			SetAllLabelsActiveState (true);
 			_currentIconSetIndex = iconSets.Length;
 			UpdateButtonsInteractability ();
+			UpdateLabels ();
 		} else {	// This is the first time the player goes through the menu (default start to Standard Mode)
 			_currentIconSetIndex = 0;
 			UpdateButtonsInteractability ();
