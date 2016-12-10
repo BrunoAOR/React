@@ -7,6 +7,7 @@ public class MotionBehaviour : ButtonsBehaviour {
 	[Header ("Motion Effect")]
 	public float stopInPointDuration = 0.5f;
 	public float pointToPointDuration = 1f;
+	public bool shouldRandomizePathAfterUse = false;
 	public MotionPaths motionPathsHandler;
 
 	private bool _initialized = false;
@@ -14,6 +15,7 @@ public class MotionBehaviour : ButtonsBehaviour {
 	private Button[] buttons;
 	private int[] buttonsCurrentGridPositionIndex;
 	private Vector3[] gridPositions;
+	private Path[] gridPaths;
 	private Path gridPath;
 	private float startTime;
 	private float pauseDurations;
@@ -25,6 +27,7 @@ public class MotionBehaviour : ButtonsBehaviour {
 		buttons = null;
 		buttonsCurrentGridPositionIndex = null;
 		gridPositions = null;
+		gridPaths = null;
 		gridPath = null;
 		startTime = 0f;
 		pauseDurations = 0f;
@@ -46,7 +49,8 @@ public class MotionBehaviour : ButtonsBehaviour {
 			buttonsCurrentGridPositionIndex [i] = i;
 		}
 
-		gridPath = motionPathsHandler.GetPath (RoundManager.S.boardManager.gridSize);
+		gridPaths = motionPathsHandler.GetPaths (RoundManager.S.boardManager.gridSize);
+		gridPath = gridPaths[Random.Range(0, gridPaths.Length)];
 
 		if (gridPath == null) {
 			Debug.LogWarning ("Behaviour.InitializeBehaviour could NOT find a valid gridPath!");
@@ -83,6 +87,11 @@ public class MotionBehaviour : ButtonsBehaviour {
 			// Adjust the buttonsCurrentPositionIndex to their next position (based on the gridPath);
 			for (int i = 0; i < buttonsCurrentGridPositionIndex.Length; i++) {
 				buttonsCurrentGridPositionIndex [i] = gridPath.motions [buttonsCurrentGridPositionIndex[i]];
+			}
+
+			// With the buttons position updated based on the previous gridPath, we can change the gridPath
+			if (shouldRandomizePathAfterUse) {
+				gridPath = gridPaths[Random.Range(0, gridPaths.Length)];
 			}
 		}
 

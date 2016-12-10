@@ -17,7 +17,11 @@ public class MotionPathSubList : ScriptableObject {
 			pathIndex = Random.Range (0, paths.Length);
 		
 		return (paths [pathIndex]);
+	}
 
+
+	public Path[] GetPaths () {
+		return paths;
 	}
 
 

@@ -16,4 +16,14 @@ public class MotionPaths : ScriptableObject {
 		return null;
 	}
 
+
+	public Path[] GetPaths (int gridSize) {
+		for (int i = 0; i < motionPathSubLists.Length; i++) {
+			if (motionPathSubLists [i].gridSize == gridSize) {
+				return (motionPathSubLists [i].GetPaths ());
+			}
+		}
+		return null;
+	}
+
 }
