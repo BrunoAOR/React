@@ -184,7 +184,7 @@ public class MenuController : MonoBehaviour {
 			yield return null;
 
 		tapPrompt.SetActive (false);
-
+		Managers.Audio.PlaySFX (SFX.TapPrompt);
 
 		StartCoroutine (LogoToMenu() );
 	}
@@ -382,8 +382,12 @@ public class MenuController : MonoBehaviour {
 
 		UpdateDescriptionText (_currentIconSetIndex, iconNumber, iconIsUnlocked);
 
-		if (!iconIsUnlocked)
+		if (!iconIsUnlocked) {
+			Managers.Audio.PlaySFX (SFX.IconClicked_Locked);
 			return;
+		}
+
+		Managers.Audio.PlaySFX (SFX.IconClicked_Unlocked);
 
 		_selectedIconNumbersPerIconSet [_currentIconSetIndex] = iconNumber;
 
@@ -415,6 +419,7 @@ public class MenuController : MonoBehaviour {
 		if (!_iconsClickable)
 			return;
 
+		Managers.Audio.PlaySFX (SFX.MenuButton);
 		StartCoroutine (FirstIconSet ());
 	}
 
@@ -423,6 +428,7 @@ public class MenuController : MonoBehaviour {
 		if (!_iconsClickable)
 			return;
 
+		Managers.Audio.PlaySFX (SFX.MenuButton);
 		StartCoroutine (PreviousIconSet ());
 	}
 
@@ -433,6 +439,7 @@ public class MenuController : MonoBehaviour {
 
 		if (Managers.Lives.UseLife ()) {
 			_iconsClickable = false;
+			Managers.Audio.PlaySFX (SFX.MenuButton_GO);
 			StartCoroutine (LaunchGame ());
 		} else {
 			Debug.Log ("No tries left!");
@@ -452,6 +459,7 @@ public class MenuController : MonoBehaviour {
 			startButton.gameObject.SetActive (true);
 		}
 
+		Managers.Audio.PlaySFX (SFX.MenuButton);
 		StartCoroutine (NextIconSet ());
 	}
 
@@ -460,6 +468,7 @@ public class MenuController : MonoBehaviour {
 		if (!_iconsClickable)
 			return;
 
+		Managers.Audio.PlaySFX (SFX.MenuButton);
 		StartCoroutine (LastIconSet ());
 	}
 

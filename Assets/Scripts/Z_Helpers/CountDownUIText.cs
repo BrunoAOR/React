@@ -115,6 +115,7 @@ public class CountDownUIText : MonoBehaviour {
 
 		for (int i = countStart; i > 0; i--) {
 			_textField.text = i.ToString ("D");
+			Managers.Audio.PlaySFX (SFX.CountDown);
 
 			timeStart = localTime;
 			while (localTime - timeStart < 1) {
@@ -130,6 +131,7 @@ public class CountDownUIText : MonoBehaviour {
 		}
 
 		_textField.text = "";
+		Managers.Audio.PlaySFX (SFX.CountDownEnd);
 		_textField.color = countDownTextColor;
 
 		if (shouldZeroBlend) {

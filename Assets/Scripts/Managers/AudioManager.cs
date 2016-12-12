@@ -6,6 +6,22 @@ using System.Collections;
 // Warning was disabled because these private fields are serialized and assigned through the inspector
 #pragma warning disable 0649
 
+
+public enum SFX : int {
+	ButtonsOn,
+	ButtonUnlit,
+	IconClicked_Locked,
+	IconClicked_Unlocked,
+	MenuButton,
+	MenuButton_GO,
+	PauseButton,
+	PausePanelButton,
+	CountDown,
+	CountDownEnd,
+	TapPrompt
+}
+
+
 public class AudioManager : MonoBehaviour {
 
 	[Header ("Audio Sources")]
@@ -99,8 +115,7 @@ public class AudioManager : MonoBehaviour {
 
 
 	public void PlaySFX (SFX sfx) {
-		PlaySFX ((int) sfx
-		);
+		PlaySFX ((int) sfx);
 	}
 
 	public void PlaySFX (int sfxIdx) {

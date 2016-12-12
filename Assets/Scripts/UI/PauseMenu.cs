@@ -31,8 +31,10 @@ public class PauseMenu : MonoBehaviour {
 			return;
 		
 		if (_isPaused) {
+			Managers.Audio.PlaySFX (SFX.PausePanelButton);
 			StartCoroutine (Unpause () );
 		} else {
+			Managers.Audio.PlaySFX (SFX.PauseButton);
 			Pause ();
 		}
 	}
@@ -44,6 +46,7 @@ public class PauseMenu : MonoBehaviour {
 
 		// Checking just in case something went really bad
 		if (_isPaused) {
+			Managers.Audio.PlaySFX (SFX.PausePanelButton);
 			StartCoroutine (Unpause () );
 		}
 	}
@@ -81,10 +84,19 @@ public class PauseMenu : MonoBehaviour {
 	}
 
 
+	public void OnOptions() {
+		if (!_buttonsClickable)
+			return;
+		
+		Managers.Audio.PlaySFX (SFX.PausePanelButton);
+	}
+
+
 	public void OnQuitGame () {
 		if (!_buttonsClickable)
 			return;
 
+		Managers.Audio.PlaySFX (SFX.PausePanelButton);
 		_buttonsClickable = false;
 		StartCoroutine (QuitGame ());
 	}

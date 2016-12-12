@@ -184,6 +184,7 @@ public class RoundManager : MonoBehaviour {
 
 	public void RushTyping () {
 		if (_typingDescription) {
+			Managers.Audio.PlaySFX (SFX.TapPrompt);
 			TextTyper.RushTyping ();
 		}
 	}
@@ -231,6 +232,7 @@ public class RoundManager : MonoBehaviour {
 			yield return null;
 		}
 
+		Managers.Audio.PlaySFX (SFX.TapPrompt);
 		descriptionSubSection.SetActive (false);
 
 		Managers.Audio.PlayMusic2 ();
@@ -347,6 +349,8 @@ public class RoundManager : MonoBehaviour {
 		while (!Input.GetMouseButtonDown (0)) {
 			yield return null;
 		}
+
+		Managers.Audio.PlaySFX (SFX.TapPrompt);
 		endGameText.gameObject.SetActive (false);
 		endGameTapPrompt.SetActive (false);
 
