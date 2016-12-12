@@ -5,60 +5,101 @@ using System.Collections;
 [RequireComponent (typeof (Text))]
 public class FlashingUIText : MonoBehaviour {
 
+	public bool flashOnEnable = true;
 	public Color dimColor = new Color (1f, 1f, 1f, 0.25f);
 	public Color highlightColor = new Color (1f, 1f, 1f, 1f);
 	public float dimScale = 0.9f;
 	public float highlightScale = 1.0f;
 	public float cycleDuration = 0.5f;
 
+	private bool _setupDone = false;
+	private bool _flashing = false;
 	private Text _text;
-	private Color startColor;
-	private Vector3 startScale;
-	private float startTime;
-	private float cycleTime;
-	private float u;
-	private Color currentColor;
-	private Vector3 currentScale;
-	private float halfCycle {
+	private Color _startColor;
+	private Vector3 _startScale;
+	private float _startTime;
+	private float _cycleTime;
+	private float _u;
+	private Color _currentColor;
+	private Vector3 _currentScale;
+	private float _halfCycle {
 		get {
 			return (cycleDuration / 2);
 		}
 	}
 
 	void Awake () {
+		Setup ();
+	}
+
+
+	private void Setup () {
+		if (_setupDone)
+			return;
+
 		_text = GetComponent<Text> ();
-		startColor = _text.color;
-		startScale = _text.gameObject.transform.localScale;
+		_startColor = _text.color;
+		_startScale = _text.gameObject.transform.localScale;
+		_setupDone = true;
 	}
 
 
 	void OnEnable () {
-		startTime = Time.time;
+		if (flashOnEnable)
+			Flash ();
 	}
 
 
 	void OnDisable () {
-		_text.color = startColor;
-		_text.gameObject.transform.localScale = startScale;
+		_flashing = false;
+		_text.color = _startColor;
+		_text.gameObject.transform.localScale = _startScale;
 	}
 
-	void Update () {
-		cycleTime = (Time.time - startTime) % cycleDuration;
 
-		if (cycleTime <= halfCycle) {
+	private void Flash () {
+		Setup ();
+		_flashing = true;
+		_startTime = Time.time;
+	}
+
+
+	void Update () {
+		if (!_flashing)
+			return;
+
+		_cycleTime = (Time.time - _startTime) % cycleDuration;
+
+		if (_cycleTime <= _halfCycle) {
 			// HIGHLIGHTING
-			u = cycleTime / halfCycle;
-			currentColor = Color.Lerp (dimColor, highlightColor, u);
-			currentScale = Vector3.one * ((1 - u) * dimScale + u * highlightScale);
+			_u = _cycleTime / _halfCycle;
+			_currentColor = Color.Lerp (dimColor, highlightColor, _u);
+			_currentScale = Vector3.one * ((1 - _u) * dimScale + _u * highlightScale);
 		} else {
 			// DIMMING
-			u = (cycleTime - halfCycle) / halfCycle;
-			currentColor = Color.Lerp (highlightColor, dimColor, u);
-			currentScale = Vector3.one * ((1 - u) * highlightScale + u * dimScale);
+			_u = (_cycleTime - _halfCycle) / _halfCycle;
+			_currentColor = Color.Lerp (highlightColor, dimColor, _u);
+			_currentScale = Vector3.one * ((1 - _u) * highlightScale + _u * dimScale);
 		}
 
-		_text.color = currentColor;
-		_text.gameObject.transform.localScale = currentScale;
+		_text.color = _currentColor;
+		_text.gameObject.transform.localScale = _currentScale;
+	}
 
+
+	public void SetText (string message) {
+		Setup ();
+
+		_text.text = message;
+	}
+
+
+	public void SetFontSize (int fontSize) {
+		Setup ();
+
+		if (fontSize < 0)
+			fontSize = 0;
+		
+		_text.fontSize = fontSize;
 	}
 }

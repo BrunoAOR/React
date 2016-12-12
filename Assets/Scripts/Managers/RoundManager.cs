@@ -40,8 +40,10 @@ public class RoundManager : MonoBehaviour {
 	public GameStage gameStage;
 
 	[Header ("Game Description")]
+	public GameObject descriptionSubSection;
 	public Text descriptionTitleText;
 	public Text descriptionText;
+	public FlashingUIText descriptionTapPrompt;
 	public AudioSource _audioSource;
 	public AudioClip typingSound;
 	private bool _typingDescription = false;
@@ -131,6 +133,13 @@ public class RoundManager : MonoBehaviour {
 		menuController.gameObject.SetActive (false);
 		endGameText.gameObject.SetActive (false);
 		endGameTapPrompt.SetActive (false);
+
+		// Description related
+		descriptionSubSection.SetActive (false);
+		descriptionText.gameObject.SetActive (true);
+		descriptionTitleText.gameObject.SetActive (true);
+		descriptionTapPrompt.gameObject.SetActive (true);
+
 		HUDSection.SetActive (true);
 		_timer = modeLogic.startTime;
 		animatedTimerText.AdjustFreeTimeScale (modeLogic.startTime, 0f);
@@ -204,9 +213,11 @@ public class RoundManager : MonoBehaviour {
 		coverImage.gameObject.SetActive (true);
 		coverImage.UseStartColor ();
 
-		descriptionText.gameObject.SetActive (true);
+		descriptionSubSection.gameObject.SetActive (true);
 		descriptionText.text = "";
 		descriptionTitleText.text = modeLogic.modeName;
+
+		descriptionTapPrompt.SetText ("Tap anywhere to speed up...");
 
 		yield return new WaitForSeconds (0.5f);
 
@@ -214,11 +225,13 @@ public class RoundManager : MonoBehaviour {
 		yield return ( StartCoroutine (TextTyper.TypeText(this, descriptionText, modeLogic.modeDescription, _audioSource, typingSound)) );
 		_typingDescription = false;
 
+		descriptionTapPrompt.SetText ("Tap anywhere to continue...");
+
 		while (!Input.GetMouseButtonDown (0)) {
 			yield return null;
 		}
 
-		descriptionText.gameObject.SetActive (false);
+		descriptionSubSection.SetActive (false);
 
 		Managers.Audio.PlayMusic2 ();
 
