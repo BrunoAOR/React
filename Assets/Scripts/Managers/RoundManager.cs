@@ -237,6 +237,8 @@ public class RoundManager : MonoBehaviour {
 
 		Managers.Audio.PlayMusic2 ();
 
+		yield return new WaitForSeconds (0.25f);
+
 		yield return (StartCoroutine (countDown.StartCountDown ()) );
 
 		pauseMenuController.gameObject.SetActive (true);

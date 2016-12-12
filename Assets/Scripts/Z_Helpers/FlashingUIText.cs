@@ -51,9 +51,7 @@ public class FlashingUIText : MonoBehaviour {
 
 
 	void OnDisable () {
-		_flashing = false;
-		_text.color = _startColor;
-		_text.gameObject.transform.localScale = _startScale;
+		StopFlash ();
 	}
 
 
@@ -61,6 +59,15 @@ public class FlashingUIText : MonoBehaviour {
 		Setup ();
 		_flashing = true;
 		_startTime = Time.time;
+		_text.color = dimColor;
+		_text.gameObject.transform.localScale = dimScale * Vector3.one;
+	}
+
+
+	private void StopFlash () {
+		_flashing = false;
+		_text.color = _startColor;
+		_text.gameObject.transform.localScale = _startScale;
 	}
 
 
