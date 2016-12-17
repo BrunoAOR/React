@@ -52,10 +52,8 @@ public class IconDockImage : MonoBehaviour, IPointerClickHandler {
 			return;
 
 		menuController.OnIconClicked (iconIndex, _isUnlocked);
+		iconDocksGroup.OnIconDockClicked (_image, _isUnlocked);
 
-		if (_isUnlocked) {
-			iconDocksGroup.OnIconDockClicked (_image);
-		}
 	}
 
 	public void UpdateUnlockState (bool shouldUnlock) {
