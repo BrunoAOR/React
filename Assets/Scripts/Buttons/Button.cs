@@ -16,11 +16,6 @@ public class Button : MonoBehaviour {
 	public float highlightScale = 0.5f;
 	private Color highlightColor = Color.white;
 
-	[Header ("Time Bonus")]
-	//TODO Replace Animated3DText for AnimatedUIText
-	public Animated3DText goodTimeBonus;
-	public Animated3DText badTimeBonus;
-
 	private LightRim _lightRim;
 
 	// For animation
@@ -102,14 +97,15 @@ public class Button : MonoBehaviour {
 
 
 	public void SpawnGoodTimeBonus (float timeBonus) {
-		goodTimeBonus.displayText = Utils.GetSignedStringFromNumber(timeBonus);
-		Instantiate (goodTimeBonus, transform.position, transform.rotation);
+		Vector2 buttonPositionInViewport = Camera.main.WorldToViewportPoint (transform.position);
+		PointsSpawner.S.AnimateGoodTimeBonus (Utils.GetSignedStringFromNumber (timeBonus), buttonPositionInViewport);
 	}
 
 
 	public void SpawnBadTimeBonus (float timeBonus) {
-		badTimeBonus.displayText = Utils.GetSignedStringFromNumber (timeBonus);
-		Instantiate (badTimeBonus, transform.position, transform.rotation);
+		Vector2 buttonPositionInViewport = Camera.main.WorldToViewportPoint (transform.position);
+		PointsSpawner.S.AnimateBadTimeBonus (Utils.GetSignedStringFromNumber (timeBonus), buttonPositionInViewport);
+		
 	}
 
 
