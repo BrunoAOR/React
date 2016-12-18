@@ -371,8 +371,14 @@ public class MenuController : MonoBehaviour {
 		}
 
 		descriptionText.SetUIText (message);
+		int iconSetIndexBeforeShowingUnlockCondition = _currentIconSetIndex;
 		yield return new WaitForSeconds (showUnlockConditionDuration);
-		UpdateDescriptionText (_currentIconSetIndex, _selectedIconNumbersPerIconSet [_currentIconSetIndex], true);
+
+		// The _currentIconSetIndex might have changed if the player clicked a move Button while the text was showing the Unlock Condition
+		// If this is the case, the description text will be updated during the PopIconsOut method or should be updated (if no iconSet is opened)
+		if (iconSetIndexBeforeShowingUnlockCondition == _currentIconSetIndex) {
+			UpdateDescriptionText (_currentIconSetIndex, _selectedIconNumbersPerIconSet [_currentIconSetIndex], true);
+		}
 	}
 
 
