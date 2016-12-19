@@ -74,10 +74,13 @@ public class PauseMenu : MonoBehaviour {
 
 		pausePanel.SetActive (false);
 
+		_buttonsClickable = false;
+
 		yield return (StartCoroutine (countDown.StartCountDown() ) );
 		coverImage.gameObject.SetActive (false);
 		pauseCollider.SetActive (false);
 
+		_buttonsClickable = true;
 		_isPaused = false;
 
 		RoundManager.S.Unpause ();

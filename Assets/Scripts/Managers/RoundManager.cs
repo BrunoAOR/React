@@ -64,8 +64,6 @@ public class RoundManager : MonoBehaviour {
 	public float gamePausePenalty = -0.3f;
 	public PauseMenu pauseMenuController;
 	public RectTransform pauseButtonRectTransform;
-	//TODO Replace Animated3DText for AnimatedUIText
-	public Animated3DText pausePenalty3DText;
 
 	private float _lastUnpauseStartTime;
 	private float _lastUnpauseDuration = 0f;
@@ -446,14 +444,8 @@ public class RoundManager : MonoBehaviour {
 			_timer += gamePausePenalty;
 			SetTimerText ();
 
-			pausePenalty3DText.displayText = Utils.GetSignedStringFromNumber (gamePausePenalty);
-			Vector3 spawnPosition = new Vector3 (
-				Camera.main.ViewportToWorldPoint (new Vector3 (0.75f, 0, 0)).x,
-				Camera.main.ScreenToWorldPoint (pauseButtonRectTransform.position).y,
-				0.0f
-			);
-
-			Instantiate (pausePenalty3DText, spawnPosition, animatedTimerText.gameObject.transform.rotation);
+			Vector2 pausePenaltyPosition = new Vector2 (0.75f, (Camera.main.ScreenToViewportPoint (pauseButtonRectTransform.position)).y);
+			PointsSpawner.S.AnimateBadTimeBonus (Utils.GetSignedStringFromNumber (gamePausePenalty), pausePenaltyPosition);
 		}
 	}
 
