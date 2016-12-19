@@ -1,0 +1,24 @@
+fileFormatVersion: 2
+guid: f6f72e78e8a86d94c9fd0d58d9a0dafb
+timeCreated: 1482102234
+licenseType: Free
+TrueTypeFontImporter:
+  serializedVersion: 4
+  fontSize: 50
+  forceTextureCase: 3
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: Roboto
+  fontNames:
+  - Roboto
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: 9f755c502a985704ab19fed7cf3b42de, type: 3}
+  - {fileID: 12800000, guid: 77ed1be1313af214fafdd065e8307286, type: 3}
+  - {fileID: 12800000, guid: e8482efe63940454c915ba468db47e08, type: 3}
+  customCharacters: 'Welcomt. '
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
