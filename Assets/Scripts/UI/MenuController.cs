@@ -158,6 +158,7 @@ public class MenuController : MonoBehaviour {
 
 		SetAllIconsActiveState (false);
 		SetAllLabelsActiveState (false);
+		instructionsLabel.gameObject.SetActive (false);
 	}
 		
 
@@ -177,6 +178,7 @@ public class MenuController : MonoBehaviour {
 		nextButton.gameObject.SetActive (false);
 		endButton.gameObject.SetActive (false);
 		SetAllLabelsActiveState (false);
+		instructionsLabel.gameObject.SetActive (false);
 
 		tapPrompt.SetActive (true);
 
@@ -224,6 +226,7 @@ public class MenuController : MonoBehaviour {
 
 		_labelsWereOn = paceText.IsActive ();
 		SetAllLabelsActiveState (false);
+		instructionsLabel.gameObject.SetActive (false);
 
 		descriptionText.SetUIText ("");
 		descriptionText.gameObject.SetActive (false);
@@ -543,7 +546,6 @@ public class MenuController : MonoBehaviour {
 
 
 	private void SetAllLabelsActiveState (bool value) {
-		instructionsLabel.gameObject.SetActive (value);
 		gameModeText.gameObject.SetActive (value);
 		paceText.gameObject.SetActive (value);
 		gridSizeText.gameObject.SetActive (value);
