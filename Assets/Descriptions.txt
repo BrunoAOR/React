@@ -1,0 +1,35 @@
+Standard Mode:
+When the lights on some circles turn on, tap on them to turn them back off.
+
+Inverse Mode:
+When the lights on some circles turn on, tap on the ones that were left off.
+
+Target Mode:
+When the lights on some circles turn on, look for the "Target:" signal in the top half of the screen to know which button to tap.
+
+Relaxed:
+You have a bit of time after tapping your targets before a new series starts.
+
+Hectic:
+You have absolutely no time whatsoever after tapping your targets.
+
+Small grid:
+A 3x3 circles grid. The circles are rather big.
+
+Medium grid:
+A 4x4 circles grid. You will need increased precision.
+
+Large grid:
+A 5x5 circles grid. The circles are small so you better be precise with that finger of yours!
+
+None:
+Nothing special.
+
+Ghost:
+Targets will faint in and out. Just to be annoying.
+
+Motion:
+Targets will move around. Just to be slightly more annoying.
+
+Ghost + Motion:
+You guessed it... Targets will faint in and out AND move around. How annoying is that?!

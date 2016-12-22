@@ -94,7 +94,7 @@ public class MenuController : MonoBehaviour {
 	public ButtonsBehaviour[] behaviours;
 
 	[Header ("Icons")]
-	public MultiTextGroup descriptionText;
+	public LanguageMultiTextGroup descriptionText;
 	public IconSet[] iconSets;
 	[Range (0f, 5f)]
 	public float showUnlockConditionDuration = 2f;
@@ -110,7 +110,7 @@ public class MenuController : MonoBehaviour {
 
 	[Header ("Welcome Screen")]
 	public UIMover logoMover;
-	public Text welcomeText;
+	public GameObject welcomeText;
 	public GameObject tapPrompt;
 	public GameObject livesPanel;
 
@@ -131,7 +131,7 @@ public class MenuController : MonoBehaviour {
 	private Scaler _menuBGScaler;
 
 	[Header ("Labels and Texts")]
-	public MultiTextGroup instructionsLabel;
+	public LanguageMultiTextGroup instructionsLabel;
 	public Text gameModeText;
 	public Text paceText;
 	public Text gridSizeText;
@@ -228,7 +228,7 @@ public class MenuController : MonoBehaviour {
 		SetAllLabelsActiveState (false);
 		instructionsLabel.gameObject.SetActive (false);
 
-		descriptionText.SetUIText ("");
+		descriptionText.ClearText ();
 		descriptionText.gameObject.SetActive (false);
 
 	}
@@ -323,7 +323,7 @@ public class MenuController : MonoBehaviour {
 
 	private void UpdateDescriptionText (int iconSetIndex, int iconNumber, bool iconIsUnlocked) {
 		if (iconNumber == -1) {
-			descriptionText.SetUIText ("");
+			descriptionText.ClearText ();
 			return;
 		}
 
@@ -575,7 +575,7 @@ public class MenuController : MonoBehaviour {
 			gameModeText.text = tText;
 			break;
 		
-		case 1:		// Pace Selection
+		case 1:		// Pace Selection	
 			paceText.gameObject.SetActive (true);
 			switch (_paceIndex) {
 			case 0:
