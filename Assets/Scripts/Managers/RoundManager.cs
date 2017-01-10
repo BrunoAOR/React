@@ -82,12 +82,12 @@ public class RoundManager : MonoBehaviour {
 	private string _highscoreString;
 	private string _highscoreBeatenString {
 		get {
-			return ("You beat the highscore of " + _highscoreString + " with " + _score + " points!");
+			return (string.Format ("You beat the highscore of {0} with {1} points!", _highscoreString, _score));
 		}
 	}
 	private string _highscoreNotBeatenString {
 		get {
-			return (_score + " points were not enough to beat the highscore of " + _highscoreString + "...");
+			return (string.Format ("{0} points were not enough to beat the highscore of {1}...", _score, _highscoreString));
 		}
 	}
 
