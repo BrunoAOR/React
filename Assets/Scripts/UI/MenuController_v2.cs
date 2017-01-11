@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MenuController_v2 : MonoBehaviour, IMenuController {
+public class MenuController_v2 : MenuControllerBase {
 
 
-	public void SetActive (bool _) {
-		SetActive (_);
+	public override void SetActive (bool _) {
+		gameObject.SetActive (_);
 	}
 
-	public IEnumerator PopMenu () {
+	public override IEnumerator PopMenu () {
 
 		yield break;
 	}

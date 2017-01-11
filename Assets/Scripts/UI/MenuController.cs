@@ -2,7 +2,7 @@
 using UnityEngine.UI;
 using System.Collections;
 
-public class MenuController : MonoBehaviour, IMenuController {
+public class MenuController : MenuControllerBase {
 
 	[System.Serializable]
 	public class IconSet {
@@ -198,9 +198,8 @@ public class MenuController : MonoBehaviour, IMenuController {
 		}
 	}
 
-
-	public void SetActive (bool _) {
-		SetActive (_);
+	public override void SetActive (bool _) {
+		gameObject.SetActive (_);
 	}
 
 	private IEnumerator LogoToMenu () {
@@ -219,7 +218,6 @@ public class MenuController : MonoBehaviour, IMenuController {
 		yield return (PopMenu ());
 
 	}
-
 
 	void OnEnable () {
 		buttonsParent.SetActive (false);
@@ -259,7 +257,7 @@ public class MenuController : MonoBehaviour, IMenuController {
 	}
 
 
-	public IEnumerator PopMenu () {
+	public override IEnumerator PopMenu () {
 
 		// Verify and update UnlockState of icons
 		UpdateIconsUnlockState ();

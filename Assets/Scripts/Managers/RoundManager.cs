@@ -22,7 +22,7 @@ public class RoundManager : MonoBehaviour {
 	public Image targetImage;
 
 	[Header ("Menu and Background Reference")]
-	public IMenuController menuController;
+	public MenuControllerBase menuController;
 	public BGLineSpawner background;
 	[Range (0f,1f)]
 	public float alphaAtMenu = 1.0f;
