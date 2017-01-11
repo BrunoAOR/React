@@ -109,12 +109,7 @@ public class MenuController : MenuControllerBase {
 	private IEnumerator _currentShowUnlockConditionCoroutine;
 
 	[Header ("Welcome Screen")]
-	public UIMover logoMover;
-	public Text welcomeText;
-	public GameObject tapPrompt;
-	public GameObject livesPanel;
-
-	private ColorBlenderUIGraphic _welcomeTextBlender;
+	public MenuIntroController introController;
 
 	[Header ("Menu")]
 	public ColorBlenderUIGraphic menuBGBlender;
@@ -142,7 +137,6 @@ public class MenuController : MenuControllerBase {
 	private bool _labelsWereOn  = false;
 
 	void Awake () {
-		_welcomeTextBlender = welcomeText.GetComponent<ColorBlenderUIGraphic> ();
 		_menuBGScaler = menuBGBlender.GetComponent <Scaler> ();
 
 		_labelsWereOn = false;
@@ -154,8 +148,6 @@ public class MenuController : MenuControllerBase {
 		_selectedIconNumbersPerIconSet = new int[4] {-1, -1, -1, -1};
 		_currentShowUnlockConditionCoroutine = null;
 
-		livesPanel.SetActive (false);
-
 		SetAllIconsActiveState (false);
 		SetAllLabelsActiveState (false);
 		instructionsLabel.gameObject.SetActive (false);
@@ -165,8 +157,6 @@ public class MenuController : MenuControllerBase {
 	IEnumerator Start () {
 		InitializeIconSets ();
 
-		logoMover.SnapToStart ();
-		welcomeText.gameObject.SetActive (true);
 		menuBGBlender.gameObject.SetActive (false);
 		SetAllIconsActiveState (false);
 		iconsCover.gameObject.SetActive (false);
@@ -180,15 +170,8 @@ public class MenuController : MenuControllerBase {
 		SetAllLabelsActiveState (false);
 		instructionsLabel.gameObject.SetActive (false);
 
-		tapPrompt.SetActive (true);
-
-		while (!Input.GetMouseButtonDown (0))
-			yield return null;
-
-		tapPrompt.SetActive (false);
-		Managers.Audio.PlaySFX (SFX.TapPrompt);
-
-		StartCoroutine (LogoToMenu() );
+		yield return (introController.Intro ());
+		StartCoroutine (PopMenu ());
 	}
 
 
@@ -200,23 +183,6 @@ public class MenuController : MenuControllerBase {
 
 	public override void SetActive (bool _) {
 		gameObject.SetActive (_);
-	}
-
-	private IEnumerator LogoToMenu () {
-		welcomeText.gameObject.SetActive (true);
-
-		// Blend out and setActive(false) for the welcomeText
-		StartCoroutine (_welcomeTextBlender.StartColorBlend () );
-
-		// Dim out and then back to full alpha for the logo...
-		StartCoroutine (logoMover.GetComponent<ColorBlenderUIGraphic> ().StartColorBlend (false));
-		// ... as it moves up
-		yield return (logoMover.MoveToTarget ());
-
-		livesPanel.SetActive (true);
-
-		yield return (PopMenu ());
-
 	}
 
 	void OnEnable () {
