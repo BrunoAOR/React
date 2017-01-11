@@ -479,8 +479,7 @@ public class MenuController : MenuControllerBase {
 		yield return new WaitForSeconds (1);
 		startButton.interactable = false;
 		SetAllIconsActiveState (false);
-		RoundManager.S.boardManager.gridSize = GetGridSize ();
-		RoundManager.S.StartGame (GetGameModeLogic(), GetButtonsBehaviours());
+		RoundManager.S.StartGame (GetGameModeLogic(), GetGridSize(), GetButtonsBehaviours());
 	}
 
 

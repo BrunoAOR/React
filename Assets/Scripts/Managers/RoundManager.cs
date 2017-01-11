@@ -123,9 +123,10 @@ public class RoundManager : MonoBehaviour {
 	}
 
 
-	public void StartGame (GameModeLogic selectedModeLogic, ButtonsBehaviour[] selectedButtonBehaviours) {
+	public void StartGame (GameModeLogic selectedModeLogic, int gridSize, ButtonsBehaviour[] selectedButtonBehaviours) {
 		modeLogic = selectedModeLogic;
 		modeLogic.InitializeGameMode ();
+		boardManager.gridSize = gridSize;
 		modeBehaviours = selectedButtonBehaviours;
 
 		menuController.SetActive (false);
