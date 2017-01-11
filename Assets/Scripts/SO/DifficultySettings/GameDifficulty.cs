@@ -1,5 +1,11 @@
 ﻿using UnityEngine;
 
+public enum Difficulty {
+	Easy,
+	Medium,
+	Hard
+}
+
 [CreateAssetMenu (menuName = "Game Difficulty", fileName = "New Game Difficulty")]
 public class GameDifficulty : ScriptableObject {
 
