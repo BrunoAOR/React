@@ -22,7 +22,7 @@ public class RoundManager : MonoBehaviour {
 	public Image targetImage;
 
 	[Header ("Menu and Background Reference")]
-	public MenuController menuController;
+	public IMenuController menuController;
 	public BGLineSpawner background;
 	[Range (0f,1f)]
 	public float alphaAtMenu = 1.0f;
@@ -104,7 +104,7 @@ public class RoundManager : MonoBehaviour {
 		// Turn off all UICanvas sections
 		background.gameObject.SetActive (false);
 		targetModeSection.SetActive (false);
-		menuController.gameObject.SetActive (false);
+		menuController.SetActive (false);
 		HUDSection.SetActive (false);
 		pauseMenuController.gameObject.SetActive (false);
 		AdsController.gameObject.SetActive (false);
@@ -119,7 +119,7 @@ public class RoundManager : MonoBehaviour {
 		background.SetAlpha (alphaAtMenu);
 
 		// Control is passed on to MenuController.cs (runs Start method)
-		menuController.gameObject.SetActive (true);
+		menuController.SetActive (true);
 	}
 
 
@@ -128,7 +128,7 @@ public class RoundManager : MonoBehaviour {
 		modeLogic.InitializeGameMode ();
 		modeBehaviours = selectedButtonBehaviours;
 
-		menuController.gameObject.SetActive (false);
+		menuController.SetActive (false);
 		endGameText.gameObject.SetActive (false);
 		endGameTapPrompt.SetActive (false);
 
@@ -361,7 +361,7 @@ public class RoundManager : MonoBehaviour {
 		background.SetAlpha (alphaAtMenu);
 
 		// Control is passed on to MenuController.cs
-		menuController.gameObject.SetActive (true);
+		menuController.SetActive (true);
 		StartCoroutine (menuController.PopMenu () );
 
 	}
@@ -402,7 +402,7 @@ public class RoundManager : MonoBehaviour {
 		background.SetAlpha (alphaAtMenu);
 
 		// Control is passed on to MenuController.cs
-		menuController.gameObject.SetActive (true);
+		menuController.SetActive (true);
 		StartCoroutine (menuController.PopMenu () );
 
 	}

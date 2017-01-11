@@ -2,7 +2,7 @@
 using UnityEngine.UI;
 using System.Collections;
 
-public class MenuController : MonoBehaviour {
+public class MenuController : MonoBehaviour, IMenuController {
 
 	[System.Serializable]
 	public class IconSet {
@@ -198,6 +198,10 @@ public class MenuController : MonoBehaviour {
 		}
 	}
 
+
+	public void SetActive (bool _) {
+		SetActive (_);
+	}
 
 	private IEnumerator LogoToMenu () {
 		welcomeText.gameObject.SetActive (true);
