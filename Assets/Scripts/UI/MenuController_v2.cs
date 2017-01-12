@@ -4,16 +4,22 @@ using UnityEngine;
 
 public class MenuController_v2 : MenuControllerBase {
 
+	[Header ("Data")]
+	public GameModeLogic[] gameModes;
+	public GameDifficulty[] gameDifficulties;
+
 	[Header ("Welcome Screen")]
 	public MenuIntroController introController;
-	public Transform gameModePanels;
+
+	[Header ("Panels")]
+	public MenuPanelsController panelsController;
 
 	public override void SetActive (bool _) {
 		gameObject.SetActive (_);
 	}
 
 	void Awake () {
-		gameModePanels.gameObject.SetActive (false);
+		panelsController.gameObject.SetActive (false);
 	}
 
 	IEnumerator Start () {
@@ -21,10 +27,35 @@ public class MenuController_v2 : MenuControllerBase {
 		StartCoroutine (PopMenu ());
 	}
 
-	public override IEnumerator PopMenu () {
+	public void PopMenuC () {
+		StartCoroutine (PopMenu ());
+	}
 
-		yield return new WaitForSeconds (1);
-		gameModePanels.gameObject.SetActive (true);
-		yield break;
+	public override IEnumerator PopMenu () {
+		panelsController.gameObject.SetActive (true);
+		yield return (panelsController.ScrollInOut (MenuPanelsController.MenuDirection.In));
+	}
+
+	public void LaunchGame (GameMode gameMode, Difficulty difficulty) {
+		StartCoroutine (LaunchGameCoroutine (gameMode, difficulty));
+	}
+
+	private IEnumerator LaunchGameCoroutine (GameMode gameMode, Difficulty difficulty) {
+		yield return (panelsController.ScrollInOut (MenuPanelsController.MenuDirection.Out));
+		panelsController.gameObject.SetActive (false);
+		RoundManager.S.StartGame (GetGameModeLogic (gameMode), GetGridSize (difficulty), GetButtonsBehaviours (difficulty));
+		Debug.Log ("Launch Game Done");
+	}
+
+	private GameModeLogic GetGameModeLogic (GameMode gameMode) {
+		return gameModes[(int)gameMode];
+	}
+
+	private int GetGridSize (Difficulty difficulty) {
+		return ((int)(gameDifficulties [(int)difficulty].gridSize));
+	}
+
+	private ButtonsBehaviour[] GetButtonsBehaviours (Difficulty difficulty) {
+		return (gameDifficulties [(int)difficulty].buttonsBehaviours);
 	}
 }

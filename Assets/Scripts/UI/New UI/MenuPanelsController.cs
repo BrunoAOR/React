@@ -4,16 +4,39 @@ using UnityEngine;
 
 public class MenuPanelsController : MonoBehaviour {
 
+	public enum MenuDirection {
+		Out = -1,
+		In = 1
+	}
+
+	public MenuController_v2 menuController;
 	public MenuGameModePanel[] gameModePanels;
 	private int currentPanelIndex;
-	public float scrollDuration = 1f;
+	public float sideScrollDuration = 0.5f;
+	[Range (0f, 1f)]
+	public float sideScrollAfterBounce = 0.35f;
+	public float inOutScrollDuration = 0.5f;
+	[Range (0f, 1f)]
+	public float inOutScrollBounce = 0.2f;
+	public float scrollOutYOffset = 1136f;
+
+	private float originalYPos;
 
 	void Awake () {
+		originalYPos = transform.localPosition.y;
 		currentPanelIndex = 0;
 		gameModePanels [currentPanelIndex].SetEnabled (true);
+
+		for (int i = 1; i < gameModePanels.Length; i++) {
+			gameModePanels [i].SetEnabled (false);
+		}
+
+		// Start with the panels below (negative y) the screen
+		transform.localPosition = new Vector3 (transform.localPosition.x, transform.localPosition.y - scrollOutYOffset, transform.localPosition.z);
 	}
 
 	void Reset () {
+		menuController = GetComponentInParent<MenuController_v2> ();
 		gameModePanels = GetComponentsInChildren<MenuGameModePanel> ();
 	}
 
@@ -27,7 +50,10 @@ public class MenuPanelsController : MonoBehaviour {
 		Debug.Log ("Scrolling " + direction + " from " + gameModePanels [currentPanelIndex].gameMode.ToString () + " to " + gameModePanels [currentPanelIndex + (int)direction].gameMode.ToString ());
 
 		StartCoroutine (ScrollPanelsTowards (direction));
+	}
 
+	public void OnDifficultyButtonClicked (GameMode gameMode, Difficulty difficulty) {
+		menuController.LaunchGame (gameMode, difficulty);
 	}
 
 	private IEnumerator ScrollPanelsTowards (MenuArrow.Direction direction) {
@@ -36,15 +62,23 @@ public class MenuPanelsController : MonoBehaviour {
 		float startXPos = transform.localPosition.x;
 		float targetXPos = -gameModePanels [currentPanelIndex + (int)direction].transform.localPosition.x;
 
-		Debug.Log ("Moving from " + startXPos + " to " + targetXPos);
-
-		Vector3 currentPos = new Vector3 (startXPos, transform.localPosition.y, transform.localPosition.z);
+		Vector3 currentPos = transform.localPosition;
 		float u = 0;
+		float n = 0;
+		float u2 = 0;
 		float startTime = Time.time;
 
-		while ((Time.time - startTime) < scrollDuration) {
-			u = (Time.time - startTime) / scrollDuration;
-			currentPos.x = (1 - u) * startXPos + u * targetXPos;
+		while ((Time.time - startTime) < sideScrollDuration) {
+			u = (Time.time - startTime) / sideScrollDuration;
+
+			if (u <= 0.5) {
+				n = 1 + 2 * Mathf.PI * sideScrollAfterBounce;
+				u2 = Mathf.Pow (2, n - 1) * Mathf.Pow (u, n);
+			} else {
+				u2 = u - sideScrollAfterBounce * Mathf.Sin (2 * Mathf.PI * u);
+			}
+
+			currentPos.x = (1 - u2) * startXPos + u2 * targetXPos;
 			transform.localPosition = currentPos;
 			yield return null;
 		}
@@ -54,6 +88,48 @@ public class MenuPanelsController : MonoBehaviour {
 
 		currentPanelIndex += (int)direction;
 		gameModePanels [currentPanelIndex].SetEnabled (true);
+	}
+
+	public IEnumerator ScrollInOut (MenuDirection direction) {
+		if (direction == MenuDirection.Out) {
+			gameModePanels [currentPanelIndex].SetEnabled (false);
+		}
+
+		float startYPos = transform.localPosition.y;
+		float targetYPos = 0;
+		if (direction == MenuDirection.In) {
+			targetYPos = originalYPos;
+		} else {
+			targetYPos = originalYPos - scrollOutYOffset;
+		}
+
+		Vector3 currentPos = transform.localPosition;
+		float u = 0;
+		float n = 0;
+		float u2 = 0;
+		float startTime = Time.time;
+
+		while ((Time.time - startTime) < inOutScrollDuration) {
+			u = (Time.time - startTime) / inOutScrollDuration;
+
+			if (u <= 0.5) {
+				n = 1 + 2 * Mathf.PI * inOutScrollBounce;
+				u2 = Mathf.Pow (2, n - 1) * Mathf.Pow (u, n);
+			} else {
+				u2 = u - inOutScrollBounce * Mathf.Sin (2 * Mathf.PI * u);
+			}
+
+			currentPos.y = (1 - u2) * startYPos + u2 * targetYPos;
+			transform.localPosition = currentPos;
+			yield return null;
+		}
+
+		currentPos.y = targetYPos;
+		transform.localPosition = currentPos;
+
+		if (direction == MenuDirection.In) {
+			gameModePanels [currentPanelIndex].SetEnabled (true);
+		}
 	}
 
 }

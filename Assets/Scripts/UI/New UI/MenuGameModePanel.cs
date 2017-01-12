@@ -11,10 +11,6 @@ public class MenuGameModePanel : MonoBehaviour {
 	public float alphaWhenDisabled = 0.5f;
 	private bool interactable;
 
-	void Awake () {
-		SetEnabled (false);
-	}
-
 	void Reset () {
 		parentPanelsController = GetComponentInParent<MenuPanelsController> ();
 		canvasGroup = GetComponent<CanvasGroup> ();
@@ -25,6 +21,7 @@ public class MenuGameModePanel : MonoBehaviour {
 			return;
 
 		Debug.Log (direction.ToString () + " arrow clicked on " + gameMode.ToString () + " mode.");
+		Managers.Audio.PlaySFX (SFX.MenuButton);
 		parentPanelsController.OnArrowClicked (this, direction);
 	}
 
@@ -33,6 +30,8 @@ public class MenuGameModePanel : MonoBehaviour {
 			return;
 
 		Debug.Log (difficulty.ToString () + " button clicked on " + gameMode.ToString () + " mode.");
+		Managers.Audio.PlaySFX (SFX.MenuButton_GO);
+		parentPanelsController.OnDifficultyButtonClicked (gameMode, difficulty);
 	}
 
 	public void SetEnabled (bool _) {
