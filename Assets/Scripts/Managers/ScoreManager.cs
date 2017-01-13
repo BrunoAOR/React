@@ -111,29 +111,21 @@ public class ScoreManager : MonoBehaviour {
 	}
 
 
-	public bool SetHighscore (GameModeLogic gameMode, int gridSize, ButtonsBehaviour[] behaviours) {
-		string gameModeName = gameMode.modeName;
-
-		bool newHighscore =	highscores.SetHighscore (score, gameModeName, gridSize, behaviours);
+	public bool SetHighscore (GameMode gameMode, Difficulty difficulty) {
+		bool newHighscore = highscores.SetHighscore (gameMode, difficulty, score);
 
 		if (newHighscore) {
 			DataManager.Save_Highscores (highscores);
 		}
 
-		return (newHighscore);
-		
+		return newHighscore;
 	}
 
 
-
-	public int GetHighscore (GameModeLogic gameMode, int gridSize, ButtonsBehaviour[] behaviours) {
-		string gameModeName = gameMode.modeName;
-
-		int storedHighscore = highscores.GetHighscore (gameModeName, gridSize, behaviours);
-
-		return (storedHighscore);
+	public int GetHighscore (GameMode gameMode, Difficulty difficulty) {
+		return (highscores.GetHighscore (gameMode, difficulty));
 	}
-
+	
 
 	public void SetHighscores (Highscores loadedHighscores) {
 		highscores = loadedHighscores;

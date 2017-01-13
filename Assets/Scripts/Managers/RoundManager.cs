@@ -17,6 +17,10 @@ public class RoundManager : MonoBehaviour {
 	public GameModeLogic modeLogic;
 	public ButtonsBehaviour[] modeBehaviours;
 
+	[Header ("Game info")]
+	public GameMode gameMode;
+	public Difficulty difficulty;
+
 	[Header ("For Target Mode")]
 	public GameObject targetModeSection;
 	public Image targetImage;
@@ -122,6 +126,13 @@ public class RoundManager : MonoBehaviour {
 		menuController.SetActive (true);
 	}
 
+	public void StartGame (GameMode gameMode, Difficulty difficulty) {
+		this.gameMode = gameMode;
+		this.difficulty = difficulty;
+		GameModeLogic logic = Managers.Enums.GetGameModeLogic (gameMode);
+		GameDifficulty gameDifficulty = Managers.Enums.GetGameDifficulty (difficulty);
+		StartGame (logic, (int)gameDifficulty.gridSize, gameDifficulty.buttonsBehaviours);
+	}
 
 	public void StartGame (GameModeLogic selectedModeLogic, int gridSize, ButtonsBehaviour[] selectedButtonBehaviours) {
 		modeLogic = selectedModeLogic;
@@ -331,19 +342,19 @@ public class RoundManager : MonoBehaviour {
 		// Save highscores if achieved and show a message about the score reached and if highscore was beaten or not.
 		endGameText.gameObject.SetActive (true);
 		_score = Managers.Score.GetScore ().ToString ();
-		_highscoreString = Managers.Score.GetHighscore (modeLogic, boardManager.gridSize, modeBehaviours).ToString ();
+		_highscoreString = Managers.Score.GetHighscore (gameMode, difficulty).ToString ();
 
-		bool newHighScore = Managers.Score.SetHighscore (modeLogic, boardManager.gridSize, modeBehaviours);
+		bool newHighScore = Managers.Score.SetHighscore (gameMode, difficulty);
 		if (newHighScore) {
-			Debug.Log ("Score: " + Managers.Score.GetScore() + "|New High Score of " + Managers.Score.GetHighscore (modeLogic, boardManager.gridSize, modeBehaviours) + " reached.");
+			Debug.Log ("Score: " + Managers.Score.GetScore() + "|Old High Score of " + _highscoreString + " beaten.");
 			endGameText.text = _highscoreBeatenString;
 		} else {
 			endGameText.text = _highscoreNotBeatenString;
-			Debug.Log ("Score: " + Managers.Score.GetScore() + "|High Score of " + Managers.Score.GetHighscore (modeLogic, boardManager.gridSize, modeBehaviours) + " remains undefeated.");
+			Debug.Log ("Score: " + Managers.Score.GetScore() + "|High Score of " + _highscoreString + " remains undefeated.");
 		}
 
 		// Register the round in the StatsManager
-		Managers.Stats.RegisterPlay (GetStatsGameMode (), GetStatsGamePace (), GetStatsGridSize (), GetStatsBehaviour (), Managers.Score.GetScore() );
+		Managers.Stats.RegisterPlay (gameMode, difficulty, Managers.Score.GetScore());
 
 		endGameTapPrompt.SetActive (true);
 		// Wait for a tap

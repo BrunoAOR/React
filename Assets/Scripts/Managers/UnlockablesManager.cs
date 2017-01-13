@@ -3,88 +3,55 @@ using System.Collections;
 
 public class UnlockablesManager : MonoBehaviour {
 
-	public MenuController menuController;
-	public UnlockConditionGroup[] unlockConditionGroups;
-	private bool[][] isIconSetIconUnlocked;
-
+	public GameModeUnlockables[] gameModes;
+	private bool[][] isDifficultyUnlocked;
 
 	void Awake () {
-		isIconSetIconUnlocked = new bool[4][];
-		isIconSetIconUnlocked [0] = new bool[3] {true, false, false};
-		isIconSetIconUnlocked [1] = new bool[2] {true, false};
-		isIconSetIconUnlocked [2] = new bool[3] {true, false, false};
-		isIconSetIconUnlocked [3] = new bool[4] {true, false, false, false};
+		isDifficultyUnlocked = new bool[gameModes.Length][];
+		for (int i = 0; i < isDifficultyUnlocked.Length; i++) {
+			isDifficultyUnlocked[i] = new bool[gameModes[i].difficulties.Length];
+			for (int j = 0; j < gameModes [i].difficulties.Length; j++) {
+				isDifficultyUnlocked[i][j] = false;
+			}
+		}
+		isDifficultyUnlocked [0] [0] = true;
 	}
 
-	public UnlockCondition GetUnlockCondition (int iconSetIndex, int iconIndex) {
-		return (unlockConditionGroups [iconSetIndex].unlockConditions [iconIndex]);
+	public UnlockCondition GetUnlockCondition (int gameModeIndex, int difficultyIndex) {
+		return (gameModes [gameModeIndex].difficulties [difficultyIndex].conditionToUnlock);
 	}
 
 	public bool[][] GetUnlockStates () {
 		UpdateUnlockConditionResults ();
-		return isIconSetIconUnlocked;
+		return isDifficultyUnlocked;
 	}
 
-	public bool GetUnlockState (int iconSetIndex, int iconIndex) {
-		if (iconSetIndex < 0 || iconSetIndex >= isIconSetIconUnlocked.Length || iconIndex < 0 || iconIndex >= isIconSetIconUnlocked [iconSetIndex].Length) {
+	public bool GetUnlockState (int gameModeIndex, int difficultyIndex) {
+		if (gameModeIndex < 0 || gameModeIndex >= isDifficultyUnlocked.Length || difficultyIndex < 0 || difficultyIndex >= isDifficultyUnlocked [gameModeIndex].Length) {
 			return false;
 		}
 
 		UpdateUnlockConditionResults ();
-		return isIconSetIconUnlocked[iconSetIndex][iconIndex];
+		return isDifficultyUnlocked[gameModeIndex][difficultyIndex];
 	}
 
 	private void UpdateUnlockConditionResults () {
-		for (int i = 0; i < isIconSetIconUnlocked.Length; i++) {
-			for (int j = 0; j < isIconSetIconUnlocked [i].Length; j++) {
-				isIconSetIconUnlocked [i] [j] = ConditionAchieved (unlockConditionGroups [i].unlockConditions [j]);
+		for (int i = 0; i < isDifficultyUnlocked.Length; i++) {
+			for (int j = 0; j < isDifficultyUnlocked [i].Length; j++) {
+				isDifficultyUnlocked [i] [j] = IsConditionAchieved (gameModes [i].difficulties [j].conditionToUnlock);
 			}
 		}
 	}
 
-	private bool ConditionAchieved (UnlockCondition condition) {
+	private bool IsConditionAchieved (UnlockCondition condition) {
 		int currentValue = int.MinValue;
 
-		switch (condition.fieldA) {
-		case UnlockCondition.FieldA.GameMode:
-			switch (condition.fieldB) {
-			case UnlockCondition.FieldB.PlayCount:
-				currentValue = Managers.Stats.GetPlayCount (condition.gameMode);
-				break;
-			case UnlockCondition.FieldB.CumulativeScore:
-				currentValue = Managers.Stats.GetCumulativeScore (condition.gameMode);
-				break;
-			}
+		switch (condition.aCountOf) {
+		case UnlockCondition.CountOf.PlayCount:
+			currentValue = Managers.Stats.GetPlayCount (condition.gameMode, condition.difficulty);
 			break;
-		case UnlockCondition.FieldA.GamePace:
-			switch (condition.fieldB) {
-			case UnlockCondition.FieldB.PlayCount:
-				currentValue = Managers.Stats.GetPlayCount (condition.gamePace);
-				break;
-			case UnlockCondition.FieldB.CumulativeScore:
-				currentValue = Managers.Stats.GetCumulativeScore (condition.gamePace);
-				break;
-			}
-			break;
-		case UnlockCondition.FieldA.GridSize:
-			switch (condition.fieldB) {
-			case UnlockCondition.FieldB.PlayCount:
-				currentValue = Managers.Stats.GetPlayCount (condition.gridSize);
-				break;
-			case UnlockCondition.FieldB.CumulativeScore:
-				currentValue = Managers.Stats.GetCumulativeScore (condition.gridSize);
-				break;
-			}
-			break;
-		case UnlockCondition.FieldA.Behaviour:
-			switch (condition.fieldB) {
-			case UnlockCondition.FieldB.PlayCount:
-				currentValue = Managers.Stats.GetPlayCount (condition.behaviour);
-				break;
-			case UnlockCondition.FieldB.CumulativeScore:
-				currentValue = Managers.Stats.GetCumulativeScore (condition.behaviour);
-				break;
-			}
+		case UnlockCondition.CountOf.CumulativeScore:
+			currentValue = Managers.Stats.GetCumulativeScore (condition.gameMode, condition.difficulty);
 			break;
 		}
 
@@ -94,24 +61,25 @@ public class UnlockablesManager : MonoBehaviour {
 			return false;
 		}
 	}
+}
 
+[System.Serializable] 
+public class GameModeUnlockables {
+	public GameMode gameMode;
+	public UnlockableDifficulty[] difficulties;
 }
 
 [System.Serializable]
-public class UnlockConditionGroup {
-	public UnlockCondition[] unlockConditions;
+public class UnlockableDifficulty {
+	public Difficulty difficulty;
+	public UnlockCondition conditionToUnlock;
 }
 
 [System.Serializable]
 public class UnlockCondition {
-	public enum FieldA {GameMode, GamePace, GridSize, Behaviour}
-	public enum FieldB {PlayCount, CumulativeScore}
-
-	public FieldA fieldA;
+	public enum CountOf {PlayCount, CumulativeScore}
 	public GameMode gameMode;
-	public GamePace gamePace;
-	public GridSize gridSize;
-	public Behaviour behaviour;
-	public FieldB fieldB;
+	public Difficulty difficulty;
+	public CountOf aCountOf;
 	public int minValue;
 }

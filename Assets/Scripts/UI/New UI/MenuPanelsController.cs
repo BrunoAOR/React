@@ -9,7 +9,7 @@ public class MenuPanelsController : MonoBehaviour {
 		In = 1
 	}
 
-	public MenuController_v2 menuController;
+	public MenuController menuController;
 	public MenuGameModePanel[] gameModePanels;
 	private int currentPanelIndex;
 	public float sideScrollDuration = 0.5f;
@@ -36,8 +36,28 @@ public class MenuPanelsController : MonoBehaviour {
 	}
 
 	void Reset () {
-		menuController = GetComponentInParent<MenuController_v2> ();
+		menuController = GetComponentInParent<MenuController> ();
 		gameModePanels = GetComponentsInChildren<MenuGameModePanel> ();
+	}
+
+	public void SetButtonsColors (Color unlockedColor, Color lockedColor, Color lockImageColor) {
+		for (int i = 0; i < gameModePanels.Length; i++) {
+			gameModePanels[i].SetButtonsColors (unlockedColor, lockedColor, lockImageColor);
+		}
+	}
+
+	public void UpdateUnlockStates (bool[][] unlockStates) {
+		if (gameModePanels.Length != unlockStates.Length) {
+			Debug.LogError ("The number of panel unlock states passed in (" + unlockStates.Length + 
+				") is different from the number of game mode panels (" + gameModePanels.Length + 
+				") available!"
+			);
+			return;
+		}
+
+		for (int i = 0; i < gameModePanels.Length; i++) {
+			gameModePanels [i].UpdateUnlockStates (unlockStates [i]);
+		}
 	}
 
 	public void OnArrowClicked (MenuGameModePanel callingPanel, MenuArrow.Direction direction) {

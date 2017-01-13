@@ -5,69 +5,40 @@ using System.Collections.Generic;
 [System.Serializable]
 public class Highscores {
 
-	private Dictionary<string, Dictionary<int,Dictionary<int,int>>> gameModeDictionary;	// gameModeName, gridSize, behavioursMixID, score
-
+	private Dictionary<GameMode, Dictionary <Difficulty, int>> gameModeDiffDictionary;
 
 	public Highscores () {
-		gameModeDictionary = new Dictionary<string, Dictionary<int,Dictionary<int,int>>> ();
+		gameModeDiffDictionary = new Dictionary<GameMode, Dictionary<Difficulty, int>> ();
 	}
 
-	public bool SetHighscore (int newScore, string gameModeName, int gridSize, ButtonsBehaviour[] behaviours) {
-		int behaviourMixID = 0;
+	public bool SetHighscore (GameMode gameMode, Difficulty difficulty, int newScore) {
+		Dictionary<Difficulty, int> difficultyDictionary;
+		int currentScore;
 
-		for (int i = 0; i < behaviours.Length; i++) {
-			if (behaviours [i] != null) {
-				behaviourMixID += (int)Mathf.Pow (2, behaviours [i].ID);
-			}
-		}
-
-		Dictionary<int,Dictionary<int,int>> gridSizeDictionary;
-		Dictionary<int,int> behavioursMixIDDictionary;
-		int score;
-		if (gameModeDictionary.TryGetValue (gameModeName, out gridSizeDictionary)) {
-			if (gridSizeDictionary.TryGetValue (gridSize, out behavioursMixIDDictionary)) {
-				if (behavioursMixIDDictionary.TryGetValue (behaviourMixID, out score)) {
-					if (score >= newScore) {
-						return false;
-					} else {
-						behavioursMixIDDictionary [behaviourMixID] = newScore;
-					}
+		if (gameModeDiffDictionary.TryGetValue (gameMode, out difficultyDictionary)) {
+			if (difficultyDictionary.TryGetValue (difficulty, out currentScore)) {
+				if (currentScore >= newScore) {
+					return false;
 				} else {
-					behavioursMixIDDictionary.Add (behaviourMixID, newScore);
+					difficultyDictionary [difficulty] = newScore;
 				}
 			} else {
-				behavioursMixIDDictionary = new Dictionary<int,int> ();
-				behavioursMixIDDictionary.Add (behaviourMixID, newScore);
-				gridSizeDictionary.Add (gridSize, behavioursMixIDDictionary);
+				difficultyDictionary.Add (difficulty, newScore);
 			}
 		} else {
-			behavioursMixIDDictionary = new Dictionary<int,int> ();
-			behavioursMixIDDictionary.Add (behaviourMixID, newScore);
-			gridSizeDictionary = new Dictionary<int,Dictionary<int,int>> ();
-			gridSizeDictionary.Add (gridSize, behavioursMixIDDictionary);
-			gameModeDictionary.Add (gameModeName, gridSizeDictionary);
+			gameModeDiffDictionary.Add (gameMode, new Dictionary<Difficulty, int> ());
+			gameModeDiffDictionary [gameMode].Add (difficulty, newScore);
 		}
 		return true;
 	}
 
+	public int GetHighscore (GameMode gameMode, Difficulty difficulty) {
+		Dictionary<Difficulty,int> difficultyDictionary;
+		int currentScore;
 
-	public int GetHighscore (string gameModeName, int gridSize, ButtonsBehaviour[] behaviours) {
-		int behaviourMixID = 0;
-
-		for (int i = 0; i < behaviours.Length; i++) {
-			if (behaviours [i] != null) {
-				behaviourMixID += (int)Mathf.Pow (2, behaviours [i].ID);
-			}
-		}
-
-		Dictionary<int,Dictionary<int,int>> gridSizeDictionary;
-		Dictionary<int,int> behavioursMixIDDictionary;
-		int score;
-		if (gameModeDictionary.TryGetValue (gameModeName, out gridSizeDictionary)) {
-			if (gridSizeDictionary.TryGetValue (gridSize, out behavioursMixIDDictionary)) {
-				if (behavioursMixIDDictionary.TryGetValue (behaviourMixID, out score)) {
-					return score;
-				}
+		if (gameModeDiffDictionary.TryGetValue (gameMode, out difficultyDictionary)) {
+			if (difficultyDictionary.TryGetValue (difficulty, out currentScore)) {
+				return currentScore;
 			}
 		}
 
