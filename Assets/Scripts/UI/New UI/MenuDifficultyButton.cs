@@ -12,6 +12,7 @@ public class MenuDifficultyButton : MonoBehaviour {
 	public Image lockImage;
 	[HideInInspector] public Color lockImageColor;
 	public GameObject buttonText;
+	public Text highscoreText;
 	private bool _isUnlocked = true;
 	private Image _image;
 
@@ -40,19 +41,21 @@ public class MenuDifficultyButton : MonoBehaviour {
 		lockImage.color = lockImageColor;
 	}
 
-	public void UpdateUnlockStates (bool unlockState) {
+	public void UpdateUnlockStates (bool unlockState, UnlockCondition unlockCondition) {
 		if (unlockState == true) {
 			// Unlock
 			_isUnlocked = true;
 			_image.color = unlockedColor;
 			lockImage.gameObject.SetActive (false);
 			buttonText.SetActive (true);
+			highscoreText.text = string.Format ("Highscore: {0}", Managers.Score.GetHighscore (parentModePanel.gameMode, difficulty).ToString ());
 		} else {
 			// Lock
 			_isUnlocked = false;
 			_image.color = lockedColor;
 			lockImage.gameObject.SetActive (true);
 			buttonText.SetActive (false);
+			highscoreText.text = unlockCondition.GetText ();
 		}
 	}
 

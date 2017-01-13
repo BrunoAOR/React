@@ -26,6 +26,18 @@ public class UnlockablesManager : MonoBehaviour {
 		return isDifficultyUnlocked;
 	}
 
+	public UnlockCondition[][] GetUnlockConditions () {
+		UnlockCondition[][] conditionsArray = new UnlockCondition[gameModes.Length][];
+		for (int i = 0; i < gameModes.Length; i++) {
+			conditionsArray[i] = new UnlockCondition[gameModes[i].difficulties.Length];
+			for (int j = 0; j < gameModes[i].difficulties.Length; j++) {
+				conditionsArray[i][j] = gameModes [i].difficulties [j].conditionToUnlock;
+			}
+		}
+
+		return conditionsArray;
+	}
+
 	public bool GetUnlockState (int gameModeIndex, int difficultyIndex) {
 		if (gameModeIndex < 0 || gameModeIndex >= isDifficultyUnlocked.Length || difficultyIndex < 0 || difficultyIndex >= isDifficultyUnlocked [gameModeIndex].Length) {
 			return false;
@@ -82,4 +94,21 @@ public class UnlockCondition {
 	public Difficulty difficulty;
 	public CountOf aCountOf;
 	public int minValue;
+
+	public string GetText () {
+		string message;
+		switch (aCountOf) {
+		case UnlockCondition.CountOf.PlayCount:
+			message = string.Format ("Play {0} times in {1} mode ({2}).", minValue, gameMode.ToString(), difficulty.ToString());
+			break;
+		case UnlockCondition.CountOf.CumulativeScore:
+			message = string.Format ("Reach {0} points in {1} mode ({2}).", minValue, gameMode.ToString(), difficulty.ToString());
+			break;
+		default:
+			message = "";
+			break;
+		}
+
+		return message;
+	}
 }

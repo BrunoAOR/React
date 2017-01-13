@@ -31,6 +31,9 @@ public class MenuPanelsController : MonoBehaviour {
 			gameModePanels [i].SetEnabled (false);
 		}
 
+		gameModePanels [0].ArrowVisible (MenuArrow.Direction.Left, false);
+		gameModePanels [gameModePanels.Length - 1].ArrowVisible (MenuArrow.Direction.Right, false);
+
 		// Start with the panels below (negative y) the screen
 		transform.localPosition = new Vector3 (transform.localPosition.x, transform.localPosition.y - scrollOutYOffset, transform.localPosition.z);
 	}
@@ -46,7 +49,16 @@ public class MenuPanelsController : MonoBehaviour {
 		}
 	}
 
-	public void UpdateUnlockStates (bool[][] unlockStates) {
+	public void ArrowVisible (int panelIndex, MenuArrow.Direction direction, bool isVisible) {
+		if (panelIndex < 0 || panelIndex >= gameModePanels.Length) {
+			Debug.LogError ("panelIndex provided is out of bounds!");
+			return;
+		}
+
+		gameModePanels [panelIndex].ArrowVisible (direction, isVisible);
+	}
+
+	public void UpdateUnlockStates (bool[][] unlockStates, UnlockCondition[][] unlockConditions) {
 		if (gameModePanels.Length != unlockStates.Length) {
 			Debug.LogError ("The number of panel unlock states passed in (" + unlockStates.Length + 
 				") is different from the number of game mode panels (" + gameModePanels.Length + 
@@ -56,8 +68,11 @@ public class MenuPanelsController : MonoBehaviour {
 		}
 
 		for (int i = 0; i < gameModePanels.Length; i++) {
-			gameModePanels [i].UpdateUnlockStates (unlockStates [i]);
+			gameModePanels [i].UpdateUnlockStates (unlockStates [i], unlockConditions[i]);
 		}
+
+		// Re-hide the right arrow on the last panel, in case it tried to reactivate it.
+		gameModePanels [gameModePanels.Length - 1].ArrowVisible (MenuArrow.Direction.Right, false);
 	}
 
 	public void OnArrowClicked (MenuGameModePanel callingPanel, MenuArrow.Direction direction) {

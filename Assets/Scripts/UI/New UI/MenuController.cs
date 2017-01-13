@@ -40,7 +40,7 @@ public class MenuController : MenuControllerBase {
 	}
 
 	private void UpdateUnlockStates () {
-		panelsController.UpdateUnlockStates (Managers.Unlockables.GetUnlockStates());
+		panelsController.UpdateUnlockStates (Managers.Unlockables.GetUnlockStates(), Managers.Unlockables.GetUnlockConditions());
 	}
 
 	public void LaunchGame (GameMode gameMode, Difficulty difficulty) {
