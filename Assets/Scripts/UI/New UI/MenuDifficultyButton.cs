@@ -15,9 +15,11 @@ public class MenuDifficultyButton : MonoBehaviour {
 	public Text highscoreText;
 	private bool _isUnlocked = true;
 	private Image _image;
+	private UIShaker _lockImageShaker;
 
 	void Awake () {
 		_image = GetComponent<Image> ();
+		_lockImageShaker = lockImage.GetComponent<UIShaker> ();
 		lockImage.color = lockImageColor;
 	}
 
@@ -64,6 +66,7 @@ public class MenuDifficultyButton : MonoBehaviour {
 			parentModePanel.OnDifficultyButtonClicked (difficulty);
 		} else {
 			Managers.Audio.PlaySFX (SFX.IconClicked_Locked);
+			_lockImageShaker.StartShakeRotate ();
 		}
 	}
 }
