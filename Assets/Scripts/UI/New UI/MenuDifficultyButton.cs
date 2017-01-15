@@ -13,10 +13,11 @@ public class MenuDifficultyButton : MonoBehaviour {
 	public Text highscoreText;
 	public Image lockImage;
 	[HideInInspector] public Color lockImageColor;
-	private bool _isUnlocked;
 	private bool _isAnimating = false;
 	private Image _image;
 	private UIShaker _lockImageShaker;
+
+	private bool _isUnlocked;
 	private MenuLockState nextLockState = MenuLockState.Undefined;
 
 	[Header ("Unlock Animation")]
@@ -64,14 +65,14 @@ public class MenuDifficultyButton : MonoBehaviour {
 		if (nextLockState == MenuLockState.Undefined) {
 			// So, first time loading the menu...
 
-			// Instantly set the right Locked/Unlocked stated
+			// Instantly set the right Locked/Unlocked stated (_isUnlocked will be set within these methods)
 			if (unlockState == true) {
 				Unlock ();
 			} else {
 				Lock (unlockCondition);
 			}
 
-			// Record the unlockState in previousLockState. (Within Lock and Unlock, the current _isUnlocked field is set)
+			// Record the unlockState in nextLockState. Only if the current unlockState (and therefore nextLockState) is locked, will there be a chance for a future unlock animation.
 			nextLockState = (MenuLockState)System.Convert.ToInt32 (unlockState);
 		} else if (_isUnlocked == false && unlockState == true) {
 			// So, any other time that the menu is loaded and a menu item will be unlocked but WAS locked
@@ -81,6 +82,15 @@ public class MenuDifficultyButton : MonoBehaviour {
 		// If _isUnlocked == true && unlockState == true, then no action needs to be taken, because nextLockState is already MenuLockState.Unlocked from a previous run.
 		// If nextLockState == MenuLockState.Locked, then nothing needs to be done, because a menu item can't be locked on the first loading of the menu and therefore, no animation is required.
 
+	}
+
+	public void SkipUnlockAnimation () {
+		Debug.Log ("Entered skip");
+		if (_isUnlocked == false && nextLockState == MenuLockState.Unlocked) {
+			Debug.Log ("Entered skip if");
+			// So, only when there was meant to be an unlock animation
+			Unlock ();
+		}
 	}
 
 	private void Unlock () {
@@ -101,11 +111,9 @@ public class MenuDifficultyButton : MonoBehaviour {
 
 	public void TriggerUnlockAnimations () {
 		// This method will only run if _isUnlocked == false and nextLockState is Unlockeed. Meaning that the menu item was unlocked in this menu loading.
-		if ( !(_isUnlocked == false && nextLockState == MenuLockState.Unlocked) ) {
-			return;
+		if (_isUnlocked == false && nextLockState == MenuLockState.Unlocked) {
+			StartCoroutine (UnlockCoroutine ());
 		}
-
-		StartCoroutine (UnlockCoroutine ());
 	}
 
 	private IEnumerator UnlockCoroutine () {

@@ -23,7 +23,16 @@ public class MenuGameModePanel : MonoBehaviour {
 	[Range (0f, 1f)]
 	public float alphaWhenDisabled = 0.5f;
 	private bool interactable;
+	private UIShaker _generalLockShaker;
+	private CanvasGroup _difficultiesPanelCanvasGroup;
+
+	[Header ("Unlock Animation")]
+	public float lockShrinkDuration = 2f;
+	public float textAppearDuration = 1f;
+
+	private bool _isUnlocked;
 	private MenuLockState nextLockState = MenuLockState.Undefined;
+	private bool _isAnimating = false;
 
 	void Reset () {
 		parentPanelsController = GetComponentInParent<MenuPanelsController> ();
@@ -61,6 +70,8 @@ public class MenuGameModePanel : MonoBehaviour {
 		if (parentPanelsController == null) {
 			parentPanelsController = GetComponentInParent<MenuPanelsController> ();
 		}
+		_generalLockShaker = generalLockImage.GetComponent<UIShaker> ();
+		_difficultiesPanelCanvasGroup = difficultiesPanel.GetComponent<CanvasGroup> ();
 	}
 
 	public void SetButtonsColors (Color unlockedColor, Color lockedColor, Color lockImageColor) {
@@ -95,29 +106,131 @@ public class MenuGameModePanel : MonoBehaviour {
 			anyUnlocked |= difficultyUnlockStates [i];
 		}
 
-		if (anyUnlocked) {
-			// Remove General Lock
-			difficultiesPanel.SetActive (true);
-			generalLockImage.SetActive (false);
-			ArrowVisible (MenuArrow.Direction.Right, true);
-			descriptionText.text = Managers.Enums.GetGameModeLogic (gameMode).modeDescription;
-		} else {
-			// Apply General Lock
-			difficultiesPanel.SetActive (false);
-			generalLockImage.SetActive (true);
-			ArrowVisible (MenuArrow.Direction.Right, false);
-			descriptionText.text = unlockConditions[0].GetText ();
+		if (nextLockState == MenuLockState.Undefined) {
+			// So, first time loading the menu...
+
+			// Instantly set the right Locked/Unlocked stated (_isUnlocked will be set within these methods)
+			if (anyUnlocked) {
+				Unlock ();
+			} else {
+				Lock (unlockConditions [0]);
+			}
+
+			// Record the unlockState in nextLockState. Only if the current unlockState (and therefore nextLockState) is locked, will there be a chance for a future unlock animation.
+			nextLockState = (MenuLockState)System.Convert.ToInt32 (anyUnlocked);
+		} else if (_isUnlocked == false && anyUnlocked == true) {
+			// So, any other time that the menu is loaded and a menu item will be unlocked but WAS locked
+			nextLockState = MenuLockState.Unlocked;	// Changing nextLockState to Unlocked but leaving _isUnlocked as false allows for actions to be taken in the TriggerUnlockAnimations method.
 		}
+
+		// If _isUnlocked == true && anyUnlocked == true, then no action needs to be taken, because nextLockState is already MenuLockState.Unlocked from a previous run.
+		// If nextLockState == MenuLockState.Locked, then nothing needs to be done, because a menu item can't be locked on the first loading of the menu and therefore, no animation is required.
+
+	}
+
+	private void Unlock () {
+		_isUnlocked = true;
+		gameModeName.text = string.Format("{0} Mode", gameMode.ToString ());
+		difficultiesPanel.SetActive (true);
+		generalLockImage.SetActive (false);
+		if (parentPanelsController.PanelCanShowRightArrow (this)) {
+			ArrowVisible (MenuArrow.Direction.Right, true);
+		}
+		descriptionText.text = Managers.Enums.GetGameModeLogic (gameMode).modeDescription;
+	}
+
+	private void Lock (UnlockCondition unlockCondition) {
+		_isUnlocked = false;
+		gameModeName.text = "MODE LOCKED!";
+		difficultiesPanel.SetActive (false);
+		generalLockImage.SetActive (true);
+		ArrowVisible (MenuArrow.Direction.Right, false);
+		descriptionText.text = unlockCondition.GetText ();
 	}
 
 	private void TriggerUnlockAnimations () {
-		for (int i = 0; i < difficultyButtons.Length; i++) {
-			difficultyButtons [i].TriggerUnlockAnimations ();
+		if (_isUnlocked == false && nextLockState == MenuLockState.Unlocked) {
+			// Since the first difficulty to become available is Easy (first button), its animation will also attempt to run on this panel loading.
+			// Therefore, its animation must be skipped.
+			difficultyButtons[0].SkipUnlockAnimation ();
+			StartCoroutine (UnlockCoroutine ());
+		} else if (_isUnlocked) {
+			// Animations in the children menu items can only happen if the menu is unlocked.
+			for (int i = 0; i < difficultyButtons.Length; i++) {
+				difficultyButtons [i].TriggerUnlockAnimations ();
+			}
 		}
 	}
 
+	private IEnumerator UnlockCoroutine () {
+		_isAnimating = true;
+
+		// Shake the lock
+		_generalLockShaker.StartShakeRotate ();
+
+		while (_generalLockShaker.IsShaking ()) {
+			yield return null;
+		}
+
+		// Change gameModeName text to Unlocking...
+		gameModeName.text = "Unlocking...";
+
+		float timeStart = Time.time;
+		float u;
+		Vector3 startScale = generalLockImage.transform.localScale;
+		Vector3 targetScale = Vector3.zero;
+		Color startColor = descriptionText.color;
+		Color dimmedColor = startColor;
+		dimmedColor.a = 0;
+
+		while ((Time.time - timeStart) < lockShrinkDuration) {
+			u = (Time.time - timeStart) / lockShrinkDuration;
+			generalLockImage.transform.localScale = Vector3.Lerp (startScale, targetScale, u);
+			descriptionText.color = Color.Lerp (startColor, dimmedColor, u);
+			yield return null;
+		}
+
+		descriptionText.color = dimmedColor;
+
+		// Reset lockImage scale and turn it off
+		generalLockImage.transform.localScale = startScale;
+		generalLockImage.gameObject.SetActive (false);
+
+		// Change gameModeName text to the actual game mode name
+		gameModeName.text = string.Format ("{0} Mode", gameMode.ToString ());
+
+		// Change the description text to the actual game mode description
+		descriptionText.text = Managers.Enums.GetGameModeLogic(gameMode).modeDescription;
+
+		// Turn on the difficulties panel
+		difficultiesPanel.gameObject.SetActive (true);
+
+		timeStart = Time.time;
+
+		while ((Time.time - timeStart) < textAppearDuration) {
+			u = (Time.time - timeStart) / textAppearDuration;
+			descriptionText.color = Color.Lerp (dimmedColor, startColor, u);
+			_difficultiesPanelCanvasGroup.alpha = u;
+			yield return null;
+		}
+
+		descriptionText.color = startColor;
+		_difficultiesPanelCanvasGroup.alpha = 1f;
+
+		// Make the right arrow visible
+		if (parentPanelsController.PanelCanShowRightArrow (this)) {
+			ArrowVisible (MenuArrow.Direction.Right, true);
+		}
+
+		// Set _isUnlocked to true.
+		_isUnlocked = true;
+
+		_isAnimating = false;
+		yield break;
+	}
+
 	public void OnArrowClicked (MenuArrow.Direction direction) {
-		if (!interactable)
+		if (!interactable || _isAnimating)
 			return;
 
 		Debug.Log (direction.ToString () + " arrow clicked on " + gameMode.ToString () + " mode.");
@@ -126,7 +239,7 @@ public class MenuGameModePanel : MonoBehaviour {
 	}
 
 	public void OnDifficultyButtonClicked (Difficulty difficulty) {
-		if (!interactable)
+		if (!interactable || _isAnimating)
 			return;
 
 		Debug.Log (difficulty.ToString () + " button clicked on " + gameMode.ToString () + " mode.");

@@ -77,9 +77,29 @@ public class MenuPanelsController : MonoBehaviour {
 		for (int i = 0; i < gameModePanels.Length; i++) {
 			gameModePanels [i].UpdateUnlockStates (unlockStates [i], unlockConditions[i]);
 		}
+	}
 
-		// Re-hide the right arrow on the last panel, in case it tried to reactivate it.
-		gameModePanels [gameModePanels.Length - 1].ArrowVisible (MenuArrow.Direction.Right, false);
+	public bool PanelCanShowRightArrow (MenuGameModePanel modePanel) {
+		int panelIndex = -1;
+
+		for (int i = 0; i < gameModePanels.Length; i++) {
+			if (modePanel == gameModePanels [i]) {
+				panelIndex = i;
+				break;
+			}
+		}
+
+		if (panelIndex == -1) {
+			//So, if the modePanel does not belong to gameModePanels
+			Debug.LogError (modePanel.name + " attempted to call PanelCanShowRightArrow() on " + this.name + ", but " + modePanel.name + " is not part of the gameModePanels array!");
+		}
+
+		if (panelIndex == gameModePanels.Length - 1) {
+			// So, if the modePanel is the last panel
+			return false;
+		}
+
+		return true;
 	}
 
 	public void OnArrowClicked (MenuGameModePanel callingPanel, MenuArrow.Direction direction) {
