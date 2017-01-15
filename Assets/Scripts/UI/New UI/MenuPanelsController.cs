@@ -23,6 +23,13 @@ public class MenuPanelsController : MonoBehaviour {
 	private float originalYPos;
 
 	void Awake () {
+		if (menuController == null) {
+			menuController = GetComponentInParent<MenuController> ();
+		}
+		if (gameModePanels == null) {
+			GetComponentsInChildren<MenuGameModePanel> ();
+		}
+
 		originalYPos = transform.localPosition.y;
 		currentPanelIndex = 0;
 		gameModePanels [currentPanelIndex].SetEnabled (true);

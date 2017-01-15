@@ -3,25 +3,64 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+public enum MenuLockState {
+	Undefined = -1,
+	Locked = 0,		// So, unlockState = false (-> 0);
+	Unlocked = 1,	// So, unlockState = true  (-> 1);
+}
+
 public class MenuGameModePanel : MonoBehaviour {
 
+	public GameMode gameMode;
 	public MenuPanelsController parentPanelsController;
 	public MenuDifficultyButton[] difficultyButtons;
 	public MenuArrow[] menuArrows;
+	public Text gameModeName;
 	public Text descriptionText;
 	public GameObject difficultiesPanel;
 	public GameObject generalLockImage;
-	public GameMode gameMode;
 	public CanvasGroup canvasGroup;
 	[Range (0f, 1f)]
 	public float alphaWhenDisabled = 0.5f;
 	private bool interactable;
+	private MenuLockState nextLockState = MenuLockState.Undefined;
 
 	void Reset () {
 		parentPanelsController = GetComponentInParent<MenuPanelsController> ();
 		difficultyButtons = GetComponentsInChildren<MenuDifficultyButton> ();
 		menuArrows = GetComponentsInChildren<MenuArrow> ();
+		Transform tT;
+		tT = transform.Find ("GameModeName");
+		if (tT != null) {
+			gameModeName = tT.GetComponent<Text> ();
+		}
+		tT = transform.Find ("BottomSection/GameModeDescription");
+		if (tT != null) {
+			descriptionText = tT.GetComponent<Text> ();
+		}
+		tT = transform.FindChild ("BottomSection/Difficulties");
+		if (tT != null) {
+			difficultiesPanel = tT.gameObject;
+		}
+		MenuGeneralLock tMGL = GetComponentInChildren<MenuGeneralLock> (true);
+		if (tMGL != null) {
+			generalLockImage = tMGL.gameObject;
+		}
 		canvasGroup = GetComponent<CanvasGroup> ();
+		OnValidate ();
+	}
+
+	void OnValidate () {
+		name = gameMode.ToString ();
+		if (gameModeName != null) {
+			gameModeName.text = name + " Mode";
+		}
+	}
+
+	void Awake () {
+		if (parentPanelsController == null) {
+			parentPanelsController = GetComponentInParent<MenuPanelsController> ();
+		}
 	}
 
 	public void SetButtonsColors (Color unlockedColor, Color lockedColor, Color lockImageColor) {
@@ -55,7 +94,7 @@ public class MenuGameModePanel : MonoBehaviour {
 		for (int i = 0; i < difficultyUnlockStates.Length; i++) {
 			anyUnlocked |= difficultyUnlockStates [i];
 		}
-			
+
 		if (anyUnlocked) {
 			// Remove General Lock
 			difficultiesPanel.SetActive (true);
@@ -68,6 +107,12 @@ public class MenuGameModePanel : MonoBehaviour {
 			generalLockImage.SetActive (true);
 			ArrowVisible (MenuArrow.Direction.Right, false);
 			descriptionText.text = unlockConditions[0].GetText ();
+		}
+	}
+
+	private void TriggerUnlockAnimations () {
+		for (int i = 0; i < difficultyButtons.Length; i++) {
+			difficultyButtons [i].TriggerUnlockAnimations ();
 		}
 	}
 
@@ -93,6 +138,7 @@ public class MenuGameModePanel : MonoBehaviour {
 			// Enable
 			interactable = true;
 			canvasGroup.alpha = 1f;
+			TriggerUnlockAnimations ();
 		} else {
 			// Disable
 			interactable = false;

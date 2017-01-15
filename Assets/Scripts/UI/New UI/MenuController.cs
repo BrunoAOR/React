@@ -29,13 +29,9 @@ public class MenuController : MenuControllerBase {
 		StartCoroutine (PopMenu ());
 	}
 
-	public void PopMenuC () {
-		StartCoroutine (PopMenu ());
-	}
-
 	public override IEnumerator PopMenu () {
-		UpdateUnlockStates ();
 		panelsController.gameObject.SetActive (true);
+		UpdateUnlockStates ();
 		yield return (panelsController.ScrollInOut (MenuPanelsController.MenuDirection.In));
 	}
 

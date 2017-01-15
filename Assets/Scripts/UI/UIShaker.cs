@@ -10,6 +10,7 @@ public class UIShaker : MonoBehaviour {
 	public float shakeCycleDuration = 0.25f;
 	public int shakeCycleCount = 3;
 
+	private bool _isShaking = false;
 	private Quaternion _initialRotation;
 	private IEnumerator _currentShakeRotate;
 
@@ -44,7 +45,12 @@ public class UIShaker : MonoBehaviour {
 		}
 	}
 
+	public bool IsShaking () {
+		return _isShaking;
+	}
+
 	private IEnumerator ShakeRotate () {
+		_isShaking = true;
 
 		// Clockwise = -z
 		float subCycleDuration = shakeCycleDuration /4f;
@@ -88,5 +94,7 @@ public class UIShaker : MonoBehaviour {
 
 		_rTransform.localRotation = _initialRotation;
 		_currentShakeRotate = null;
+
+		_isShaking = false;
 	}
 }
