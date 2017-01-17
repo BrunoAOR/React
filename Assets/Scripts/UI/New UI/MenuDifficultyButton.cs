@@ -109,10 +109,10 @@ public class MenuDifficultyButton : MonoBehaviour {
 		highscoreText.text = unlockCondition.GetText ();
 	}
 
-	public void TriggerUnlockAnimations () {
+	public IEnumerator TriggerUnlockAnimations () {
 		// This method will only run if _isUnlocked == false and nextLockState is Unlockeed. Meaning that the menu item was unlocked in this menu loading.
 		if (_isUnlocked == false && nextLockState == MenuLockState.Unlocked) {
-			StartCoroutine (UnlockCoroutine ());
+			yield return (UnlockCoroutine ());
 		}
 	}
 

@@ -148,23 +148,23 @@ public class MenuGameModePanel : MonoBehaviour {
 		descriptionText.text = unlockCondition.GetText ();
 	}
 
-	private void TriggerUnlockAnimations () {
+	private IEnumerator TriggerUnlockAnimations () {
+		_isAnimating = true;
 		if (_isUnlocked == false && nextLockState == MenuLockState.Unlocked) {
 			// Since the first difficulty to become available is Easy (first button), its animation will also attempt to run on this panel loading.
 			// Therefore, its animation must be skipped.
 			difficultyButtons[0].SkipUnlockAnimation ();
-			StartCoroutine (UnlockCoroutine ());
+			yield return (UnlockCoroutine ());
 		} else if (_isUnlocked) {
 			// Animations in the children menu items can only happen if the menu is unlocked.
 			for (int i = 0; i < difficultyButtons.Length; i++) {
-				difficultyButtons [i].TriggerUnlockAnimations ();
+				yield return (difficultyButtons [i].TriggerUnlockAnimations ());
 			}
 		}
+		_isAnimating = false;
 	}
 
 	private IEnumerator UnlockCoroutine () {
-		_isAnimating = true;
-
 		// Shake the lock
 		_generalLockShaker.StartShakeRotate ();
 
@@ -224,9 +224,6 @@ public class MenuGameModePanel : MonoBehaviour {
 
 		// Set _isUnlocked to true.
 		_isUnlocked = true;
-
-		_isAnimating = false;
-		yield break;
 	}
 
 	public void OnArrowClicked (MenuArrow.Direction direction) {
@@ -251,7 +248,7 @@ public class MenuGameModePanel : MonoBehaviour {
 			// Enable
 			interactable = true;
 			canvasGroup.alpha = 1f;
-			TriggerUnlockAnimations ();
+			StartCoroutine (TriggerUnlockAnimations ());
 		} else {
 			// Disable
 			interactable = false;
