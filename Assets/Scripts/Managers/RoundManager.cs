@@ -34,7 +34,6 @@ public class RoundManager : MonoBehaviour {
 	public float alphaAtGame = 0.1f;
 	[Range (0f,1f)]
 	public float alphaAtEndGame = 0.3f;
-	public GameObject menuTapPrompt;
 
 	[Header ("Ads")]
 	public AdsController AdsController;
@@ -73,8 +72,7 @@ public class RoundManager : MonoBehaviour {
 	private float _lastUnpauseDuration = 0f;
 
 	[Header ("End Game")]
-	public Text endGameText;
-	public GameObject endGameTapPrompt;
+	public RoundResultController roundResultController;
 
 	[HideInInspector] public BoardManager boardManager;
 	private IEnumerator _currentGameLoop;
@@ -82,19 +80,6 @@ public class RoundManager : MonoBehaviour {
 	private bool _isRunningGameLoop;
 	private bool _isPaused;
 	private bool _buttonsClickable;
-	private string _score;
-	private string _highscoreString;
-	private string _highscoreBeatenString {
-		get {
-			return (string.Format ("You beat the highscore of {0} with {1} points!", _highscoreString, _score));
-		}
-	}
-	private string _highscoreNotBeatenString {
-		get {
-			return (string.Format ("{0} points were not enough to beat the highscore of {1}...", _score, _highscoreString));
-		}
-	}
-
 
 	void Awake () {
 		if (S == null) {
@@ -110,6 +95,7 @@ public class RoundManager : MonoBehaviour {
 		targetModeSection.SetActive (false);
 		menuController.SetActive (false);
 		HUDSection.SetActive (false);
+		roundResultController.SetActive (false);
 		pauseMenuController.gameObject.SetActive (false);
 		AdsController.gameObject.SetActive (false);
 	}
@@ -141,8 +127,6 @@ public class RoundManager : MonoBehaviour {
 		modeBehaviours = selectedButtonBehaviours;
 
 		menuController.SetActive (false);
-		endGameText.gameObject.SetActive (false);
-		endGameTapPrompt.SetActive (false);
 
 		// Description related
 		descriptionSubSection.SetActive (false);
@@ -309,6 +293,9 @@ public class RoundManager : MonoBehaviour {
 		// Turn off the pauseMenuCanvas
 		pauseMenuController.gameObject.SetActive (false);
 
+		// Turn off the TargetModeCanvas
+		targetModeSection.SetActive (false);
+
 		// Wait
 		yield return new WaitForSeconds (0.5f);
 
@@ -336,46 +323,14 @@ public class RoundManager : MonoBehaviour {
 		boardManager.ClearGrid ();
 		animatedTimerText.gameObject.SetActive (false);
 
-		// Turn off the TargetModeCanvas
-		targetModeSection.SetActive (false);
-
-		// Save highscores if achieved and show a message about the score reached and if highscore was beaten or not.
-		endGameText.gameObject.SetActive (true);
-		_score = Managers.Score.GetScore ().ToString ();
-		_highscoreString = Managers.Score.GetHighscore (gameMode, difficulty).ToString ();
-
-		bool newHighScore = Managers.Score.SetHighscore (gameMode, difficulty);
-		if (newHighScore) {
-			Debug.Log ("Score: " + Managers.Score.GetScore() + "|Old High Score of " + _highscoreString + " beaten.");
-			endGameText.text = _highscoreBeatenString;
-		} else {
-			endGameText.text = _highscoreNotBeatenString;
-			Debug.Log ("Score: " + Managers.Score.GetScore() + "|High Score of " + _highscoreString + " remains undefeated.");
-		}
-
-		// Register the round in the StatsManager
-		Managers.Stats.RegisterPlay (gameMode, difficulty, Managers.Score.GetScore());
-
-		endGameTapPrompt.SetActive (true);
-		// Wait for a tap
-		while (!Input.GetMouseButtonDown (0)) {
-			yield return null;
-		}
-
-		Managers.Audio.PlaySFX (SFX.TapPrompt);
-		endGameText.gameObject.SetActive (false);
-		endGameTapPrompt.SetActive (false);
-
-		// Turn off the HUD (Timer, score, highscore)
+		// Turn off the HUDSection (Timer, score, etc.)
 		HUDSection.SetActive (false);
 
 		// Set background alpha
 		background.SetAlpha (alphaAtMenu);
 
-		// Control is passed on to MenuController.cs
-		menuController.SetActive (true);
-		StartCoroutine (menuController.PopMenu () );
-
+		// Control is passed on to the RoundResultController.
+		roundResultController.ShowRoundResult (gameMode, difficulty, Managers.Score.GetScore ());
 	}
 
 
@@ -410,15 +365,18 @@ public class RoundManager : MonoBehaviour {
 		// Change music
 		Managers.Audio.PlayMusic1 ();
 
+		// Go to menu
+		GoToMenu ();
+	}
+		
+	public void GoToMenu () {
 		// Set background alpha
 		background.SetAlpha (alphaAtMenu);
 
-		// Control is passed on to MenuController.cs
+		// Control is passed on to the MenuController.
 		menuController.SetActive (true);
 		StartCoroutine (menuController.PopMenu () );
-
 	}
-
 
 	private GameMode GetStatsGameMode () {
 		return modeLogic.gameMode;
@@ -454,6 +412,9 @@ public class RoundManager : MonoBehaviour {
 
 		if (gameStage == GameStage.Timed) {
 			_timer += gamePausePenalty;
+			if (_timer < 0) {
+				_timer = 0;
+			}
 			SetTimerText ();
 
 			Vector2 pausePenaltyPosition = new Vector2 (0.75f, (Camera.main.ScreenToViewportPoint (pauseButtonRectTransform.position)).y);
@@ -495,6 +456,9 @@ public class RoundManager : MonoBehaviour {
 		}
 
 		_timer += timeBonus;
+		if (_timer < 0) {
+			_timer = 0;
+		}
 		SetTimerText ();
 	}
 
