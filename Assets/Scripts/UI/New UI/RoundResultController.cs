@@ -27,6 +27,7 @@ public class RoundResultController : MonoBehaviour {
 	public GameObject tapPrompt;
 
 	private Vector2 canvasRect;
+	private int _currentScore;
 	private int _previousHighscore;
 	private bool _newHighscore;
 	private int _elementsCount = 9;
@@ -50,6 +51,7 @@ public class RoundResultController : MonoBehaviour {
 
 			StopCoroutine (showRoundResultCoroutine);
 			showRoundResultCoroutine = null;
+			currentScoreText.text = _currentScore.ToString ();
 			ApplyElementsLocalPositions ();
 			SetElementsState (true);
 		} else {
@@ -74,14 +76,17 @@ public class RoundResultController : MonoBehaviour {
 		// Update Highscore in the Score manager and records if a new highscore was achieved
 		_newHighscore = Managers.Score.SetHighscore (gameMode, difficulty);
 
+		// Record current score, to be used in case the coroutine is stopped and in the coroutine itself
+		_currentScore = score;
+
 		if (showRoundResultCoroutine != null) {
 			StopCoroutine (showRoundResultCoroutine);
 		}
-		showRoundResultCoroutine = ShowRoundResultCoroutine (gameMode, difficulty, score);
+		showRoundResultCoroutine = ShowRoundResultCoroutine (gameMode, difficulty);
 		StartCoroutine (showRoundResultCoroutine);
 	}
 
-	private IEnumerator ShowRoundResultCoroutine (GameMode gameMode, Difficulty difficulty, int score) {
+	private IEnumerator ShowRoundResultCoroutine (GameMode gameMode, Difficulty difficulty) {
 		SetElementsState (false);
 
 		// Set up labels
@@ -138,7 +143,7 @@ public class RoundResultController : MonoBehaviour {
 		StartCoroutine (ScrollIn (highscoreText.gameObject, rightPos, leftPos, scoresEntryDuration));
 		yield return (ScrollIn (currentScoreText.gameObject, leftPos, rightPos, scoresEntryDuration));
 
-		yield return (StartCoroutine(ZeroToNumberTyper.StartCounter (currentScoreText, 0, score, score / (float)scoreCountedPerSecond)));
+		yield return (StartCoroutine(ZeroToNumberTyper.StartCounter (currentScoreText, 0, _currentScore, _currentScore / (float)scoreCountedPerSecond)));
 
 		// Show the newHighscoreLabel if a new highscore was achieved
 		yield return (_waitTime);
