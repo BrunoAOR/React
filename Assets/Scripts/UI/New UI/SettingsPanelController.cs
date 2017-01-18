@@ -24,7 +24,6 @@ public class SettingsPanelController : MonoBehaviour {
 	private int _selectedLanguageIndex;
 
 	[Header ("References")]
-	public GameObject PanelRim;
 	public Image musicToggle;
 	public Image soundToggle;
 
@@ -46,7 +45,6 @@ public class SettingsPanelController : MonoBehaviour {
 		_rectTransform = GetComponent<RectTransform> ();
 		_midPosition = new Vector3 (outPosition.x, inPosition.y, 0);
 		_rectTransform.anchoredPosition = outPosition;
-		PanelRim.SetActive (true);
 
 		if (Managers.Audio.musicMute) {
 			_musicEnabled = false;
@@ -146,17 +144,15 @@ public class SettingsPanelController : MonoBehaviour {
 
 		if (!_isShowing) {
 			// Panel should go in...
-			PanelRim.SetActive (false);
 			menuController.WillShowSettingsPanel ();
 			yield return (Scroll (_rectTransform, outPosition, _midPosition, scrollVerticalDuration));
 			yield return (Scroll (_rectTransform, _midPosition, inPosition, scrollHorizontalDuration));
 			_isShowing = true;
 		} else {
 			// Panel should go out...
-			yield return (Scroll (_rectTransform, inPosition, _midPosition, scrollHorizontalDuration));
 			menuController.WillHideSettingsPanel ();
+			yield return (Scroll (_rectTransform, inPosition, _midPosition, scrollHorizontalDuration));
 			yield return (Scroll (_rectTransform, _midPosition, outPosition, scrollVerticalDuration));
-			PanelRim.SetActive (true);
 			_isShowing = false;
 		}
 
