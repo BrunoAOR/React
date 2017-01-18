@@ -119,7 +119,7 @@ public class LivesManager : MonoBehaviour {
 
 
 	private void SetTimerLabel (int minutes, int seconds) {
-		livesTimer.text = minutes.ToString ("D2") + ":" + seconds.ToString ("D2");
+		livesTimer.text = minutes.ToString ("D") + ":" + seconds.ToString ("D2");
 	}
 
 

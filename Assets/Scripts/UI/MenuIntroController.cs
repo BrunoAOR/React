@@ -6,16 +6,14 @@ using UnityEngine.UI;
 public class MenuIntroController : MonoBehaviour {
 
 	[Header ("Welcome Screen")]
-	public UIMover logoMover;
+	public UILocalPosition logoMover;
 	public Text welcomeText;
 	public GameObject tapPrompt;
-	public GameObject livesPanel;
 
 	private ColorBlenderUIGraphic _welcomeTextBlender;
 
 	void Awake () {
 		_welcomeTextBlender = welcomeText.GetComponent<ColorBlenderUIGraphic> ();
-		livesPanel.SetActive (false);
 	}
 
 	IEnumerator Start () {
@@ -45,8 +43,6 @@ public class MenuIntroController : MonoBehaviour {
 		StartCoroutine (logoMover.GetComponent<ColorBlenderUIGraphic> ().StartColorBlend (false));
 		// ... as it moves up
 		yield return (logoMover.MoveToTarget ());
-
-		livesPanel.SetActive (true);
 	}
 
 }

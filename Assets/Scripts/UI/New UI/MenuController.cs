@@ -9,6 +9,7 @@ public class MenuController : MenuControllerBase {
 
 	[Header ("Panels")]
 	public MenuPanelsController panelsController;
+	public GameObject topBar;
 
 	[Header ("Buttons")]
 	public Color unlockedColor;
@@ -21,11 +22,13 @@ public class MenuController : MenuControllerBase {
 
 	void Awake () {
 		panelsController.gameObject.SetActive (false);
+		topBar.SetActive (false);
 		panelsController.SetButtonsColors (unlockedColor, lockedColor, lockImageColor);
 	}
 
 	IEnumerator Start () {
 		yield return (introController.Intro ());
+		topBar.SetActive (true);
 		StartCoroutine (PopMenu ());
 	}
 
