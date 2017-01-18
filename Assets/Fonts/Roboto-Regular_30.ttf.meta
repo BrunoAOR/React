@@ -5,7 +5,7 @@ licenseType: Free
 TrueTypeFontImporter:
   serializedVersion: 4
   fontSize: 30
-  forceTextureCase: 0
+  forceTextureCase: 3
   characterSpacing: 0
   characterPadding: 1
   includeFontData: 1
@@ -16,7 +16,8 @@ TrueTypeFontImporter:
   - {fileID: 12800000, guid: 9f755c502a985704ab19fed7cf3b42de, type: 3}
   - {fileID: 12800000, guid: 77ed1be1313af214fafdd065e8307286, type: 3}
   - {fileID: 12800000, guid: e8482efe63940454c915ba468db47e08, type: 3}
-  customCharacters: 
+  customCharacters: "ABCDEFGHIJKLMN\xD1OPQRSTUVWXYZabcdefghijklmn\xF1opqrstuvwxyz0123456789
+    .,+-!"
   fontRenderingMode: 0
   ascentCalculationMode: 1
   userData: 

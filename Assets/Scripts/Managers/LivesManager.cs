@@ -6,8 +6,10 @@ public class LivesManager : MonoBehaviour {
 
 	public int maxLivesCount = 3;
 	public float minutesToNewLife = 1;
+
+	[Header ("References")]
 	public Text livesCount;
-	public Text livesTimerLabel;
+	public GameObject timer;
 	public Text livesTimer;
 
 	private int currentLivesCount = 5;
@@ -124,13 +126,13 @@ public class LivesManager : MonoBehaviour {
 
 
 	private void TurnOnTimer () {
-		livesTimerLabel.gameObject.SetActive (true);
+		timer.gameObject.SetActive (true);
 	}
 
 
 	private void TurnOffTimer () {
 		SetTimerLabel (0, 0);
-		livesTimerLabel.gameObject.SetActive (false);
+		timer.gameObject.SetActive (false);
 	}
 
 }

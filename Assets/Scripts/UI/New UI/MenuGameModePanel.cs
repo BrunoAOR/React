@@ -22,7 +22,7 @@ public class MenuGameModePanel : MonoBehaviour {
 	public CanvasGroup canvasGroup;
 	[Range (0f, 1f)]
 	public float alphaWhenDisabled = 0.5f;
-	private bool interactable;
+	private bool _interactable;
 	private UIShaker _generalLockShaker;
 	private CanvasGroup _difficultiesPanelCanvasGroup;
 
@@ -31,7 +31,7 @@ public class MenuGameModePanel : MonoBehaviour {
 	public float textAppearDuration = 1f;
 
 	private bool _isUnlocked;
-	private MenuLockState nextLockState = MenuLockState.Undefined;
+	private MenuLockState _nextLockState = MenuLockState.Undefined;
 	private bool _isAnimating = false;
 
 	void Reset () {
@@ -106,7 +106,7 @@ public class MenuGameModePanel : MonoBehaviour {
 			anyUnlocked |= difficultyUnlockStates [i];
 		}
 
-		if (nextLockState == MenuLockState.Undefined) {
+		if (_nextLockState == MenuLockState.Undefined) {
 			// So, first time loading the menu...
 
 			// Instantly set the right Locked/Unlocked stated (_isUnlocked will be set within these methods)
@@ -117,10 +117,10 @@ public class MenuGameModePanel : MonoBehaviour {
 			}
 
 			// Record the unlockState in nextLockState. Only if the current unlockState (and therefore nextLockState) is locked, will there be a chance for a future unlock animation.
-			nextLockState = (MenuLockState)System.Convert.ToInt32 (anyUnlocked);
+			_nextLockState = (MenuLockState)System.Convert.ToInt32 (anyUnlocked);
 		} else if (_isUnlocked == false && anyUnlocked == true) {
 			// So, any other time that the menu is loaded and a menu item will be unlocked but WAS locked
-			nextLockState = MenuLockState.Unlocked;	// Changing nextLockState to Unlocked but leaving _isUnlocked as false allows for actions to be taken in the TriggerUnlockAnimations method.
+			_nextLockState = MenuLockState.Unlocked;	// Changing nextLockState to Unlocked but leaving _isUnlocked as false allows for actions to be taken in the TriggerUnlockAnimations method.
 		}
 
 		// If _isUnlocked == true && anyUnlocked == true, then no action needs to be taken, because nextLockState is already MenuLockState.Unlocked from a previous run.
@@ -150,7 +150,7 @@ public class MenuGameModePanel : MonoBehaviour {
 
 	private IEnumerator TriggerUnlockAnimations () {
 		_isAnimating = true;
-		if (_isUnlocked == false && nextLockState == MenuLockState.Unlocked) {
+		if (_isUnlocked == false && _nextLockState == MenuLockState.Unlocked) {
 			// Since the first difficulty to become available is Easy (first button), its animation will also attempt to run on this panel loading.
 			// Therefore, its animation must be skipped.
 			difficultyButtons[0].SkipUnlockAnimation ();
@@ -227,7 +227,7 @@ public class MenuGameModePanel : MonoBehaviour {
 	}
 
 	public void OnArrowClicked (MenuArrow.Direction direction) {
-		if (!interactable || _isAnimating)
+		if (!_interactable || _isAnimating)
 			return;
 
 		Debug.Log (direction.ToString () + " arrow clicked on " + gameMode.ToString () + " mode.");
@@ -236,7 +236,7 @@ public class MenuGameModePanel : MonoBehaviour {
 	}
 
 	public void OnDifficultyButtonClicked (Difficulty difficulty) {
-		if (!interactable || _isAnimating)
+		if (!_interactable || _isAnimating)
 			return;
 
 		Debug.Log (difficulty.ToString () + " button clicked on " + gameMode.ToString () + " mode.");
@@ -246,12 +246,12 @@ public class MenuGameModePanel : MonoBehaviour {
 	public void SetEnabled (bool _) {
 		if (_) {
 			// Enable
-			interactable = true;
+			_interactable = true;
 			canvasGroup.alpha = 1f;
 			StartCoroutine (TriggerUnlockAnimations ());
 		} else {
 			// Disable
-			interactable = false;
+			_interactable = false;
 			canvasGroup.alpha = alphaWhenDisabled;
 		}
 	}

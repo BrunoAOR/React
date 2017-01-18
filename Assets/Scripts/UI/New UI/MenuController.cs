@@ -10,6 +10,7 @@ public class MenuController : MenuControllerBase {
 	[Header ("Panels")]
 	public MenuPanelsController panelsController;
 	public GameObject topBar;
+	public SettingsPanelController settingsPanelController;
 
 	[Header ("Buttons")]
 	public Color unlockedColor;
@@ -23,12 +24,15 @@ public class MenuController : MenuControllerBase {
 	void Awake () {
 		panelsController.gameObject.SetActive (false);
 		topBar.SetActive (false);
+		settingsPanelController.SetActive (false);
+		settingsPanelController.menuController = this;
 		panelsController.SetButtonsColors (unlockedColor, lockedColor, lockImageColor);
 	}
 
 	IEnumerator Start () {
 		yield return (introController.Intro ());
 		topBar.SetActive (true);
+		settingsPanelController.SetActive (true);
 		StartCoroutine (PopMenu ());
 	}
 
@@ -36,6 +40,14 @@ public class MenuController : MenuControllerBase {
 		panelsController.gameObject.SetActive (true);
 		UpdateUnlockStates ();
 		yield return (panelsController.ScrollInOut (MenuPanelsController.MenuDirection.In));
+	}
+
+	public void WillShowSettingsPanel () {
+		StartCoroutine (panelsController.ScrollInOut (MenuPanelsController.MenuDirection.Out));
+	}
+
+	public void WillHideSettingsPanel () {
+		StartCoroutine (panelsController.ScrollInOut (MenuPanelsController.MenuDirection.In));
 	}
 
 	private void UpdateUnlockStates () {
