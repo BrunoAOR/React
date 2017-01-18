@@ -34,7 +34,11 @@ public class SettingsPanelController : MonoBehaviour {
 	private RectTransform _rectTransform;
 	private Vector3 _midPosition;
 
-	private bool _interactable = true;
+	private bool _interactable {
+		get {
+			return (menuController.CanShowSettingsPanel ());
+		}
+	}
 	private bool _isAnimating = false;
 	private bool _isShowing = false;
 

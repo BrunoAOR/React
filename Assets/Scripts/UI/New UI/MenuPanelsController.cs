@@ -20,7 +20,8 @@ public class MenuPanelsController : MonoBehaviour {
 	public float inOutScrollBounce = 0.2f;
 	public float scrollOutYOffset = 1136f;
 
-	private float originalYPos;
+	private float _originalYPos;
+	private bool _isAnimating;
 
 	void Awake () {
 		if (menuController == null) {
@@ -30,7 +31,8 @@ public class MenuPanelsController : MonoBehaviour {
 			GetComponentsInChildren<MenuGameModePanel> ();
 		}
 
-		originalYPos = transform.localPosition.y;
+		_isAnimating = false;
+		_originalYPos = transform.localPosition.y;
 		currentPanelIndex = 0;
 		gameModePanels [currentPanelIndex].SetEnabled (true);
 
@@ -48,6 +50,10 @@ public class MenuPanelsController : MonoBehaviour {
 	void Reset () {
 		menuController = GetComponentInParent<MenuController> ();
 		gameModePanels = GetComponentsInChildren<MenuGameModePanel> ();
+	}
+
+	public bool IsAnimating () {
+		return (_isAnimating);
 	}
 
 	public void SetButtonsColors (Color unlockedColor, Color lockedColor, Color lockImageColor) {
@@ -119,6 +125,7 @@ public class MenuPanelsController : MonoBehaviour {
 	}
 
 	private IEnumerator ScrollPanelsTowards (MenuArrow.Direction direction) {
+		_isAnimating = true;
 		gameModePanels [currentPanelIndex].SetEnabled (false);
 
 		float startXPos = transform.localPosition.x;
@@ -150,9 +157,11 @@ public class MenuPanelsController : MonoBehaviour {
 
 		currentPanelIndex += (int)direction;
 		gameModePanels [currentPanelIndex].SetEnabled (true);
+		_isAnimating = false;
 	}
 
 	public IEnumerator ScrollInOut (MenuDirection direction) {
+		_isAnimating = true;
 		if (direction == MenuDirection.Out) {
 			gameModePanels [currentPanelIndex].SetEnabled (false);
 		}
@@ -160,9 +169,9 @@ public class MenuPanelsController : MonoBehaviour {
 		float startYPos = transform.localPosition.y;
 		float targetYPos = 0;
 		if (direction == MenuDirection.In) {
-			targetYPos = originalYPos;
+			targetYPos = _originalYPos;
 		} else {
-			targetYPos = originalYPos - scrollOutYOffset;
+			targetYPos = _originalYPos - scrollOutYOffset;
 		}
 
 		Vector3 currentPos = transform.localPosition;
@@ -192,6 +201,7 @@ public class MenuPanelsController : MonoBehaviour {
 		if (direction == MenuDirection.In) {
 			gameModePanels [currentPanelIndex].SetEnabled (true);
 		}
+		_isAnimating = false;
 	}
 
 }

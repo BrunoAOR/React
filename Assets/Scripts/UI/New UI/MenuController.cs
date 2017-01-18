@@ -42,6 +42,10 @@ public class MenuController : MenuControllerBase {
 		yield return (panelsController.ScrollInOut (MenuPanelsController.MenuDirection.In));
 	}
 
+	public bool CanShowSettingsPanel () {
+		return (!panelsController.IsAnimating ());
+	}
+
 	public void WillShowSettingsPanel () {
 		StartCoroutine (panelsController.ScrollInOut (MenuPanelsController.MenuDirection.Out));
 	}
