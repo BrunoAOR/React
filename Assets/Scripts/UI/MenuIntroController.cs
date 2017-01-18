@@ -16,23 +16,18 @@ public class MenuIntroController : MonoBehaviour {
 		_welcomeTextBlender = welcomeText.GetComponent<ColorBlenderUIGraphic> ();
 	}
 
-	IEnumerator Start () {
+	void Start () {
+		logoMover.gameObject.SetActive (true);
 		logoMover.SnapToStart ();
 		welcomeText.gameObject.SetActive (true);
+	}
 
+	public IEnumerator Intro () {
 		tapPrompt.SetActive (true);
 
 		while (!Input.GetMouseButtonDown (0))
 			yield return null;
-
-		tapPrompt.SetActive (false);
-		Managers.Audio.PlaySFX (SFX.TapPrompt);
-	}
-
-	public IEnumerator Intro () {
-
-		while (!Input.GetMouseButtonDown (0))
-			yield return null;
+		
 		Managers.Audio.PlaySFX (SFX.TapPrompt);
 		tapPrompt.SetActive (false);
 
