@@ -18,7 +18,8 @@ public class MenuDifficultyButton : MonoBehaviour {
 	private UIShaker _lockImageShaker;
 
 	private bool _isUnlocked;
-	private MenuLockState nextLockState = MenuLockState.Undefined;
+	private MenuLockState _nextLockState = MenuLockState.Undefined;
+	private bool _shouldDisplayFullStats = false;
 
 	[Header ("Unlock Animation")]
 	public float lockShrinkDuration = 2f;
@@ -58,11 +59,11 @@ public class MenuDifficultyButton : MonoBehaviour {
 	public void UpdateUnlockStates (bool unlockState, UnlockCondition unlockCondition) {
 		// If _isUnlocked is true, then no further action needs to be taken other than to update the highscoreText.
 		if (_isUnlocked) {
-			highscoreText.text = string.Format ("Highscore: {0}", Managers.Score.GetHighscore (parentModePanel.gameMode, difficulty).ToString ());
+			SetHighscoreText ();
 			return;
 		}
 
-		if (nextLockState == MenuLockState.Undefined) {
+		if (_nextLockState == MenuLockState.Undefined) {
 			// So, first time loading the menu...
 
 			// Instantly set the right Locked/Unlocked stated (_isUnlocked will be set within these methods)
@@ -73,10 +74,10 @@ public class MenuDifficultyButton : MonoBehaviour {
 			}
 
 			// Record the unlockState in nextLockState. Only if the current unlockState (and therefore nextLockState) is locked, will there be a chance for a future unlock animation.
-			nextLockState = (MenuLockState)System.Convert.ToInt32 (unlockState);
+			_nextLockState = (MenuLockState)System.Convert.ToInt32 (unlockState);
 		} else if (_isUnlocked == false && unlockState == true) {
 			// So, any other time that the menu is loaded and a menu item will be unlocked but WAS locked
-			nextLockState = MenuLockState.Unlocked;	// Changing nextLockState to Unlocked but leaving _isUnlocked as false allows for actions to be taken in the TriggerUnlockAnimations method.
+			_nextLockState = MenuLockState.Unlocked;	// Changing nextLockState to Unlocked but leaving _isUnlocked as false allows for actions to be taken in the TriggerUnlockAnimations method.
 		}
 
 		// If _isUnlocked == true && unlockState == true, then no action needs to be taken, because nextLockState is already MenuLockState.Unlocked from a previous run.
@@ -86,7 +87,7 @@ public class MenuDifficultyButton : MonoBehaviour {
 
 	public void SkipUnlockAnimation () {
 		Debug.Log ("Entered skip");
-		if (_isUnlocked == false && nextLockState == MenuLockState.Unlocked) {
+		if (_isUnlocked == false && _nextLockState == MenuLockState.Unlocked) {
 			Debug.Log ("Entered skip if");
 			// So, only when there was meant to be an unlock animation
 			Unlock ();
@@ -98,7 +99,7 @@ public class MenuDifficultyButton : MonoBehaviour {
 		_image.color = unlockedColor;
 		lockImage.gameObject.SetActive (false);
 		difficultyText.gameObject.SetActive (true);
-		highscoreText.text = string.Format ("Highscore: {0}", Managers.Score.GetHighscore (parentModePanel.gameMode, difficulty).ToString ());
+		SetHighscoreText ();
 	}
 
 	private void Lock (UnlockCondition unlockCondition) {
@@ -109,9 +110,59 @@ public class MenuDifficultyButton : MonoBehaviour {
 		highscoreText.text = unlockCondition.GetText ();
 	}
 
+	public void DisplayFullStats (bool fullDisplay) {
+		if (fullDisplay == _shouldDisplayFullStats) {
+			// No need to do anything if the button is already in the right state
+			return;
+		}
+
+		if (fullDisplay) {
+			ShowFullStats ();
+		} else {
+			HideFullStats ();
+		}
+	}
+
+	private void ShowFullStats () {
+		// Adjust _shouldShowFullStats
+		_shouldDisplayFullStats = true;
+
+		// If the button is locked, then highscoreText will be showing the unlockCondition and shouldn't be changed
+		if (_isUnlocked) {
+			SetHighscoreText ();
+		}
+	}
+
+	private void HideFullStats () {
+		// Adjust _shouldShowFullStats
+		_shouldDisplayFullStats = false;
+
+		// If the button is locked, then highscoreText will be showing the unlockCondition and shouldn't be changed
+		if (_isUnlocked) {
+			SetHighscoreText ();
+		}
+	}
+
+
+
+	private void SetHighscoreText () {
+		if (_shouldDisplayFullStats) {
+			highscoreText.text = string.Format (
+				"Play count:  {0,11}\n" +
+				"Highscore:   {1,11:N0}\n" +
+				"Total score: {2,11:N0}",
+				Managers.Stats.GetPlayCount (parentModePanel.gameMode, difficulty),
+				Managers.Score.GetHighscore (parentModePanel.gameMode, difficulty), 
+				Managers.Stats.GetCumulativeScore (parentModePanel.gameMode, difficulty)
+			);
+		} else {
+			highscoreText.text = string.Format ("Highscore: {0}", Managers.Score.GetHighscore (parentModePanel.gameMode, difficulty).ToString ());
+		}
+	}
+
 	public IEnumerator TriggerUnlockAnimations () {
 		// This method will only run if _isUnlocked == false and nextLockState is Unlockeed. Meaning that the menu item was unlocked in this menu loading.
-		if (_isUnlocked == false && nextLockState == MenuLockState.Unlocked) {
+		if (_isUnlocked == false && _nextLockState == MenuLockState.Unlocked) {
 			yield return (UnlockCoroutine ());
 		}
 	}
@@ -149,8 +200,8 @@ public class MenuDifficultyButton : MonoBehaviour {
 		// Change the button color
 		_image.color = unlockedColor;
 
-		// Replace the highscore text with the actual highscore Text (no longer the unlck condition
-		highscoreText.text = string.Format ("Highscore: {0}", Managers.Score.GetHighscore (parentModePanel.gameMode, difficulty).ToString ());
+		// Replace the highscore text with the actual highscore Text (no longer the unlck condition)
+		SetHighscoreText ();
 
 		// Appear both the difficultyText and the highscore Text
 		difficultyText.gameObject.SetActive (true);

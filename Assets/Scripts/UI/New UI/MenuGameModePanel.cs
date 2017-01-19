@@ -148,6 +148,12 @@ public class MenuGameModePanel : MonoBehaviour {
 		descriptionText.text = unlockCondition.GetText ();
 	}
 
+	public void DisplayFullStats (bool fullDisplay) {
+		for (int i = 0; i < difficultyButtons.Length; i++) {
+			difficultyButtons [i].DisplayFullStats (fullDisplay);
+		}
+	}
+
 	private IEnumerator TriggerUnlockAnimations () {
 		_isAnimating = true;
 		if (_isUnlocked == false && _nextLockState == MenuLockState.Unlocked) {

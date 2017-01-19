@@ -9,9 +9,7 @@ public class MenuPanelsController : MonoBehaviour {
 		In = 1
 	}
 
-	public MenuController menuController;
-	public MenuGameModePanel[] gameModePanels;
-	private int currentPanelIndex;
+	[Header ("Animation parameters")]
 	public float sideScrollDuration = 0.5f;
 	[Range (0f, 1f)]
 	public float sideScrollAfterBounce = 0.35f;
@@ -20,8 +18,20 @@ public class MenuPanelsController : MonoBehaviour {
 	public float inOutScrollBounce = 0.2f;
 	public float scrollOutYOffset = 1136f;
 
+	[Header ("Full Stats Button text options")]
+	public string showFullStatsString = "Show full stats";
+	public string hideFullStatsString = "Hide full stats";
+
 	private float _originalYPos;
 	private bool _isAnimating;
+	private bool _shouldDisplayFullStats = false;
+
+	[Header ("References")]
+	public MenuController menuController;
+	public MenuGameModePanel[] gameModePanels;
+	public MenuFullStatsButton fullStatsButton;
+
+	private int currentPanelIndex;
 
 	void Awake () {
 		if (menuController == null) {
@@ -29,6 +39,10 @@ public class MenuPanelsController : MonoBehaviour {
 		}
 		if (gameModePanels == null) {
 			GetComponentsInChildren<MenuGameModePanel> ();
+		}
+
+		if (fullStatsButton == null) {
+			GetComponentInChildren<MenuFullStatsButton> ();
 		}
 
 		_isAnimating = false;
@@ -124,9 +138,45 @@ public class MenuPanelsController : MonoBehaviour {
 		menuController.LaunchGame (gameMode, difficulty);
 	}
 
+	public void OnFullStatsButtonClicked () {
+		if (_isAnimating) {
+			return;
+		}
+
+		// Change the value of _shouldShowFullStats
+		_shouldDisplayFullStats = !_shouldDisplayFullStats;
+
+		// Change the buttons text
+		if (_shouldDisplayFullStats) {
+			// When stats are shown, button changes to Hide
+			fullStatsButton.SetText (hideFullStatsString);
+		} else {
+			// When stats are hidden, button changes to Show
+			fullStatsButton.SetText (showFullStatsString);
+		}
+
+		// Comunicate the change
+		for (int i = 0; i < gameModePanels.Length; i++) {
+			gameModePanels[i].DisplayFullStats (_shouldDisplayFullStats);
+		}
+	}
+
+	public void ShowFullStats () {
+		if (_shouldDisplayFullStats == false) {
+			OnFullStatsButtonClicked ();
+		}
+	}
+
+	public void ForceHideFullStats () {
+		if (_shouldDisplayFullStats == true) {
+			OnFullStatsButtonClicked ();
+		}
+	}
+
 	private IEnumerator ScrollPanelsTowards (MenuArrow.Direction direction) {
 		_isAnimating = true;
 		gameModePanels [currentPanelIndex].SetEnabled (false);
+		fullStatsButton.SetActive (false);
 
 		float startXPos = transform.localPosition.x;
 		float targetXPos = -gameModePanels [currentPanelIndex + (int)direction].transform.localPosition.x;
@@ -154,6 +204,10 @@ public class MenuPanelsController : MonoBehaviour {
 
 		currentPos.x = targetXPos;
 		transform.localPosition = currentPos;
+
+		// Reposition the fullStatsButton
+		fullStatsButton.ShiftAnchoredPosition (gameModePanels [currentPanelIndex + (int)direction].transform.localPosition.x - gameModePanels [currentPanelIndex].transform.localPosition.x, 0);
+		fullStatsButton.SetActive (true);
 
 		currentPanelIndex += (int)direction;
 		gameModePanels [currentPanelIndex].SetEnabled (true);

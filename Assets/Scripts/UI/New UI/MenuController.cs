@@ -39,6 +39,7 @@ public class MenuController : MenuControllerBase {
 	public override IEnumerator PopMenu () {
 		panelsController.gameObject.SetActive (true);
 		UpdateUnlockStates ();
+		panelsController.ForceHideFullStats ();
 		yield return (panelsController.ScrollInOut (MenuPanelsController.MenuDirection.In));
 	}
 
