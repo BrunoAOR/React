@@ -145,8 +145,6 @@ public class MenuDifficultyButton : MonoBehaviour {
 		}
 	}
 
-
-
 	private void DisplayStatsInformation () {
 		if (_shouldDisplayFullStats) {
 			informationText.gameObject.SetActive (false);

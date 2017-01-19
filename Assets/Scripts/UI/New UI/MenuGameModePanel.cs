@@ -74,6 +74,10 @@ public class MenuGameModePanel : MonoBehaviour {
 		_difficultiesPanelCanvasGroup = difficultiesPanel.GetComponent<CanvasGroup> ();
 	}
 
+	public bool IsAnimating () {
+		return (_isAnimating);
+	}
+
 	public void SetButtonsColors (Color unlockedColor, Color lockedColor, Color lockImageColor) {
 		for (int i = 0; i < difficultyButtons.Length; i++) {
 			difficultyButtons [i].SetButtonsColors (unlockedColor, lockedColor, lockImageColor);

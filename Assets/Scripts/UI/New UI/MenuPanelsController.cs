@@ -139,7 +139,7 @@ public class MenuPanelsController : MonoBehaviour {
 	}
 
 	public void OnFullStatsButtonClicked () {
-		if (_isAnimating) {
+		if (_isAnimating || IsAGamePanelAnimating ()) {
 			return;
 		}
 
@@ -159,6 +159,17 @@ public class MenuPanelsController : MonoBehaviour {
 		for (int i = 0; i < gameModePanels.Length; i++) {
 			gameModePanels[i].DisplayFullStats (_shouldDisplayFullStats);
 		}
+	}
+
+	private bool IsAGamePanelAnimating () {
+		bool animating = false;
+		for (int i = 0; i < gameModePanels.Length; i++) {
+			if (gameModePanels [i].IsAnimating ()) {
+				animating = true;
+				break;
+			}
+		}
+		return animating;
 	}
 
 	public void ShowFullStats () {
