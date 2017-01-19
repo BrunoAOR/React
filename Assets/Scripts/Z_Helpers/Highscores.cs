@@ -12,6 +12,10 @@ public class Highscores {
 	}
 
 	public bool SetHighscore (GameMode gameMode, Difficulty difficulty, int newScore) {
+		if (newScore <= 0) {
+			return false;
+		}
+
 		Dictionary<Difficulty, int> difficultyDictionary;
 		int currentScore;
 
