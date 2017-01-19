@@ -87,14 +87,6 @@ public class PauseMenu : MonoBehaviour {
 	}
 
 
-	public void OnOptions() {
-		if (!_buttonsClickable)
-			return;
-		
-		Managers.Audio.PlaySFX (SFX.PausePanelButton);
-	}
-
-
 	public void OnQuitGame () {
 		if (!_buttonsClickable)
 			return;
