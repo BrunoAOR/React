@@ -36,7 +36,7 @@ public class RoundManager : MonoBehaviour {
 	public float alphaAtEndGame = 0.3f;
 
 	[Header ("Ads")]
-	public AdsController AdsController;
+	public AdsController adsController;
 
 	[Header ("Game Stage")]
 	public GameObject HUDSection;
@@ -97,7 +97,11 @@ public class RoundManager : MonoBehaviour {
 		HUDSection.SetActive (false);
 		roundResultController.SetActive (false);
 		pauseMenuController.gameObject.SetActive (false);
-		AdsController.gameObject.SetActive (false);
+		adsController.gameObject.SetActive (false);
+
+		// Set up some references
+		menuController.SetAdsController(adsController);
+		adsController.menuController = menuController;
 	}
 
 
@@ -400,10 +404,6 @@ public class RoundManager : MonoBehaviour {
 		}
 
 		return modeBehaviours [0].statsBehaviour;
-	}
-
-	public void PromptForAds () {
-		AdsController.gameObject.SetActive (true);
 	}
 
 
