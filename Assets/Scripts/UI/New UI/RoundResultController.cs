@@ -26,16 +26,17 @@ public class RoundResultController : MonoBehaviour {
 	public GameObject newHighscoreLabel;
 	public GameObject tapPrompt;
 
-	private Vector2 canvasRect;
+	private Vector2 _canvasReferenceResolution;
 	private int _currentScore;
 	private int _previousHighscore;
 	private bool _newHighscore;
 	private int _elementsCount = 9;
 	private Vector3[] _elementsLocalPositions;
-	private IEnumerator showRoundResultCoroutine;
+	private IEnumerator _showRoundResultCoroutine;
+	private IEnumerator[] _showRoundResultInnerCoroutines = new IEnumerator[2];
 
 	void Awake () {
-		canvasRect = GetComponentInParent<CanvasScaler> ().referenceResolution;
+		_canvasReferenceResolution = GetComponentInParent<CanvasScaler> ().referenceResolution;
 		_elementsLocalPositions = new Vector3[_elementsCount];
 		_waitTime = new WaitForSeconds (stepWaitTime);
 		RecordElementsLocalPositions ();
@@ -46,14 +47,9 @@ public class RoundResultController : MonoBehaviour {
 	}
 
 	public void OnClick () {
-		if (showRoundResultCoroutine != null) {
+		if (_showRoundResultCoroutine != null) {
 			// So, animation is still running...
-
-			StopCoroutine (showRoundResultCoroutine);
-			showRoundResultCoroutine = null;
-			currentScoreText.text = _currentScore.ToString ();
-			ApplyElementsLocalPositions ();
-			SetElementsState (true);
+			SkipAnimations ();
 		} else {
 			// So, the animation has already finished...
 
@@ -62,6 +58,26 @@ public class RoundResultController : MonoBehaviour {
 			SetActive (false);
 			RoundManager.S.GoToMenu ();
 		}
+	}
+
+	private void SkipAnimations () {
+		// Stop main coroutine
+		StopCoroutine (_showRoundResultCoroutine);
+
+		// Stop any internal coroutines that may be running;
+		for (int i = 0; i < _showRoundResultInnerCoroutines.Length; i++) {
+			if (_showRoundResultInnerCoroutines [i] == null) {
+				break;
+			} else {
+				StopCoroutine (_showRoundResultInnerCoroutines [i]);
+				_showRoundResultInnerCoroutines [i] = null;
+			}
+		}
+
+		_showRoundResultCoroutine = null;
+		currentScoreText.text = _currentScore.ToString ();
+		ApplyElementsLocalPositions ();
+		SetElementsState (true);
 	}
 
 	public void ShowRoundResult (GameMode gameMode, Difficulty difficulty, int score) {
@@ -79,11 +95,11 @@ public class RoundResultController : MonoBehaviour {
 		// Record current score, to be used in case the coroutine is stopped and in the coroutine itself
 		_currentScore = score;
 
-		if (showRoundResultCoroutine != null) {
-			StopCoroutine (showRoundResultCoroutine);
+		if (_showRoundResultCoroutine != null) {
+			StopCoroutine (_showRoundResultCoroutine);
 		}
-		showRoundResultCoroutine = ShowRoundResultCoroutine (gameMode, difficulty);
-		StartCoroutine (showRoundResultCoroutine);
+		_showRoundResultCoroutine = ShowRoundResultCoroutine (gameMode, difficulty);
+		StartCoroutine (_showRoundResultCoroutine);
 	}
 
 	private IEnumerator ShowRoundResultCoroutine (GameMode gameMode, Difficulty difficulty) {
@@ -102,9 +118,11 @@ public class RoundResultController : MonoBehaviour {
 		roundResultPanel.gameObject.SetActive (true);
 		Vector3 panelInPos = roundResultPanel.transform.localPosition;
 		Vector3 panelOutPos = panelInPos;
-		panelOutPos.y += canvasRect.y;
+		panelOutPos.y += _canvasReferenceResolution.y;
 
-		yield return (ScrollIn (roundResultPanel.gameObject, panelOutPos, panelInPos, panelEntryDuration));
+		_showRoundResultInnerCoroutines [0] = ScrollIn (roundResultPanel.gameObject, panelOutPos, panelInPos, panelEntryDuration);
+		yield return (_showRoundResultInnerCoroutines [0]);
+		_showRoundResultInnerCoroutines [0] = null;
 
 		// Wait before the next step
 		yield return (_waitTime);
@@ -121,8 +139,12 @@ public class RoundResultController : MonoBehaviour {
 		Vector3 diffOutPos = diffInPos;
 		diffOutPos.y -= difficultyText.rectTransform.sizeDelta.y;
 
-		StartCoroutine (ScrollIn (gameModeText.gameObject, modeOutPos, modeInPos, modeAndDifficultyEntryDuration));
-		yield return (ScrollIn (difficultyText.gameObject, diffOutPos, diffInPos, modeAndDifficultyEntryDuration));
+		_showRoundResultInnerCoroutines [0] = ScrollIn (gameModeText.gameObject, modeOutPos, modeInPos, modeAndDifficultyEntryDuration);
+		_showRoundResultInnerCoroutines [1] = ScrollIn (difficultyText.gameObject, diffOutPos, diffInPos, modeAndDifficultyEntryDuration);
+		StartCoroutine (_showRoundResultInnerCoroutines [0]);
+		yield return (_showRoundResultInnerCoroutines [1]);
+		_showRoundResultInnerCoroutines [0] = null;
+		_showRoundResultInnerCoroutines [1] = null;
 
 		// Show the score label
 		yield return (_waitTime);
@@ -133,17 +155,27 @@ public class RoundResultController : MonoBehaviour {
 		Vector3 inPos = separator.rectTransform.localPosition;
 		Vector3 outPos = inPos;
 		outPos.y += separator.rectTransform.sizeDelta.y;
-		yield return (ScrollIn (separator.gameObject, outPos, inPos, separatorEntryDuration));
+
+		_showRoundResultInnerCoroutines [0] = ScrollIn (separator.gameObject, outPos, inPos, separatorEntryDuration);
+		yield return (_showRoundResultInnerCoroutines [0]);
+		_showRoundResultInnerCoroutines [0] = null;
 
 		// Animate entry from highscoreText (contains highscoreLabel) and currentScoreText (contains currentScoreLabel)
 		highscoreText.gameObject.SetActive (true);
 		currentScoreText.gameObject.SetActive (true);
 		Vector3 leftPos = highscoreText.rectTransform.localPosition;
 		Vector3 rightPos = currentScoreText.rectTransform.localPosition;
-		StartCoroutine (ScrollIn (highscoreText.gameObject, rightPos, leftPos, scoresEntryDuration));
-		yield return (ScrollIn (currentScoreText.gameObject, leftPos, rightPos, scoresEntryDuration));
 
-		yield return (StartCoroutine(ZeroToNumberTyper.StartCounter (currentScoreText, 0, _currentScore, _currentScore / (float)scoreCountedPerSecond)));
+		_showRoundResultInnerCoroutines [0] = ScrollIn (highscoreText.gameObject, rightPos, leftPos, scoresEntryDuration);
+		_showRoundResultInnerCoroutines [1] = ScrollIn (currentScoreText.gameObject, leftPos, rightPos, scoresEntryDuration);
+		StartCoroutine (_showRoundResultInnerCoroutines [0]);
+		yield return (_showRoundResultInnerCoroutines [1]);
+		_showRoundResultInnerCoroutines [0] = null;
+		_showRoundResultInnerCoroutines [1] = null;
+
+		_showRoundResultInnerCoroutines [0] = ZeroToNumberTyper.StartCounter (currentScoreText, 0, _currentScore, _currentScore / (float)scoreCountedPerSecond);
+		yield return (StartCoroutine(_showRoundResultInnerCoroutines[0]));
+		_showRoundResultInnerCoroutines [0] = null;
 
 		// Show the newHighscoreLabel if a new highscore was achieved
 		yield return (_waitTime);
@@ -155,7 +187,7 @@ public class RoundResultController : MonoBehaviour {
 		tapPrompt.SetActive (true);
 
 		// Coroutine finished
-		showRoundResultCoroutine = null;
+		_showRoundResultCoroutine = null;
 	}
 
 	private IEnumerator ScrollIn (GameObject gameObject, Vector3 localStartPosition, Vector3 localTargetPosition, float duration) {
@@ -171,10 +203,6 @@ public class RoundResultController : MonoBehaviour {
 		}
 
 		gameObject.transform.localPosition = localTargetPosition;
-	}
-
-	private void SkipAnimation () {
-
 	}
 
 	private void SetElementsState (bool activeState) {
