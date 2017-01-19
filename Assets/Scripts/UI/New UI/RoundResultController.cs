@@ -78,6 +78,10 @@ public class RoundResultController : MonoBehaviour {
 		currentScoreText.text = _currentScore.ToString ();
 		ApplyElementsLocalPositions ();
 		SetElementsState (true);
+
+		if (!_newHighscore) {
+			newHighscoreLabel.gameObject.SetActive (false);
+		}
 	}
 
 	public void ShowRoundResult (GameMode gameMode, Difficulty difficulty, int score) {
