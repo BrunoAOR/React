@@ -31,7 +31,7 @@ public class MenuPanelsController : MonoBehaviour {
 	public MenuGameModePanel[] gameModePanels;
 	public MenuFullStatsButton fullStatsButton;
 
-	private int currentPanelIndex;
+	private int _currentPanelIndex;
 
 	void Awake () {
 		if (menuController == null) {
@@ -47,8 +47,8 @@ public class MenuPanelsController : MonoBehaviour {
 
 		_isAnimating = false;
 		_originalYPos = transform.localPosition.y;
-		currentPanelIndex = 0;
-		gameModePanels [currentPanelIndex].SetEnabled (true);
+		_currentPanelIndex = 0;
+		gameModePanels [_currentPanelIndex].SetEnabled (true);
 
 		for (int i = 1; i < gameModePanels.Length; i++) {
 			gameModePanels [i].SetEnabled (false);
@@ -123,13 +123,13 @@ public class MenuPanelsController : MonoBehaviour {
 	}
 
 	public void OnArrowClicked (MenuGameModePanel callingPanel, MenuArrow.Direction direction) {
-		if (direction == MenuArrow.Direction.Left && currentPanelIndex == 0)
+		if (direction == MenuArrow.Direction.Left && _currentPanelIndex == 0)
 			return;
 
-		if (direction == MenuArrow.Direction.Right && currentPanelIndex == gameModePanels.Length - 1)
+		if (direction == MenuArrow.Direction.Right && _currentPanelIndex == gameModePanels.Length - 1)
 			return;
 
-		Debug.Log ("Scrolling " + direction + " from " + gameModePanels [currentPanelIndex].gameMode.ToString () + " to " + gameModePanels [currentPanelIndex + (int)direction].gameMode.ToString ());
+		Debug.Log ("Scrolling " + direction + " from " + gameModePanels [_currentPanelIndex].gameMode.ToString () + " to " + gameModePanels [_currentPanelIndex + (int)direction].gameMode.ToString ());
 
 		StartCoroutine (ScrollPanelsTowards (direction));
 	}
@@ -184,13 +184,19 @@ public class MenuPanelsController : MonoBehaviour {
 		}
 	}
 
+	public void DisplayFullStatsButton (bool display) {
+		if (gameModePanels [_currentPanelIndex].IsUnlocked ()) {
+			fullStatsButton.SetActive (display);
+		}
+	}
+
 	private IEnumerator ScrollPanelsTowards (MenuArrow.Direction direction) {
 		_isAnimating = true;
-		gameModePanels [currentPanelIndex].SetEnabled (false);
+		gameModePanels [_currentPanelIndex].SetEnabled (false);
 		fullStatsButton.SetActive (false);
 
 		float startXPos = transform.localPosition.x;
-		float targetXPos = -gameModePanels [currentPanelIndex + (int)direction].transform.localPosition.x;
+		float targetXPos = -gameModePanels [_currentPanelIndex + (int)direction].transform.localPosition.x;
 
 		Vector3 currentPos = transform.localPosition;
 		float u = 0;
@@ -217,18 +223,23 @@ public class MenuPanelsController : MonoBehaviour {
 		transform.localPosition = currentPos;
 
 		// Reposition the fullStatsButton
-		fullStatsButton.ShiftAnchoredPosition (gameModePanels [currentPanelIndex + (int)direction].transform.localPosition.x - gameModePanels [currentPanelIndex].transform.localPosition.x, 0);
-		fullStatsButton.SetActive (true);
+		fullStatsButton.ShiftAnchoredPosition (gameModePanels [_currentPanelIndex + (int)direction].transform.localPosition.x - gameModePanels [_currentPanelIndex].transform.localPosition.x, 0);
 
-		currentPanelIndex += (int)direction;
-		gameModePanels [currentPanelIndex].SetEnabled (true);
+		_currentPanelIndex += (int)direction;
+		gameModePanels [_currentPanelIndex].SetEnabled (true);
+
+		// Make the fullStatsButton visible IF the new currentPanel is unlocked
+		if (gameModePanels [_currentPanelIndex].IsUnlocked ()) {
+			fullStatsButton.SetActive (true);
+		}
+
 		_isAnimating = false;
 	}
 
 	public IEnumerator ScrollInOut (MenuDirection direction) {
 		_isAnimating = true;
 		if (direction == MenuDirection.Out) {
-			gameModePanels [currentPanelIndex].SetEnabled (false);
+			gameModePanels [_currentPanelIndex].SetEnabled (false);
 		}
 
 		float startYPos = transform.localPosition.y;
@@ -264,7 +275,7 @@ public class MenuPanelsController : MonoBehaviour {
 		transform.localPosition = currentPos;
 
 		if (direction == MenuDirection.In) {
-			gameModePanels [currentPanelIndex].SetEnabled (true);
+			gameModePanels [_currentPanelIndex].SetEnabled (true);
 		}
 		_isAnimating = false;
 	}

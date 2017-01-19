@@ -78,6 +78,10 @@ public class MenuGameModePanel : MonoBehaviour {
 		return (_isAnimating);
 	}
 
+	public bool IsUnlocked () {
+		return (_isUnlocked);
+	}
+
 	public void SetButtonsColors (Color unlockedColor, Color lockedColor, Color lockImageColor) {
 		for (int i = 0; i < difficultyButtons.Length; i++) {
 			difficultyButtons [i].SetButtonsColors (unlockedColor, lockedColor, lockImageColor);
@@ -165,6 +169,7 @@ public class MenuGameModePanel : MonoBehaviour {
 			// Therefore, its animation must be skipped.
 			difficultyButtons[0].SkipUnlockAnimation ();
 			yield return (UnlockCoroutine ());
+			parentPanelsController.DisplayFullStatsButton (true);
 		} else if (_isUnlocked) {
 			// Animations in the children menu items can only happen if the menu is unlocked.
 			for (int i = 0; i < difficultyButtons.Length; i++) {
