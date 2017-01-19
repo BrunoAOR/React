@@ -1,5 +1,6 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using System.Collections;
+using UnityEngine;
+using UnityEngine.Audio;
 
 // Warning CS0649: Field '#fieldname#' is never assigned to, and will always have its default value null (CS0649) (Assembly-CSharp)
 // Warning was raised for the following fields: musicSource1, musicSource2 and soundSource
@@ -24,6 +25,12 @@ public enum SFX : int {
 
 public class AudioManager : MonoBehaviour {
 
+	[Header ("Audio Mixer")]
+	public AudioMixerSnapshot defaultSnapshot;
+	public AudioMixerSnapshot noMusicSnapshot;
+	public AudioMixerSnapshot noSoundSnapshot;
+	public AudioMixerSnapshot allMutedSnapshot;
+
 	[Header ("Audio Sources")]
 	[SerializeField]
 	private AudioSource	musicSource1;
@@ -46,21 +53,16 @@ public class AudioManager : MonoBehaviour {
 
 	public bool musicMute {
 		get{
-			if (musicSource1 != null) {
-				return (musicSource1.mute);
-			}
-			return false;
+			return (_musicMute);
 		}
 		set {
-			if (musicSource1 != null) {
-				musicSource1.mute = value;
-				musicSource2.mute = value;
-			}
+			_musicMute = value;
+			UpdateSnapshot ();
 		}
 	}
+	private bool _musicMute;
 
 
-	private float	_musicVolume;
 	public float musicVolume {
 		get {
 			return (_musicVolume);
@@ -73,19 +75,20 @@ public class AudioManager : MonoBehaviour {
 			}
 		}
 	}
-
+	private float _musicVolume;
 
 	public bool soundMute {
 		get {
-			return (AudioListener.pause);
+			return (_soundMute);
 		}
 		set {
-			AudioListener.pause = value;
+			_soundMute = value;
+			UpdateSnapshot ();
 		}
 	}
+	private bool _soundMute;
+		
 
-
-	private float	_soundVolume;
 	public float soundVolume {
 		get {
 			return (_soundVolume);
@@ -95,7 +98,8 @@ public class AudioManager : MonoBehaviour {
 			AudioListener.volume = _soundVolume;
 		}
 	}
-		
+	private float	_soundVolume;
+
 
 	void Awake () {
 		musicSource1.loop = true;
@@ -111,6 +115,28 @@ public class AudioManager : MonoBehaviour {
 		soundVolume = 1f;
 		musicVolume = 1f;
 
+	}
+
+	private void UpdateSnapshot () {
+		if (_musicMute) {
+			// Music OFF
+			if (_soundMute) {
+				// Sound OFF
+				allMutedSnapshot.TransitionTo (0.5f);
+			} else {
+				// Sound ON
+				noMusicSnapshot.TransitionTo (0.5f);
+			}
+		} else {
+			// Music ON
+			if (_soundMute) {
+				// Sound OFF
+				noSoundSnapshot.TransitionTo (0.5f);
+			} else {
+				// Sound ON
+				defaultSnapshot.TransitionTo (0.5f);
+			}
+		}
 	}
 
 
