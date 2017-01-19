@@ -9,8 +9,10 @@ public class MenuDifficultyButton : MonoBehaviour {
 	public Difficulty difficulty;
 	[HideInInspector] public Color unlockedColor;
 	[HideInInspector] public Color lockedColor;
-	public Text difficultyText;
-	public Text highscoreText;
+	public Text buttonText;
+	public Text fullStatsTextLeft;
+	public Text fullStatsTextRight;
+	public Text informationText;
 	public Image lockImage;
 	[HideInInspector] public Color lockImageColor;
 	private bool _isAnimating = false;
@@ -32,8 +34,8 @@ public class MenuDifficultyButton : MonoBehaviour {
 
 	void OnValidate () {
 		name = difficulty.ToString ();
-		if (difficultyText != null) {
-			difficultyText.text = difficulty.ToString ();
+		if (buttonText != null) {
+			buttonText.text = difficulty.ToString ();
 		}
 	}
 
@@ -41,9 +43,9 @@ public class MenuDifficultyButton : MonoBehaviour {
 		if (parentModePanel == null) {
 			parentModePanel = GetComponentInParent<MenuGameModePanel> ();
 		}
-		_image = GetComponent<Image> ();
+		_image = GetComponentInChildren<Image> ();
 		_lockImageShaker = lockImage.GetComponent<UIShaker> ();
-		difficultyText.text = difficulty.ToString ();
+		buttonText.text = difficulty.ToString ();
 	}
 
 	void Start () {
@@ -59,7 +61,7 @@ public class MenuDifficultyButton : MonoBehaviour {
 	public void UpdateUnlockStates (bool unlockState, UnlockCondition unlockCondition) {
 		// If _isUnlocked is true, then no further action needs to be taken other than to update the highscoreText.
 		if (_isUnlocked) {
-			SetHighscoreText ();
+			DisplayStatsInformation ();
 			return;
 		}
 
@@ -98,16 +100,16 @@ public class MenuDifficultyButton : MonoBehaviour {
 		_isUnlocked = true;
 		_image.color = unlockedColor;
 		lockImage.gameObject.SetActive (false);
-		difficultyText.gameObject.SetActive (true);
-		SetHighscoreText ();
+		buttonText.gameObject.SetActive (true);
+		DisplayStatsInformation ();
 	}
 
 	private void Lock (UnlockCondition unlockCondition) {
 		_isUnlocked = false;
 		_image.color = lockedColor;
 		lockImage.gameObject.SetActive (true);
-		difficultyText.gameObject.SetActive (false);
-		highscoreText.text = unlockCondition.GetText ();
+		buttonText.gameObject.SetActive (false);
+		DisplayUnlockConditions (unlockCondition);
 	}
 
 	public void DisplayFullStats (bool fullDisplay) {
@@ -129,7 +131,7 @@ public class MenuDifficultyButton : MonoBehaviour {
 
 		// If the button is locked, then highscoreText will be showing the unlockCondition and shouldn't be changed
 		if (_isUnlocked) {
-			SetHighscoreText ();
+			DisplayStatsInformation ();
 		}
 	}
 
@@ -139,25 +141,33 @@ public class MenuDifficultyButton : MonoBehaviour {
 
 		// If the button is locked, then highscoreText will be showing the unlockCondition and shouldn't be changed
 		if (_isUnlocked) {
-			SetHighscoreText ();
+			DisplayStatsInformation ();
 		}
 	}
 
 
 
-	private void SetHighscoreText () {
+	private void DisplayStatsInformation () {
 		if (_shouldDisplayFullStats) {
-			highscoreText.text = string.Format (
-				"Play count:  {0,11}\n" +
-				"Highscore:   {1,11:N0}\n" +
-				"Total score: {2,11:N0}",
+			fullStatsTextLeft.text = string.Format (
+				"Play count:\nHighscore:\nTotal score:"
+			);
+			fullStatsTextRight.text = string.Format ("{0:N0}\n{1:N0}\n{2:N0}", 
 				Managers.Stats.GetPlayCount (parentModePanel.gameMode, difficulty),
 				Managers.Score.GetHighscore (parentModePanel.gameMode, difficulty), 
 				Managers.Stats.GetCumulativeScore (parentModePanel.gameMode, difficulty)
 			);
 		} else {
-			highscoreText.text = string.Format ("Highscore: {0}", Managers.Score.GetHighscore (parentModePanel.gameMode, difficulty).ToString ());
+			fullStatsTextLeft.text = string.Format ("Highscore: {0:N0}", Managers.Score.GetHighscore (parentModePanel.gameMode, difficulty));
+			fullStatsTextRight.text = "";
 		}
+	}
+
+	private void DisplayUnlockConditions (UnlockCondition unlockCondition) {
+		informationText.gameObject.SetActive (true);
+		fullStatsTextLeft.gameObject.SetActive (false);
+		fullStatsTextRight.gameObject.SetActive (false);
+		informationText.text = unlockCondition.GetText ();
 	}
 
 	public IEnumerator TriggerUnlockAnimations () {
@@ -181,7 +191,7 @@ public class MenuDifficultyButton : MonoBehaviour {
 		float u;
 		Vector3 startScale = lockImage.transform.localScale;
 		Vector3 targetScale = Vector3.zero;
-		Color startColor = highscoreText.color;
+		Color startColor = fullStatsTextLeft.color;
 		Color dimmedColor = startColor;
 		dimmedColor.a = 0;
 
@@ -189,7 +199,7 @@ public class MenuDifficultyButton : MonoBehaviour {
 		while ((Time.time - timeStart) < lockShrinkDuration) {
 			u = (Time.time - timeStart) / lockShrinkDuration;
 			lockImage.transform.localScale = Vector3.Lerp (startScale, targetScale, u);
-			highscoreText.color = Color.Lerp (startColor, dimmedColor, u);
+			fullStatsTextLeft.color = Color.Lerp (startColor, dimmedColor, u);
 			yield return null;
 		}
 
@@ -201,23 +211,23 @@ public class MenuDifficultyButton : MonoBehaviour {
 		_image.color = unlockedColor;
 
 		// Replace the highscore text with the actual highscore Text (no longer the unlck condition)
-		SetHighscoreText ();
+		DisplayStatsInformation ();
 
 		// Appear both the difficultyText and the highscore Text
-		difficultyText.gameObject.SetActive (true);
-		difficultyText.color = dimmedColor;
+		buttonText.gameObject.SetActive (true);
+		buttonText.color = dimmedColor;
 
 		timeStart = Time.time;
 
 		while ((Time.time - timeStart) < textAppearDuration) {
 			u = (Time.time - timeStart) / textAppearDuration;
-			difficultyText.color = Color.Lerp (dimmedColor, startColor, u);
-			highscoreText.color = Color.Lerp (dimmedColor, startColor, u);
+			buttonText.color = Color.Lerp (dimmedColor, startColor, u);
+			fullStatsTextLeft.color = Color.Lerp (dimmedColor, startColor, u);
 			yield return null;
 		}
 
-		difficultyText.color = startColor;
-		highscoreText.color = startColor;
+		buttonText.color = startColor;
+		fullStatsTextLeft.color = startColor;
 
 		// Set _isUnlocked to true to allow clicking after the animation.
 		_isUnlocked = true;
