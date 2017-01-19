@@ -149,6 +149,10 @@ public class MenuDifficultyButton : MonoBehaviour {
 
 	private void DisplayStatsInformation () {
 		if (_shouldDisplayFullStats) {
+			informationText.gameObject.SetActive (false);
+			fullStatsTextLeft.gameObject.SetActive (true);
+			fullStatsTextRight.gameObject.SetActive (true);
+
 			fullStatsTextLeft.text = string.Format (
 				"Play count:\nHighscore:\nTotal score:"
 			);
@@ -158,8 +162,11 @@ public class MenuDifficultyButton : MonoBehaviour {
 				Managers.Stats.GetCumulativeScore (parentModePanel.gameMode, difficulty)
 			);
 		} else {
-			fullStatsTextLeft.text = string.Format ("Highscore: {0:N0}", Managers.Score.GetHighscore (parentModePanel.gameMode, difficulty));
-			fullStatsTextRight.text = "";
+			informationText.gameObject.SetActive (true);
+			fullStatsTextLeft.gameObject.SetActive (false);
+			fullStatsTextRight.gameObject.SetActive (false);
+
+			informationText.text = string.Format ("Highscore: {0:N0}", Managers.Score.GetHighscore (parentModePanel.gameMode, difficulty));
 		}
 	}
 
