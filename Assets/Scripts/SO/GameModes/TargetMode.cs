@@ -6,14 +6,13 @@ using System.Collections;
 public class TargetMode : GameModeLogic {
 
 	[Header ("Specific mode info")]
-	public int totalButtonsOnPerRound = 1;
-	public int goodButtonsOnPerRound = 1;
+	public float decoyToGoodButtonsRatio = 2.5f;
 	public Color[] lightColors = new Color[] {Color.white, Color.red, Color.green, Color.blue, Color.cyan, Color.magenta, Color.yellow};
 
 	[HideInInspector] public Image targetImage;
 	private UIAnchorPosition targetImagePositioner;
 	private Color targetColor;
-	private int goodButtonsOnRemaining;
+	private int buttonsToClickRemaining;
 
 
 	void OnEnable () {
@@ -24,10 +23,20 @@ public class TargetMode : GameModeLogic {
 		targetImage = null;
 		targetImagePositioner = null;
 		targetColor = Color.clear;
-		goodButtonsOnRemaining = 0;
+		buttonsToClickRemaining = 0;
 	}
 
-	public override int TurnOnButtons (Button[] buttons)	{
+	public override int TurnOnButtons (Button[] buttons, int buttonsToClick)	{
+		// Verify buttonsToClick
+		if (buttonsToClick < 1) {
+			buttonsToClick = 1;
+		}
+		int maxButtonsToClick = (int)(buttons.Length / decoyToGoodButtonsRatio);
+		if (buttonsToClick >= maxButtonsToClick) {
+			buttonsToClick = maxButtonsToClick - 1;
+		}
+
+		// Get TargetImagePositioner
 		if (targetImagePositioner == null) {
 			targetImagePositioner = targetImage.GetComponent<UIAnchorPosition> ();
 			if (targetImagePositioner == null) {
@@ -35,6 +44,7 @@ public class TargetMode : GameModeLogic {
 			}
 		}
 
+		// Initialize the return field
 		int changeInButtonsOnAmount = 0;
 
 		// Select the target color for this set of buttons
@@ -65,16 +75,19 @@ public class TargetMode : GameModeLogic {
 		targetImage.gameObject.SetActive (true);
 		targetImage.color = targetColor;
 
-		// Now turn on the buttons, ensuring the first one AND only the first one has the target color
-		for (int i = 0; i < totalButtonsOnPerRound; i++) {
+		// Initialize the totalButtonsOn field (result is rounded down due to the int-cast)
+		int totalButtonsOn = (int)(buttonsToClick + buttonsToClick * decoyToGoodButtonsRatio);
+
+		// Now turn on the buttons, ensuring the first ones AND only the first ones have the target color
+		for (int i = 0; i < totalButtonsOn; i++) {
 			bool buttonLit = false;
 			while (!buttonLit) {
 				int randomBIndex = Random.Range (0, buttons.Length);
 				if (!buttons [randomBIndex].isLit) {
 					Color selectedColor;
-					if (i < goodButtonsOnPerRound) {	// First buttons that will be turned on should have targetColor
+					if (i < buttonsToClick) {	// First buttons that will be turned on should have targetColor
 						selectedColor = targetColor;
-						goodButtonsOnRemaining++;
+						buttonsToClickRemaining++;
 					} else {	// All other buttons get their color from the usableColors array
 						selectedColor = usableColors [Random.Range (0, usableColors.Length)];
 					}
@@ -97,7 +110,7 @@ public class TargetMode : GameModeLogic {
 				changeInButtonsOnAmount--;
 			}
 		}
-		goodButtonsOnRemaining = 0;
+		buttonsToClickRemaining = 0;
 		return changeInButtonsOnAmount;
 	}
 
@@ -110,7 +123,7 @@ public class TargetMode : GameModeLogic {
 				button.TurnLightOff ();
 				button.SpawnGoodTimeBonus (goodTimeBonus);
 				changeInButtonsOnAmount--;
-				goodButtonsOnRemaining--;
+				buttonsToClickRemaining--;
 				timeBonus = goodTimeBonus;
 
 				Vector2 buttonViewportPos = Camera.main.WorldToViewportPoint (button.transform.position);
@@ -132,7 +145,7 @@ public class TargetMode : GameModeLogic {
 			Managers.Score.ResetMultiplier ();
 		}
 
-		if (goodButtonsOnRemaining == 0) {
+		if (buttonsToClickRemaining == 0) {
 			RoundManager.S.TurnOffButtons ();
 			targetImage.gameObject.SetActive (false);
 		}
@@ -142,12 +155,6 @@ public class TargetMode : GameModeLogic {
 
 
 	void OnValidate () {
-		if (goodButtonsOnPerRound <= 0)
-			goodButtonsOnPerRound = 1;
-
-		if (totalButtonsOnPerRound <= 1)
-			totalButtonsOnPerRound = 2;
-
 		if (lightColors.Length < 2) {
 			Debug.LogWarning ("Light Colors array is too small, it has be resized to contain 2 colors");
 			Color[] newArray = new Color[2];

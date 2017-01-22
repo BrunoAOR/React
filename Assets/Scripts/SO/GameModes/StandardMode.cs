@@ -5,7 +5,6 @@ using System.Collections;
 public class StandardMode : GameModeLogic {
 
 	[Header ("Specific mode info")]
-	public int buttonsOnPerRound = 1;
 	public Color[] lightColors = new Color[] {Color.white, Color.red, Color.green, Color.blue, Color.cyan, Color.magenta, Color.yellow};
 
 
@@ -17,9 +16,18 @@ public class StandardMode : GameModeLogic {
 		// No initialization needed.
 	}
 
-	public override int TurnOnButtons (Button[] buttons)	{
+	public override int TurnOnButtons (Button[] buttons, int buttonsToClick)	{
+		// Verify buttonsToClick
+		if (buttonsToClick < 1) {
+			buttonsToClick = 1;
+		}
+		if (buttonsToClick > buttons.Length) {
+			buttonsToClick = buttons.Length;
+		}
+
+		// Turn buttons on
 		int changeInButtonsOnAmount = 0;
-		for (int i = 0; i < buttonsOnPerRound; i++) {
+		for (int i = 0; i < buttonsToClick; i++) {
 			bool buttonLit = false;
 			while (!buttonLit) {
 				int randomBIndex = Random.Range (0, buttons.Length);

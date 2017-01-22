@@ -5,7 +5,6 @@ using System.Collections;
 public class InverseMode : GameModeLogic {
 
 	[Header ("Specific mode info")]
-	public int buttonsLeftOffPerRound = 2;
 	public Color[] lightColors = new Color[] {Color.white, Color.red, Color.green, Color.blue, Color.cyan, Color.magenta, Color.yellow};
 
 	private int buttonsOffRemaining;
@@ -19,12 +18,22 @@ public class InverseMode : GameModeLogic {
 		buttonsOffRemaining = 0;
 	}
 
-	public override int TurnOnButtons (Button[] buttons)	{
-		int totalButtonCount = RoundManager.S.boardManager.gridSize * RoundManager.S.boardManager.gridSize;
+	public override int TurnOnButtons (Button[] buttons, int buttonsToClick) {
+		// Verify buttonsToClick
+		if (buttonsToClick < 1) {
+			buttonsToClick = 1;
+		}
+		if (buttonsToClick > (buttons.Length - 1)) {
+			// Making sure at least 1 button turns on
+			buttonsToClick = buttons.Length - 1;
+		}
+
+		// Turn buttons on
+		int totalButtonCount = buttons.Length;
 		buttonsOffRemaining = totalButtonCount;
 		int changeInButtonsOnAmount = 0;
 
-		for (int i = 0; i < (totalButtonCount - buttonsLeftOffPerRound); i++) {
+		for (int i = 0; i < (totalButtonCount - buttonsToClick); i++) {
 			bool buttonLit = false;
 			while (!buttonLit) {
 				int randomBIndex = Random.Range (0, buttons.Length);

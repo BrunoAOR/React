@@ -15,11 +15,15 @@ public class RoundManager : MonoBehaviour {
 
 	[Header ("GAME MODE LOGIC")]
 	public GameModeLogic modeLogic;
+	public GameDifficulty gameDifficulty;
 	public ButtonsBehaviour[] modeBehaviours;
 
 	[Header ("Game info")]
 	public GameMode gameMode;
 	public Difficulty difficulty;
+
+	private int currentRound;
+	private float roundWaitTime;
 
 	[Header ("For Target Mode")]
 	public GameObject targetModeSection;
@@ -60,7 +64,7 @@ public class RoundManager : MonoBehaviour {
 	private float _timer;
 
 	[Header ("For the buttons")]
-	public int buttonsOn;
+	public int buttonsLeftToClick;
 	private Button[] _buttons;
 
 	[Header ("Game Pause Penalty")]
@@ -119,8 +123,9 @@ public class RoundManager : MonoBehaviour {
 	public void StartGame (GameMode gameMode, Difficulty difficulty) {
 		this.gameMode = gameMode;
 		this.difficulty = difficulty;
+
 		GameModeLogic logic = Managers.Enums.GetGameModeLogic (gameMode);
-		GameDifficulty gameDifficulty = Managers.Enums.GetGameDifficulty (difficulty);
+		gameDifficulty = Managers.Enums.GetGameDifficulty (difficulty);
 		StartGame (logic, (int)gameDifficulty.gridSize, gameDifficulty.buttonsBehaviours);
 	}
 
@@ -129,6 +134,9 @@ public class RoundManager : MonoBehaviour {
 		modeLogic.InitializeGameMode ();
 		boardManager.gridSize = gridSize;
 		modeBehaviours = selectedButtonBehaviours;
+
+		currentRound = 0;
+		roundWaitTime = 0;
 
 		menuController.SetActive (false);
 
@@ -168,7 +176,7 @@ public class RoundManager : MonoBehaviour {
 					_lastUnpauseDuration = 0;
 			}
 
-			if (buttonsOn > 0) {
+			if (buttonsLeftToClick > 0) {
 				_timer -= Time.deltaTime;
 				if (_timer <= 0) {
 					_timer = 0;
@@ -257,27 +265,45 @@ public class RoundManager : MonoBehaviour {
 			targetMode.targetImage = targetImage;
 		}
 
+		// Actual round loop
+		WaitForSeconds wfs;
+
+
 		while (_timer > 0) {
+			// Increase currentRound and get waitTime for the round.
+			currentRound++;
+			roundWaitTime = gameDifficulty.GetWaitTime (currentRound);
+			wfs = new WaitForSeconds (roundWaitTime);
 
-			float waitTime = Random.Range (modeLogic.minWaitTime, modeLogic.maxWaitTime);
-			yield return new WaitForSeconds (waitTime);
+			// Wait before turning buttons on
+			yield return wfs;
 
-			while (_isPaused) {
-				wasPaused = true;
-				yield return null;
+			// Controlling pausing the game
+			// The outer while-loop makes sure that pausing 'after unpausing but before wfs goes through' is still caught.
+			while (_isPaused || wasPaused) {
+				// If the game is paused, just wait before taking action
+				while (_isPaused) {
+					wasPaused = true;
+					yield return null;
+				}
+
+				// When unpausing, repeat the full waitTime;
+				if (wasPaused) {
+					wasPaused = false;
+					yield return wfs;
+				}
 			}
 
-			if (wasPaused) {
-				yield return new WaitForSeconds (waitTime);
-				wasPaused = false;
-			}
-
+			// Turn on buttons and start responding to clicks on buttons
 			TurnOnButtons ();
 			_buttonsClickable = true;
 
-			while (buttonsOn > 0) {
+			// Wait around while a button is still on.
+			while (buttonsLeftToClick > 0) {
 				yield return null;
 			}
+
+			// Stop responding to button clicks after the round has completed
 			_buttonsClickable = false;
 		}
 	}
@@ -333,6 +359,9 @@ public class RoundManager : MonoBehaviour {
 		// Set background alpha
 		background.SetAlpha (alphaAtMenu);
 
+		// Force garbage collection
+		System.GC.Collect ();
+
 		// Control is passed on to the RoundResultController.
 		roundResultController.ShowRoundResult (gameMode, difficulty, Managers.Score.GetScore ());
 	}
@@ -342,7 +371,7 @@ public class RoundManager : MonoBehaviour {
 		_isPaused = false;
 
 		// Ensure buttonsOn = 0
-		buttonsOn = 0;
+		buttonsLeftToClick = 0;
 
 		// Stop TimedGame coroutine
 		StopCoroutine (_currentTimedStage);
@@ -373,6 +402,7 @@ public class RoundManager : MonoBehaviour {
 		GoToMenu ();
 	}
 		
+
 	public void GoToMenu () {
 		// Set background alpha
 		background.SetAlpha (alphaAtMenu);
@@ -380,30 +410,6 @@ public class RoundManager : MonoBehaviour {
 		// Control is passed on to the MenuController.
 		menuController.SetActive (true);
 		StartCoroutine (menuController.PopMenu () );
-	}
-
-	private GameMode GetStatsGameMode () {
-		return modeLogic.gameMode;
-	}
-
-	private GamePace GetStatsGamePace () {
-		return modeLogic.gamePace;
-	}
-
-	private GridSize GetStatsGridSize () {
-		return ((GridSize)boardManager.gridSize);
-	}
-
-	private Behaviour GetStatsBehaviour () {
-		if (modeBehaviours.Length == 0) {
-			return Behaviour.None;
-		}
-
-		if (modeBehaviours.Length == 2) {
-			return Behaviour.GhostMotion;
-		}
-
-		return modeBehaviours [0].statsBehaviour;
 	}
 
 
@@ -449,10 +455,10 @@ public class RoundManager : MonoBehaviour {
 
 		int changeInButtonsOnAmount = modeLogic.ButtonPressed (button, out timeBonus);
 		if (changeInButtonsOnAmount != 0) {
-			if (modeLogic.minWaitTime >= 0.25f)
+			if (roundWaitTime >= 0.25f) {
 				Managers.Audio.PlaySFX (SFX.ButtonUnlit);
-
-			buttonsOn += changeInButtonsOnAmount;
+			}
+			buttonsLeftToClick += changeInButtonsOnAmount;
 		}
 
 		_timer += timeBonus;
@@ -464,13 +470,13 @@ public class RoundManager : MonoBehaviour {
 
 
 	private void TurnOnButtons () {
-		buttonsOn += modeLogic.TurnOnButtons (_buttons);
+		buttonsLeftToClick += modeLogic.TurnOnButtons (_buttons, gameDifficulty.GetButtonsToClick(currentRound));
 		Managers.Audio.PlaySFX (SFX.ButtonsOn);
 	}
 
 
 	public void TurnOffButtons () {
-		buttonsOn += modeLogic.TurnOffButtons (_buttons);
+		buttonsLeftToClick += modeLogic.TurnOffButtons (_buttons);
 	}
 
 

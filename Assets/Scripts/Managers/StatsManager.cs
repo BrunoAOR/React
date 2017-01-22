@@ -2,10 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public enum GamePace {Relaxed, Hectic}
-public enum GridSize {Small = 3, Medium, Large}
-public enum Behaviour {None, Ghost, Motion, GhostMotion}
-
 public class StatsManager : MonoBehaviour {
 
 	private StatsData stats;
