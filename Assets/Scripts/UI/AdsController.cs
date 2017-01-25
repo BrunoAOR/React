@@ -9,6 +9,7 @@ public class AdsController : MonoBehaviour {
 	public GameObject watchAdPrompt;
 	public GameObject afterAdPrompt;
 
+	public MenuControllerBase menuController;
 
 	void OnEnable () {
 		noAdsPrompt.SetActive (false);
@@ -29,6 +30,9 @@ public class AdsController : MonoBehaviour {
 
 	}
 
+	void OnDisable () {
+		menuController.AdsFinished ();
+	}
 
 	public void OnWatchAd () {
 		ShowAd ();

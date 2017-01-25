@@ -15,14 +15,22 @@ public class RoundManager : MonoBehaviour {
 
 	[Header ("GAME MODE LOGIC")]
 	public GameModeLogic modeLogic;
+	public GameDifficulty gameDifficulty;
 	public ButtonsBehaviour[] modeBehaviours;
+
+	[Header ("Game info")]
+	public GameMode gameMode;
+	public Difficulty difficulty;
+
+	private int currentRound;
+	private float roundWaitTime;
 
 	[Header ("For Target Mode")]
 	public GameObject targetModeSection;
 	public Image targetImage;
 
 	[Header ("Menu and Background Reference")]
-	public MenuController menuController;
+	public MenuControllerBase menuController;
 	public BGLineSpawner background;
 	[Range (0f,1f)]
 	public float alphaAtMenu = 1.0f;
@@ -30,10 +38,9 @@ public class RoundManager : MonoBehaviour {
 	public float alphaAtGame = 0.1f;
 	[Range (0f,1f)]
 	public float alphaAtEndGame = 0.3f;
-	public GameObject menuTapPrompt;
 
 	[Header ("Ads")]
-	public AdsController AdsController;
+	public AdsController adsController;
 
 	[Header ("Game Stage")]
 	public GameObject HUDSection;
@@ -57,7 +64,7 @@ public class RoundManager : MonoBehaviour {
 	private float _timer;
 
 	[Header ("For the buttons")]
-	public int buttonsOn;
+	public int buttonsLeftToClick;
 	private Button[] _buttons;
 
 	[Header ("Game Pause Penalty")]
@@ -69,8 +76,7 @@ public class RoundManager : MonoBehaviour {
 	private float _lastUnpauseDuration = 0f;
 
 	[Header ("End Game")]
-	public Text endGameText;
-	public GameObject endGameTapPrompt;
+	public RoundResultController roundResultController;
 
 	[HideInInspector] public BoardManager boardManager;
 	private IEnumerator _currentGameLoop;
@@ -78,19 +84,6 @@ public class RoundManager : MonoBehaviour {
 	private bool _isRunningGameLoop;
 	private bool _isPaused;
 	private bool _buttonsClickable;
-	private string _score;
-	private string _highscoreString;
-	private string _highscoreBeatenString {
-		get {
-			return (string.Format ("You beat the highscore of {0} with {1} points!", _highscoreString, _score));
-		}
-	}
-	private string _highscoreNotBeatenString {
-		get {
-			return (string.Format ("{0} points were not enough to beat the highscore of {1}...", _score, _highscoreString));
-		}
-	}
-
 
 	void Awake () {
 		if (S == null) {
@@ -104,10 +97,15 @@ public class RoundManager : MonoBehaviour {
 		// Turn off all UICanvas sections
 		background.gameObject.SetActive (false);
 		targetModeSection.SetActive (false);
-		menuController.gameObject.SetActive (false);
+		menuController.SetActive (false);
 		HUDSection.SetActive (false);
+		roundResultController.SetActive (false);
 		pauseMenuController.gameObject.SetActive (false);
-		AdsController.gameObject.SetActive (false);
+		adsController.gameObject.SetActive (false);
+
+		// Set up some references
+		menuController.SetAdsController(adsController);
+		adsController.menuController = menuController;
 	}
 
 
@@ -119,18 +117,28 @@ public class RoundManager : MonoBehaviour {
 		background.SetAlpha (alphaAtMenu);
 
 		// Control is passed on to MenuController.cs (runs Start method)
-		menuController.gameObject.SetActive (true);
+		menuController.SetActive (true);
 	}
 
+	public void StartGame (GameMode gameMode, Difficulty difficulty) {
+		this.gameMode = gameMode;
+		this.difficulty = difficulty;
 
-	public void StartGame (GameModeLogic selectedModeLogic, ButtonsBehaviour[] selectedButtonBehaviours) {
+		GameModeLogic logic = Managers.Enums.GetGameModeLogic (gameMode);
+		gameDifficulty = Managers.Enums.GetGameDifficulty (difficulty);
+		StartGame (logic, (int)gameDifficulty.gridSize, gameDifficulty.buttonsBehaviours);
+	}
+
+	public void StartGame (GameModeLogic selectedModeLogic, int gridSize, ButtonsBehaviour[] selectedButtonBehaviours) {
 		modeLogic = selectedModeLogic;
 		modeLogic.InitializeGameMode ();
+		boardManager.gridSize = gridSize;
 		modeBehaviours = selectedButtonBehaviours;
 
-		menuController.gameObject.SetActive (false);
-		endGameText.gameObject.SetActive (false);
-		endGameTapPrompt.SetActive (false);
+		currentRound = 0;
+		roundWaitTime = 0;
+
+		menuController.SetActive (false);
 
 		// Description related
 		descriptionSubSection.SetActive (false);
@@ -168,7 +176,7 @@ public class RoundManager : MonoBehaviour {
 					_lastUnpauseDuration = 0;
 			}
 
-			if (buttonsOn > 0) {
+			if (buttonsLeftToClick > 0) {
 				_timer -= Time.deltaTime;
 				if (_timer <= 0) {
 					_timer = 0;
@@ -257,27 +265,45 @@ public class RoundManager : MonoBehaviour {
 			targetMode.targetImage = targetImage;
 		}
 
+		// Actual round loop
+		WaitForSeconds wfs;
+
+
 		while (_timer > 0) {
+			// Increase currentRound and get waitTime for the round.
+			currentRound++;
+			roundWaitTime = gameDifficulty.GetWaitTime (currentRound);
+			wfs = new WaitForSeconds (roundWaitTime);
 
-			float waitTime = Random.Range (modeLogic.minWaitTime, modeLogic.maxWaitTime);
-			yield return new WaitForSeconds (waitTime);
+			// Wait before turning buttons on
+			yield return wfs;
 
-			while (_isPaused) {
-				wasPaused = true;
-				yield return null;
+			// Controlling pausing the game
+			// The outer while-loop makes sure that pausing 'after unpausing but before wfs goes through' is still caught.
+			while (_isPaused || wasPaused) {
+				// If the game is paused, just wait before taking action
+				while (_isPaused) {
+					wasPaused = true;
+					yield return null;
+				}
+
+				// When unpausing, repeat the full waitTime;
+				if (wasPaused) {
+					wasPaused = false;
+					yield return wfs;
+				}
 			}
 
-			if (wasPaused) {
-				yield return new WaitForSeconds (waitTime);
-				wasPaused = false;
-			}
-
+			// Turn on buttons and start responding to clicks on buttons
 			TurnOnButtons ();
 			_buttonsClickable = true;
 
-			while (buttonsOn > 0) {
+			// Wait around while a button is still on.
+			while (buttonsLeftToClick > 0) {
 				yield return null;
 			}
+
+			// Stop responding to button clicks after the round has completed
 			_buttonsClickable = false;
 		}
 	}
@@ -296,6 +322,9 @@ public class RoundManager : MonoBehaviour {
 
 		// Turn off the pauseMenuCanvas
 		pauseMenuController.gameObject.SetActive (false);
+
+		// Turn off the TargetModeCanvas
+		targetModeSection.SetActive (false);
 
 		// Wait
 		yield return new WaitForSeconds (0.5f);
@@ -324,46 +353,17 @@ public class RoundManager : MonoBehaviour {
 		boardManager.ClearGrid ();
 		animatedTimerText.gameObject.SetActive (false);
 
-		// Turn off the TargetModeCanvas
-		targetModeSection.SetActive (false);
-
-		// Save highscores if achieved and show a message about the score reached and if highscore was beaten or not.
-		endGameText.gameObject.SetActive (true);
-		_score = Managers.Score.GetScore ().ToString ();
-		_highscoreString = Managers.Score.GetHighscore (modeLogic, boardManager.gridSize, modeBehaviours).ToString ();
-
-		bool newHighScore = Managers.Score.SetHighscore (modeLogic, boardManager.gridSize, modeBehaviours);
-		if (newHighScore) {
-			Debug.Log ("Score: " + Managers.Score.GetScore() + "|New High Score of " + Managers.Score.GetHighscore (modeLogic, boardManager.gridSize, modeBehaviours) + " reached.");
-			endGameText.text = _highscoreBeatenString;
-		} else {
-			endGameText.text = _highscoreNotBeatenString;
-			Debug.Log ("Score: " + Managers.Score.GetScore() + "|High Score of " + Managers.Score.GetHighscore (modeLogic, boardManager.gridSize, modeBehaviours) + " remains undefeated.");
-		}
-
-		// Register the round in the StatsManager
-		Managers.Stats.RegisterPlay (GetStatsGameMode (), GetStatsGamePace (), GetStatsGridSize (), GetStatsBehaviour (), Managers.Score.GetScore() );
-
-		endGameTapPrompt.SetActive (true);
-		// Wait for a tap
-		while (!Input.GetMouseButtonDown (0)) {
-			yield return null;
-		}
-
-		Managers.Audio.PlaySFX (SFX.TapPrompt);
-		endGameText.gameObject.SetActive (false);
-		endGameTapPrompt.SetActive (false);
-
-		// Turn off the HUD (Timer, score, highscore)
+		// Turn off the HUDSection (Timer, score, etc.)
 		HUDSection.SetActive (false);
 
 		// Set background alpha
 		background.SetAlpha (alphaAtMenu);
 
-		// Control is passed on to MenuController.cs
-		menuController.gameObject.SetActive (true);
-		StartCoroutine (menuController.PopMenu () );
+		// Force garbage collection
+		System.GC.Collect ();
 
+		// Control is passed on to the RoundResultController.
+		roundResultController.ShowRoundResult (gameMode, difficulty, Managers.Score.GetScore ());
 	}
 
 
@@ -371,7 +371,7 @@ public class RoundManager : MonoBehaviour {
 		_isPaused = false;
 
 		// Ensure buttonsOn = 0
-		buttonsOn = 0;
+		buttonsLeftToClick = 0;
 
 		// Stop TimedGame coroutine
 		StopCoroutine (_currentTimedStage);
@@ -398,42 +398,18 @@ public class RoundManager : MonoBehaviour {
 		// Change music
 		Managers.Audio.PlayMusic1 ();
 
+		// Go to menu
+		GoToMenu ();
+	}
+		
+
+	public void GoToMenu () {
 		// Set background alpha
 		background.SetAlpha (alphaAtMenu);
 
-		// Control is passed on to MenuController.cs
-		menuController.gameObject.SetActive (true);
+		// Control is passed on to the MenuController.
+		menuController.SetActive (true);
 		StartCoroutine (menuController.PopMenu () );
-
-	}
-
-
-	private GameMode GetStatsGameMode () {
-		return modeLogic.gameMode;
-	}
-
-	private GamePace GetStatsGamePace () {
-		return modeLogic.gamePace;
-	}
-
-	private GridSize GetStatsGridSize () {
-		return ((GridSize)boardManager.gridSize);
-	}
-
-	private Behaviour GetStatsBehaviour () {
-		if (modeBehaviours.Length == 0) {
-			return Behaviour.None;
-		}
-
-		if (modeBehaviours.Length == 2) {
-			return Behaviour.GhostMotion;
-		}
-
-		return modeBehaviours [0].statsBehaviour;
-	}
-
-	public void PromptForAds () {
-		AdsController.gameObject.SetActive (true);
 	}
 
 
@@ -442,6 +418,9 @@ public class RoundManager : MonoBehaviour {
 
 		if (gameStage == GameStage.Timed) {
 			_timer += gamePausePenalty;
+			if (_timer < 0) {
+				_timer = 0;
+			}
 			SetTimerText ();
 
 			Vector2 pausePenaltyPosition = new Vector2 (0.75f, (Camera.main.ScreenToViewportPoint (pauseButtonRectTransform.position)).y);
@@ -476,25 +455,28 @@ public class RoundManager : MonoBehaviour {
 
 		int changeInButtonsOnAmount = modeLogic.ButtonPressed (button, out timeBonus);
 		if (changeInButtonsOnAmount != 0) {
-			if (modeLogic.minWaitTime >= 0.25f)
+			if (roundWaitTime >= 0.25f) {
 				Managers.Audio.PlaySFX (SFX.ButtonUnlit);
-
-			buttonsOn += changeInButtonsOnAmount;
+			}
+			buttonsLeftToClick += changeInButtonsOnAmount;
 		}
 
 		_timer += timeBonus;
+		if (_timer < 0) {
+			_timer = 0;
+		}
 		SetTimerText ();
 	}
 
 
 	private void TurnOnButtons () {
-		buttonsOn += modeLogic.TurnOnButtons (_buttons);
+		buttonsLeftToClick += modeLogic.TurnOnButtons (_buttons, gameDifficulty.GetButtonsToClick(currentRound));
 		Managers.Audio.PlaySFX (SFX.ButtonsOn);
 	}
 
 
 	public void TurnOffButtons () {
-		buttonsOn += modeLogic.TurnOffButtons (_buttons);
+		buttonsLeftToClick += modeLogic.TurnOffButtons (_buttons);
 	}
 
 

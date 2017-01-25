@@ -10,14 +10,9 @@ public abstract class GameModeLogic : ScriptableObject {
 	public string modeName = "Mode name";
 	[TextArea (1,5)]
 	public string modeDescription = "Mode description";
-	[Header ("Stats info")]
-	public GameMode gameMode;
-	public GamePace gamePace;
+
 	[Header ("Round timer")]
 	public int startTime = 10;
-	[Header ("Wait time to turn on buttons")]
-	public float minWaitTime = 0.5f;
-	public float maxWaitTime = 1.0f;
 
 	[Header ("Time bonuses")]
 	public float goodTimeBonus = 0.1f;
@@ -33,7 +28,7 @@ public abstract class GameModeLogic : ScriptableObject {
 	/// </summary>
 	/// <returns>The change in number of buttons that are lit ON.</returns>
 	/// <param name="buttons">Array of the buttons in the play area.</param>
-	public abstract int TurnOnButtons (Button[] buttons);
+	public abstract int TurnOnButtons (Button[] buttons, int buttonsToClick);
 
 	/// <summary>
 	/// Turns all buttons off. Returns the change in the number of buttons that are lit ON (positive if buttons were lit ON and negative if buttons were turned OFF).
@@ -52,15 +47,6 @@ public abstract class GameModeLogic : ScriptableObject {
 	private void OnValidate () {
 		if (startTime < 1) {
 			startTime = 1;
-		}
-		if (minWaitTime < 0) {
-			minWaitTime = 0;
-		}
-		if (maxWaitTime < 0) {
-			maxWaitTime = 0;
-		}
-		if (maxWaitTime < minWaitTime) {
-			maxWaitTime = minWaitTime;
 		}
 		if (goodTimeBonus < 0) {
 			goodTimeBonus = 0;
