@@ -59,7 +59,7 @@ public class PauseMenu : MonoBehaviour {
 
 		pauseCollider.SetActive (true);
 		coverImage.gameObject.SetActive (true);
-
+		coverImage.UseStartColor ();
 
 		pausePanel.SetActive (true);
 

@@ -71,7 +71,7 @@ public class MenuController : MenuControllerBase {
 			Managers.Audio.PlaySFX (SFX.MenuButton_GO);
 			StartCoroutine (LaunchGameCoroutine (gameMode, difficulty));
 		} else {
-			Managers.Audio.PlaySFX (SFX.IconClicked_Unlocked);
+			Managers.Audio.PlaySFX (SFX.IconClicked_NewSection);
 			Debug.Log ("No tries left!");
 			StartCoroutine (PromptForAds ());
 		}

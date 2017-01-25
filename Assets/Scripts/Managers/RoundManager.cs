@@ -161,6 +161,9 @@ public class RoundManager : MonoBehaviour {
 			modeBehaviours [i].InitializeBehaviour (_buttons);
 		}
 
+		// Force garbage collection before starting the game
+		System.GC.Collect ();
+
 		_currentGameLoop = GameLoop ();
 		StartCoroutine (_currentGameLoop);
 	}
@@ -247,8 +250,8 @@ public class RoundManager : MonoBehaviour {
 
 		yield return (StartCoroutine (countDown.StartCountDown ()) );
 
-		pauseMenuController.gameObject.SetActive (true);
 		yield return (StartCoroutine (coverImage.StartColorBlend (true)) );
+		pauseMenuController.gameObject.SetActive (true);
 	}
 
 
@@ -282,13 +285,16 @@ public class RoundManager : MonoBehaviour {
 			// The outer while-loop makes sure that pausing 'after unpausing but before wfs goes through' is still caught.
 			while (_isPaused || wasPaused) {
 				// If the game is paused, just wait before taking action
+				Debug.Log ("Entered pause wait loop");
 				while (_isPaused) {
 					wasPaused = true;
 					yield return null;
 				}
+				Debug.Log ("Exitted pause wait loop with wasPaused = " + wasPaused);
 
 				// When unpausing, repeat the full waitTime;
 				if (wasPaused) {
+					Debug.Log ("Entered wasPaused if-clause");
 					wasPaused = false;
 					yield return wfs;
 				}
@@ -358,9 +364,6 @@ public class RoundManager : MonoBehaviour {
 
 		// Set background alpha
 		background.SetAlpha (alphaAtMenu);
-
-		// Force garbage collection
-		System.GC.Collect ();
 
 		// Control is passed on to the RoundResultController.
 		roundResultController.ShowRoundResult (gameMode, difficulty, Managers.Score.GetScore ());

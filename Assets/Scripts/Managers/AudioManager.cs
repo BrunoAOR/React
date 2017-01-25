@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.Audio;
 
 // Warning CS0649: Field '#fieldname#' is never assigned to, and will always have its default value null (CS0649) (Assembly-CSharp)
-// Warning was raised for the following fields: musicSource1, musicSource2 and soundSource
+// Warning was raised for the following fields: musicSource1, musicSource2, soundSource and loudSoundSource
 // Warning was disabled because these private fields are serialized and assigned through the inspector
 #pragma warning disable 0649
 
@@ -12,14 +12,16 @@ public enum SFX : int {
 	ButtonsOn,
 	ButtonUnlit,
 	IconClicked_Locked,
-	IconClicked_Unlocked,
+	IconClicked_NewSection,
 	MenuButton,
 	MenuButton_GO,
 	PauseButton,
 	PausePanelButton,
 	CountDown,
 	CountDownEnd,
-	TapPrompt
+	TapPrompt,
+	ScoreCounting,
+	Test
 }
 
 
@@ -30,6 +32,7 @@ public class AudioManager : MonoBehaviour {
 	public AudioMixerSnapshot noMusicSnapshot;
 	public AudioMixerSnapshot noSoundSnapshot;
 	public AudioMixerSnapshot allMutedSnapshot;
+	public float normalTransitionTime = 0.5f;
 
 	[Header ("Audio Sources")]
 	[SerializeField]
@@ -38,6 +41,8 @@ public class AudioManager : MonoBehaviour {
 	private AudioSource	musicSource2;
 	[SerializeField]
 	private AudioSource	soundSource;
+	[SerializeField]
+	private AudioSource loudSoundSource;
 
 	[Header ("Music crossfadding")]
 	public float		crossFadeDuration = 1;
@@ -57,6 +62,7 @@ public class AudioManager : MonoBehaviour {
 		}
 		set {
 			_musicMute = value;
+			_instantSnapshotChange = false;
 			UpdateSnapshot ();
 		}
 	}
@@ -83,11 +89,13 @@ public class AudioManager : MonoBehaviour {
 		}
 		set {
 			_soundMute = value;
+			_instantSnapshotChange = true;
 			UpdateSnapshot ();
 		}
 	}
 	private bool _soundMute;
-		
+
+	private bool _instantSnapshotChange;
 
 	public float soundVolume {
 		get {
@@ -118,41 +126,77 @@ public class AudioManager : MonoBehaviour {
 	}
 
 	private void UpdateSnapshot () {
+		float transitionTime = _instantSnapshotChange ? 0f : normalTransitionTime;
+
 		if (_musicMute) {
 			// Music OFF
 			if (_soundMute) {
 				// Sound OFF
-				allMutedSnapshot.TransitionTo (0.5f);
+				allMutedSnapshot.TransitionTo (transitionTime);
 			} else {
 				// Sound ON
-				noMusicSnapshot.TransitionTo (0.5f);
+				noMusicSnapshot.TransitionTo (transitionTime);
 			}
 		} else {
 			// Music ON
 			if (_soundMute) {
 				// Sound OFF
-				noSoundSnapshot.TransitionTo (0.5f);
+				noSoundSnapshot.TransitionTo (transitionTime);
 			} else {
 				// Sound ON
-				defaultSnapshot.TransitionTo (0.5f);
+				defaultSnapshot.TransitionTo (transitionTime);
 			}
 		}
 	}
 
 
-	public void PlaySFX (SFX sfx) {
-		PlaySFX ((int) sfx);
+	public void PlaySFX (SFX sfx, bool loop = false, bool loud = false) {
+		PlaySFX ((int) sfx, loop);
 	}
 
-	public void PlaySFX (int sfxIdx) {
+	public void PlaySFX (int sfxIdx, bool loop = false, bool loud = false) {
 		if (sfxIdx < 0 || sfxIdx >= SFX.Length) {
 			return;
 		}
-		PlaySound (SFX [sfxIdx]);
+		if (loop) {
+			LoopSound (SFX [sfxIdx], loud);
+		} else {
+			PlaySound (SFX [sfxIdx], loud);
+		}
 	}
 
-	public void PlaySound (AudioClip clip) {
-		soundSource.PlayOneShot (clip);
+	public void PlaySound (AudioClip clip, bool loud = false) {
+		if (loud) {
+			loudSoundSource.PlayOneShot (clip);
+		} else {
+			soundSource.PlayOneShot (clip);
+		}
+	}
+
+	public void LoopSound (AudioClip clip, bool loud = false) {
+		if (loud) {
+			loudSoundSource.loop = true;
+			loudSoundSource.clip = clip;
+			loudSoundSource.Play ();
+		} else {
+			soundSource.loop = true;
+			soundSource.clip = clip;
+			soundSource.Play ();
+		}
+	}
+
+	public void StopLoop (bool allowClipToFinish = false, bool wasLoud = false) {
+		if (wasLoud) {
+			loudSoundSource.loop = false;
+			if (!allowClipToFinish) {
+				loudSoundSource.Stop ();
+			}
+		} else {
+			soundSource.loop = false;
+			if (!allowClipToFinish) {
+				soundSource.Stop ();
+			}
+		}
 	}
 
 	public void PlayMusic1 () {

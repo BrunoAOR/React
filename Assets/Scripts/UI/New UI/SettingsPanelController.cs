@@ -58,7 +58,7 @@ public class SettingsPanelController : MonoBehaviour {
 			_soundEnabled = false;
 			soundToggle.color = disabledColor;
 		} else {
-			_musicEnabled = true;
+			_soundEnabled = true;
 			soundToggle.color = enabledColor;
 		}
 
@@ -75,6 +75,7 @@ public class SettingsPanelController : MonoBehaviour {
 		if (!_interactable || _isAnimating) {
 			return;
 		}
+		Managers.Audio.PlaySFX (SFX.IconClicked_NewSection);
 		StartCoroutine (ShowHidePanel ());
 	}
 
@@ -83,6 +84,7 @@ public class SettingsPanelController : MonoBehaviour {
 			return;
 		}
 
+		PlayMenuButtonSound ();
 		if (_musicEnabled) {
 			// Was on, Turn OFF
 			Managers.Audio.musicMute = true;
@@ -112,6 +114,7 @@ public class SettingsPanelController : MonoBehaviour {
 			Managers.Audio.soundMute = false;
 			soundToggle.color = enabledColor;
 			_soundEnabled = true;
+			PlayMenuButtonSound ();
 		}
 	}
 
@@ -120,7 +123,12 @@ public class SettingsPanelController : MonoBehaviour {
 			return;
 		}
 
+		PlayMenuButtonSound ();
 		ToggleToFlag (index);
+	}
+
+	private void PlayMenuButtonSound () {
+		Managers.Audio.PlaySFX (SFX.MenuButton);
 	}
 
 	private void ToggleToFlag (int flagIndex) {

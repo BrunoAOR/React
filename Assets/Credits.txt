@@ -6,7 +6,7 @@ SFX:
 - 00_ButtonsLitOn (Made by me)
 - 01_ButtonsUnlit (Made by me)
 - 02_IconClicked_Locked - From: UI Sfx/Wav/Click_Electronic/Click_Electronic_09 | By Little Robot Sound Factory
-- 03_IconClicked_Unlocked - From: UI Sfx/Wav/Click_Electronic/Click_Electronic_02 | By Little Robot Sound Factory
+- 03_IconClicked_NewSection - From: UI Sfx/Wav/Click_Electronic/Click_Electronic_02 | By Little Robot Sound Factory
 - 04_MenuButton - From: UI Sfx/Wav/Click_Electronic/Click_Electronic_06 | By Little Robot Sound Factory
 - 05_MenuButton_GO - From: UI Sfx/Wav/Click_Electronic/Click_Electronic_05 | By Little Robot Sound Factory
 - 06_PauseButton - From: UI Sfx/Wav/Click_Electronic/Click_Electronic_00 | By Little Robot Sound Factory
@@ -14,3 +14,5 @@ SFX:
 - 08_CountDown - From: UI Sfx/Wav/Click_Electronic/Click_Electronic_11 | By Little Robot Sound Factory
 - 09_CountDownEnd - From: UI Sfx/Wav/Click_Electronic/Click_Electronic_04 | By Little Robot Sound Factory
 - 10_TapPrompt - From: UI Sfx/Wav/Click_Electronic/Click_Electronic_10 | By Little Robot Sound Factory
+- 11_ScoreCounting - From: 8-Bit Sfx/Wav/Climb_Rope_Loop_00 | By Little Robot Sound Factory
+- 12_Slides - From: UI Sfx/Wav/... | By Little Robot Sound Factory

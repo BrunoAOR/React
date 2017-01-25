@@ -5,6 +5,9 @@ using UnityEngine.UI;
 
 public class RoundResultController : MonoBehaviour {
 
+	public AudioClip[] clips;
+
+	[Header ("Animation parameters")]
 	public float initialDelay = 0.5f;
 	public float stepWaitTime = 0.5f;
 	public float panelEntryDuration = 0.5f;
@@ -13,6 +16,7 @@ public class RoundResultController : MonoBehaviour {
 	public float scoresEntryDuration = 0.5f;
 	public int scoreCountedPerSecond = 5000;
 
+	private WaitForSeconds _initialDelay;
 	private WaitForSeconds _waitTime;
 
 	[Header ("References")]
@@ -38,6 +42,7 @@ public class RoundResultController : MonoBehaviour {
 	void Awake () {
 		_canvasReferenceResolution = GetComponentInParent<CanvasScaler> ().referenceResolution;
 		_elementsLocalPositions = new Vector3[_elementsCount];
+		_initialDelay = new WaitForSeconds (initialDelay);
 		_waitTime = new WaitForSeconds (stepWaitTime);
 		RecordElementsLocalPositions ();
 	}
@@ -63,6 +68,7 @@ public class RoundResultController : MonoBehaviour {
 	private void SkipAnimations () {
 		// Stop main coroutine
 		StopCoroutine (_showRoundResultCoroutine);
+		_showRoundResultCoroutine = null;
 
 		// Stop any internal coroutines that may be running;
 		for (int i = 0; i < _showRoundResultInnerCoroutines.Length; i++) {
@@ -74,11 +80,17 @@ public class RoundResultController : MonoBehaviour {
 			}
 		}
 
-		_showRoundResultCoroutine = null;
+		// Write in the score (might have stopped mid-count) and stop the looping sound
 		currentScoreText.text = _currentScore.ToString ();
+		Managers.Audio.StopLoop ();
+
+		// Put everythin in place
 		ApplyElementsLocalPositions ();
+
+		// Turn everything on
 		SetElementsState (true);
 
+		// Turn the highscore label off if previous highscore wasn't beaten
 		if (!_newHighscore) {
 			newHighscoreLabel.gameObject.SetActive (false);
 		}
@@ -116,7 +128,7 @@ public class RoundResultController : MonoBehaviour {
 		currentScoreText.text = "";
 
 		// Initial delay
-		yield return (new WaitForSeconds (initialDelay));
+		yield return (_initialDelay);
 
 		// Animate the panel background entry (downwards)
 		roundResultPanel.gameObject.SetActive (true);
@@ -124,6 +136,7 @@ public class RoundResultController : MonoBehaviour {
 		Vector3 panelOutPos = panelInPos;
 		panelOutPos.y += _canvasReferenceResolution.y;
 
+		Managers.Audio.PlaySound (clips [0], true);
 		_showRoundResultInnerCoroutines [0] = ScrollIn (roundResultPanel.gameObject, panelOutPos, panelInPos, panelEntryDuration);
 		yield return (_showRoundResultInnerCoroutines [0]);
 		_showRoundResultInnerCoroutines [0] = null;
@@ -143,6 +156,7 @@ public class RoundResultController : MonoBehaviour {
 		Vector3 diffOutPos = diffInPos;
 		diffOutPos.y -= difficultyText.rectTransform.sizeDelta.y;
 
+		Managers.Audio.PlaySound (clips [1], true);
 		_showRoundResultInnerCoroutines [0] = ScrollIn (gameModeText.gameObject, modeOutPos, modeInPos, modeAndDifficultyEntryDuration);
 		_showRoundResultInnerCoroutines [1] = ScrollIn (difficultyText.gameObject, diffOutPos, diffInPos, modeAndDifficultyEntryDuration);
 		StartCoroutine (_showRoundResultInnerCoroutines [0]);
@@ -160,6 +174,7 @@ public class RoundResultController : MonoBehaviour {
 		Vector3 outPos = inPos;
 		outPos.y += separator.rectTransform.sizeDelta.y;
 
+		Managers.Audio.PlaySound (clips [2], true);
 		_showRoundResultInnerCoroutines [0] = ScrollIn (separator.gameObject, outPos, inPos, separatorEntryDuration);
 		yield return (_showRoundResultInnerCoroutines [0]);
 		_showRoundResultInnerCoroutines [0] = null;
@@ -170,6 +185,7 @@ public class RoundResultController : MonoBehaviour {
 		Vector3 leftPos = highscoreText.rectTransform.localPosition;
 		Vector3 rightPos = currentScoreText.rectTransform.localPosition;
 
+		Managers.Audio.PlaySound (clips [3], true);
 		_showRoundResultInnerCoroutines [0] = ScrollIn (highscoreText.gameObject, rightPos, leftPos, scoresEntryDuration);
 		_showRoundResultInnerCoroutines [1] = ScrollIn (currentScoreText.gameObject, leftPos, rightPos, scoresEntryDuration);
 		StartCoroutine (_showRoundResultInnerCoroutines [0]);
@@ -177,9 +193,11 @@ public class RoundResultController : MonoBehaviour {
 		_showRoundResultInnerCoroutines [0] = null;
 		_showRoundResultInnerCoroutines [1] = null;
 
+		Managers.Audio.PlaySFX (SFX.ScoreCounting, true);
 		_showRoundResultInnerCoroutines [0] = ZeroToNumberTyper.StartCounter (currentScoreText, 0, _currentScore, _currentScore / (float)scoreCountedPerSecond);
 		yield return (StartCoroutine(_showRoundResultInnerCoroutines[0]));
 		_showRoundResultInnerCoroutines [0] = null;
+		Managers.Audio.StopLoop ();
 
 		// Show the newHighscoreLabel if a new highscore was achieved
 		yield return (_waitTime);

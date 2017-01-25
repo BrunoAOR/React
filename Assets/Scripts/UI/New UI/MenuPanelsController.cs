@@ -143,6 +143,9 @@ public class MenuPanelsController : MonoBehaviour {
 			return;
 		}
 
+		// Play a sound
+		Managers.Audio.PlaySFX (SFX.MenuButton);
+
 		// Change the value of _shouldShowFullStats
 		_shouldDisplayFullStats = !_shouldDisplayFullStats;
 

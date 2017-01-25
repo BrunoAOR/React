@@ -35,6 +35,7 @@ public class AdsController : MonoBehaviour {
 	}
 
 	public void OnWatchAd () {
+		Managers.Audio.PlaySFX (SFX.MenuButton);
 		ShowAd ();
 	}
 
@@ -46,18 +47,21 @@ public class AdsController : MonoBehaviour {
 
 
 	public void OnCloseNoLivesPrompt () {
+		Managers.Audio.PlaySFX (SFX.MenuButton);
 		noLivesPrompt.SetActive (false);
 		gameObject.SetActive (false);
 	}
 
 
 	public void OnCloseWatchAddPrompt () {
+		Managers.Audio.PlaySFX (SFX.MenuButton);
 		watchAdPrompt.SetActive (false);
 		gameObject.SetActive (false);
 	}
 
 
 	public void OnCloseAfterAdPrompt () {
+		Managers.Audio.PlaySFX (SFX.MenuButton);
 		afterAdPrompt.SetActive (false);
 		gameObject.SetActive (false);
 	}
