@@ -2,18 +2,18 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public static class ZeroToNumberTyper {
+public class ZeroToNumberTyper {
 
-	private static float minPitch = 0.8f;
-	private static float maxPitch = 1.2f;
-	private static bool abort = false;
+	private float minPitch = 0.8f;
+	private float maxPitch = 1.2f;
+	private bool abort = false;
 
-	public static void SetAudioPitchParameters (float minimumPitch, float maximumPitch) {
+	public void SetAudioPitchParameters (float minimumPitch, float maximumPitch) {
 		minPitch = minimumPitch;
 		maxPitch = maximumPitch;
 	}
 
-	public static IEnumerator StartCounter (Text textField, int counterStart, int counterEnd, float duration, AudioSource audioSource, AudioClip countingClip) {
+	public IEnumerator StartCounter (Text textField, int counterStart, int counterEnd, float duration, AudioSource audioSource, AudioClip countingClip) {
 		if (textField == null || counterStart > counterEnd || duration < 0) {
 			yield break;
 		}
@@ -45,15 +45,15 @@ public static class ZeroToNumberTyper {
 		textField.text = counterEnd.ToString ();
 	}
 
-	public static IEnumerator StartCounter (Text textField, int counterStart, int counterEnd, float duration) {
+	public IEnumerator StartCounter (Text textField, int counterStart, int counterEnd, float duration) {
 		yield return (StartCounter (textField, counterStart, counterEnd, duration, null, null));
 	}
 
-	public static void StopCounter () {
+	public void StopCounter () {
 		abort = true;
 	}
 
-	private static void PlayRandomPitchClip (AudioSource source, AudioClip clip) {
+	private void PlayRandomPitchClip (AudioSource source, AudioClip clip) {
 		float pitch = Random.Range (minPitch, maxPitch);
 		source.pitch = pitch;
 		source.PlayOneShot (clip);

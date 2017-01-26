@@ -51,6 +51,8 @@ public class RoundManager : MonoBehaviour {
 	public FlashingUIText descriptionTapPrompt;
 	public AudioSource _audioSource;
 	public AudioClip typingSound;
+
+	private TextTyper _textTyper;
 	private bool _typingDescription = false;
 
 	[Header ("Initial Count Down")]
@@ -59,6 +61,7 @@ public class RoundManager : MonoBehaviour {
 
 	[Header ("Game Timer")]
 	public AnimatedUIText animatedTimerText;
+
 	private float _timer;
 
 	[Header ("For the buttons")]
@@ -91,6 +94,7 @@ public class RoundManager : MonoBehaviour {
 		}
 
 		boardManager = GetComponent<BoardManager> ();
+		_textTyper = new TextTyper ();
 
 		// Turn off all UICanvas sections
 		background.gameObject.SetActive (false);
@@ -192,7 +196,7 @@ public class RoundManager : MonoBehaviour {
 	public void RushTyping () {
 		if (_typingDescription) {
 			Managers.Audio.PlaySFX (SFX.TapPrompt);
-			TextTyper.RushTyping ();
+			_textTyper.RushTyping ();
 		}
 	}
 
@@ -231,7 +235,7 @@ public class RoundManager : MonoBehaviour {
 		yield return new WaitForSeconds (0.5f);
 
 		_typingDescription = true;
-		yield return ( StartCoroutine (TextTyper.TypeText(this, descriptionText, _modeLogic.modeDescription, _audioSource, typingSound)) );
+		yield return ( StartCoroutine (_textTyper.TypeText(this, descriptionText, _modeLogic.modeDescription, _audioSource, typingSound)) );
 		_typingDescription = false;
 
 		descriptionTapPrompt.SetText ("Tap anywhere to continue...");

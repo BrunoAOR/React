@@ -38,12 +38,14 @@ public class RoundResultController : MonoBehaviour {
 	private Vector3[] _elementsLocalPositions;
 	private IEnumerator _showRoundResultCoroutine;
 	private IEnumerator[] _showRoundResultInnerCoroutines = new IEnumerator[2];
+	private ZeroToNumberTyper _numberTyper;
 
 	void Awake () {
 		_canvasReferenceResolution = GetComponentInParent<CanvasScaler> ().referenceResolution;
 		_elementsLocalPositions = new Vector3[_elementsCount];
 		_initialDelay = new WaitForSeconds (initialDelay);
 		_waitTime = new WaitForSeconds (stepWaitTime);
+		_numberTyper = new ZeroToNumberTyper ();
 		RecordElementsLocalPositions ();
 	}
 
@@ -80,7 +82,7 @@ public class RoundResultController : MonoBehaviour {
 			}
 		}
 
-		ZeroToNumberTyper.StopCounter ();
+		_numberTyper.StopCounter ();
 
 		// Write in the score (might have stopped mid-count) and stop the looping sound
 		currentScoreText.text = _currentScore.ToString ();
@@ -196,7 +198,7 @@ public class RoundResultController : MonoBehaviour {
 		_showRoundResultInnerCoroutines [1] = null;
 
 		Managers.Audio.PlaySFX (SFX.ScoreCounting, true);
-		_showRoundResultInnerCoroutines [0] = ZeroToNumberTyper.StartCounter (currentScoreText, 0, _currentScore, _currentScore / (float)scoreCountedPerSecond);
+		_showRoundResultInnerCoroutines [0] = _numberTyper.StartCounter (currentScoreText, 0, _currentScore, _currentScore / (float)scoreCountedPerSecond);
 		yield return (StartCoroutine(_showRoundResultInnerCoroutines[0]));
 		_showRoundResultInnerCoroutines [0] = null;
 		Managers.Audio.StopLoop ();
