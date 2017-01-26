@@ -227,6 +227,7 @@ public class RoundManager : MonoBehaviour {
 
 		descriptionTapPrompt.SetText ("Tap anywhere to speed up...");
 
+		Managers.Audio.StopMusic ();
 		yield return new WaitForSeconds (0.5f);
 
 		_typingDescription = true;
@@ -242,11 +243,11 @@ public class RoundManager : MonoBehaviour {
 		Managers.Audio.PlaySFX (SFX.TapPrompt);
 		descriptionSubSection.SetActive (false);
 
-		Managers.Audio.PlayMusic2 ();
-
 		yield return new WaitForSeconds (0.25f);
 
 		yield return (StartCoroutine (countDown.StartCountDown ()) );
+
+		Managers.Audio.PlayMusic2 ();
 
 		yield return (StartCoroutine (coverImage.StartColorBlend (true)) );
 		pauseMenuController.gameObject.SetActive (true);
@@ -301,13 +302,13 @@ public class RoundManager : MonoBehaviour {
 			_modeBehaviours [i].StopBehaviour ();
 		}
 
-		Managers.Audio.PlayMusic1 ();
-
 		// Turn off the pauseMenuCanvas
 		pauseMenuController.gameObject.SetActive (false);
 
 		// Turn off the TargetModeCanvas
 		targetModeSection.SetActive (false);
+
+		Managers.Audio.StopMusic ();
 
 		// Wait
 		yield return new WaitForSeconds (0.5f);
@@ -341,6 +342,9 @@ public class RoundManager : MonoBehaviour {
 
 		// Set background alpha
 		background.SetAlpha (alphaAtMenu);
+
+		// Change music
+		Managers.Audio.PlayMusic1 ();
 
 		// Control is passed on to the RoundResultController.
 		roundResultController.ShowRoundResult (gameMode, difficulty, Managers.Score.GetScore ());
