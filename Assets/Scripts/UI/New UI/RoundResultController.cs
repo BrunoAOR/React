@@ -140,6 +140,7 @@ public class RoundResultController : MonoBehaviour {
 		Vector3 panelOutPos = panelInPos;
 		panelOutPos.y += _canvasReferenceResolution.y;
 
+		if (clips [0] != null)
 		Managers.Audio.PlaySound (clips [0], true);
 		_showRoundResultInnerCoroutines [0] = ScrollIn (roundResultPanel.gameObject, panelOutPos, panelInPos, panelEntryDuration);
 		yield return (_showRoundResultInnerCoroutines [0]);
@@ -160,6 +161,7 @@ public class RoundResultController : MonoBehaviour {
 		Vector3 diffOutPos = diffInPos;
 		diffOutPos.y -= difficultyText.rectTransform.sizeDelta.y;
 
+		if (clips [1] != null)
 		Managers.Audio.PlaySound (clips [1], true);
 		_showRoundResultInnerCoroutines [0] = ScrollIn (gameModeText.gameObject, modeOutPos, modeInPos, modeAndDifficultyEntryDuration);
 		_showRoundResultInnerCoroutines [1] = ScrollIn (difficultyText.gameObject, diffOutPos, diffInPos, modeAndDifficultyEntryDuration);
@@ -178,6 +180,7 @@ public class RoundResultController : MonoBehaviour {
 		Vector3 outPos = inPos;
 		outPos.y += separator.rectTransform.sizeDelta.y;
 
+		if (clips [2] != null)
 		Managers.Audio.PlaySound (clips [2], true);
 		_showRoundResultInnerCoroutines [0] = ScrollIn (separator.gameObject, outPos, inPos, separatorEntryDuration);
 		yield return (_showRoundResultInnerCoroutines [0]);
@@ -189,6 +192,7 @@ public class RoundResultController : MonoBehaviour {
 		Vector3 leftPos = highscoreText.rectTransform.localPosition;
 		Vector3 rightPos = currentScoreText.rectTransform.localPosition;
 
+		if (clips [3] != null)
 		Managers.Audio.PlaySound (clips [3], true);
 		_showRoundResultInnerCoroutines [0] = ScrollIn (highscoreText.gameObject, rightPos, leftPos, scoresEntryDuration);
 		_showRoundResultInnerCoroutines [1] = ScrollIn (currentScoreText.gameObject, leftPos, rightPos, scoresEntryDuration);
