@@ -266,14 +266,17 @@ public class RoundManager : MonoBehaviour {
 		}
 
 		// Actual round loop
+		float waitTimeRemaining;
+
 		while (_timer > 0) {
 			// Increase currentRound and get waitTime for the round.
 			_currentRound++;
 			_roundWaitTime = _gameDifficulty.GetWaitTime (_currentRound);
+			waitTimeRemaining = _roundWaitTime;
 
-			while (_roundWaitTime > 0) {
+			while (waitTimeRemaining > 0) {
 				if (!_isPaused) {
-					_roundWaitTime -= Time.deltaTime;
+					waitTimeRemaining -= Time.deltaTime;
 				}
 				yield return null;
 			}
