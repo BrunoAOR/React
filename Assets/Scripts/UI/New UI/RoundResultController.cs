@@ -80,6 +80,8 @@ public class RoundResultController : MonoBehaviour {
 			}
 		}
 
+		ZeroToNumberTyper.StopCounter ();
+
 		// Write in the score (might have stopped mid-count) and stop the looping sound
 		currentScoreText.text = _currentScore.ToString ();
 		Managers.Audio.StopLoop ();

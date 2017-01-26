@@ -6,6 +6,7 @@ public static class ZeroToNumberTyper {
 
 	private static float minPitch = 0.8f;
 	private static float maxPitch = 1.2f;
+	private static bool abort = false;
 
 	public static void SetAudioPitchParameters (float minimumPitch, float maximumPitch) {
 		minPitch = minimumPitch;
@@ -22,6 +23,8 @@ public static class ZeroToNumberTyper {
 			yield break;
 		}
 
+		abort = false;
+
 		float startTime = Time.time;
 		float u;
 		float currentValue = counterStart;
@@ -34,6 +37,9 @@ public static class ZeroToNumberTyper {
 				PlayRandomPitchClip (audioSource, countingClip);
 			}
 			yield return null;
+			if (abort) {
+				yield break;
+			}
 		}
 
 		textField.text = counterEnd.ToString ();
@@ -41,6 +47,10 @@ public static class ZeroToNumberTyper {
 
 	public static IEnumerator StartCounter (Text textField, int counterStart, int counterEnd, float duration) {
 		yield return (StartCounter (textField, counterStart, counterEnd, duration, null, null));
+	}
+
+	public static void StopCounter () {
+		abort = true;
 	}
 
 	private static void PlayRandomPitchClip (AudioSource source, AudioClip clip) {
