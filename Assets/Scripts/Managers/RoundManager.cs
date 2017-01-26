@@ -12,18 +12,16 @@ public enum GameStage {
 public class RoundManager : MonoBehaviour {
 
 	public static RoundManager S;
-
-	[Header ("GAME MODE LOGIC")]
-	public GameModeLogic modeLogic;
-	public GameDifficulty gameDifficulty;
-	public ButtonsBehaviour[] modeBehaviours;
-
+	
 	[Header ("Game info")]
-	public GameMode gameMode;
-	public Difficulty difficulty;
+	[ShowOnly] public GameMode gameMode;
+	[ShowOnly] public Difficulty difficulty;
 
-	private int currentRound;
-	private float roundWaitTime;
+	private GameModeLogic _modeLogic;
+	private GameDifficulty _gameDifficulty;
+	private ButtonsBehaviour[] _modeBehaviours;
+	private int _currentRound;
+	private float _roundWaitTime;
 
 	[Header ("For Target Mode")]
 	public GameObject targetModeSection;
@@ -44,7 +42,7 @@ public class RoundManager : MonoBehaviour {
 
 	[Header ("Game Stage")]
 	public GameObject HUDSection;
-	public GameStage gameStage;
+	[ShowOnly] public GameStage gameStage;
 
 	[Header ("Game Description")]
 	public GameObject descriptionSubSection;
@@ -64,7 +62,7 @@ public class RoundManager : MonoBehaviour {
 	private float _timer;
 
 	[Header ("For the buttons")]
-	public int buttonsLeftToClick;
+	[ShowOnly] [SerializeField] private int _buttonsLeftToClick;
 	private Button[] _buttons;
 
 	[Header ("Game Pause Penalty")]
@@ -125,18 +123,18 @@ public class RoundManager : MonoBehaviour {
 		this.difficulty = difficulty;
 
 		GameModeLogic logic = Managers.Enums.GetGameModeLogic (gameMode);
-		gameDifficulty = Managers.Enums.GetGameDifficulty (difficulty);
-		StartGame (logic, (int)gameDifficulty.gridSize, gameDifficulty.buttonsBehaviours);
+		_gameDifficulty = Managers.Enums.GetGameDifficulty (difficulty);
+		StartGame (logic, (int)_gameDifficulty.gridSize, _gameDifficulty.buttonsBehaviours);
 	}
 
 	public void StartGame (GameModeLogic selectedModeLogic, int gridSize, ButtonsBehaviour[] selectedButtonBehaviours) {
-		modeLogic = selectedModeLogic;
-		modeLogic.InitializeGameMode ();
+		_modeLogic = selectedModeLogic;
+		_modeLogic.InitializeGameMode ();
 		boardManager.gridSize = gridSize;
-		modeBehaviours = selectedButtonBehaviours;
+		_modeBehaviours = selectedButtonBehaviours;
 
-		currentRound = 0;
-		roundWaitTime = 0;
+		_currentRound = 0;
+		_roundWaitTime = 0;
 
 		menuController.SetActive (false);
 
@@ -147,8 +145,8 @@ public class RoundManager : MonoBehaviour {
 		descriptionTapPrompt.gameObject.SetActive (true);
 
 		HUDSection.SetActive (true);
-		_timer = modeLogic.startTime;
-		animatedTimerText.AdjustFreeTimeScale (modeLogic.startTime, 0f);
+		_timer = _modeLogic.startTime;
+		animatedTimerText.AdjustFreeTimeScale (_modeLogic.startTime, 0f);
 		animatedTimerText.ApplyStartConditions ();
 		animatedTimerText.gameObject.SetActive (true);
 		SetTimerText ();
@@ -157,8 +155,8 @@ public class RoundManager : MonoBehaviour {
 		_buttons = boardManager.GetButtons ();
 		_buttonsClickable = false;
 
-		for (int i = 0; i < modeBehaviours.Length; i++) {
-			modeBehaviours [i].InitializeBehaviour (_buttons);
+		for (int i = 0; i < _modeBehaviours.Length; i++) {
+			_modeBehaviours [i].InitializeBehaviour (_buttons);
 		}
 
 		// Force garbage collection before starting the game
@@ -172,14 +170,14 @@ public class RoundManager : MonoBehaviour {
 	void Update () {
 		if (_isRunningGameLoop && !_isPaused) {
 			if (gameStage == GameStage.Timed) {
-				for (int i = 0; i < modeBehaviours.Length; i++) {
-					modeBehaviours [i].RunBehaviour (_lastUnpauseDuration);
+				for (int i = 0; i < _modeBehaviours.Length; i++) {
+					_modeBehaviours [i].RunBehaviour (_lastUnpauseDuration);
 				}
 				if (_lastUnpauseDuration != 0)
 					_lastUnpauseDuration = 0;
 			}
 
-			if (buttonsLeftToClick > 0) {
+			if (_buttonsLeftToClick > 0) {
 				_timer -= Time.deltaTime;
 				if (_timer <= 0) {
 					_timer = 0;
@@ -216,7 +214,7 @@ public class RoundManager : MonoBehaviour {
 
 
 	private IEnumerator preStartStage () {
-		Debug.Log ("Pre Start");
+		Debug.Log ("PRE START");
 		gameStage = GameStage.preStart;
 		Managers.Score.ResetScore ();
 
@@ -225,14 +223,14 @@ public class RoundManager : MonoBehaviour {
 
 		descriptionSubSection.gameObject.SetActive (true);
 		descriptionText.text = "";
-		descriptionTitleText.text = modeLogic.modeName;
+		descriptionTitleText.text = _modeLogic.modeName;
 
 		descriptionTapPrompt.SetText ("Tap anywhere to speed up...");
 
 		yield return new WaitForSeconds (0.5f);
 
 		_typingDescription = true;
-		yield return ( StartCoroutine (TextTyper.TypeText(this, descriptionText, modeLogic.modeDescription, _audioSource, typingSound)) );
+		yield return ( StartCoroutine (TextTyper.TypeText(this, descriptionText, _modeLogic.modeDescription, _audioSource, typingSound)) );
 		_typingDescription = false;
 
 		descriptionTapPrompt.SetText ("Tap anywhere to continue...");
@@ -256,48 +254,27 @@ public class RoundManager : MonoBehaviour {
 
 
 	private IEnumerator TimedGame () {
-		Debug.Log ("Timed stage");
+		Debug.Log ("TIMED STAGE");
 		gameStage = GameStage.Timed;
 
-		bool wasPaused = false;
-
-		if (modeLogic.GetType() == typeof(TargetMode)) {
+		if (_modeLogic.GetType() == typeof(TargetMode)) {
 			targetModeSection.SetActive (true);
 			targetImage.gameObject.SetActive (false);
-			TargetMode targetMode = modeLogic as TargetMode;
+			TargetMode targetMode = _modeLogic as TargetMode;
 			targetMode.targetImage = targetImage;
 		}
 
 		// Actual round loop
-		WaitForSeconds wfs;
-
-
 		while (_timer > 0) {
 			// Increase currentRound and get waitTime for the round.
-			currentRound++;
-			roundWaitTime = gameDifficulty.GetWaitTime (currentRound);
-			wfs = new WaitForSeconds (roundWaitTime);
+			_currentRound++;
+			_roundWaitTime = _gameDifficulty.GetWaitTime (_currentRound);
 
-			// Wait before turning buttons on
-			yield return wfs;
-
-			// Controlling pausing the game
-			// The outer while-loop makes sure that pausing 'after unpausing but before wfs goes through' is still caught.
-			while (_isPaused || wasPaused) {
-				// If the game is paused, just wait before taking action
-				Debug.Log ("Entered pause wait loop");
-				while (_isPaused) {
-					wasPaused = true;
-					yield return null;
+			while (_roundWaitTime > 0) {
+				if (!_isPaused) {
+					_roundWaitTime -= Time.deltaTime;
 				}
-				Debug.Log ("Exitted pause wait loop with wasPaused = " + wasPaused);
-
-				// When unpausing, repeat the full waitTime;
-				if (wasPaused) {
-					Debug.Log ("Entered wasPaused if-clause");
-					wasPaused = false;
-					yield return wfs;
-				}
+				yield return null;
 			}
 
 			// Turn on buttons and start responding to clicks on buttons
@@ -305,7 +282,7 @@ public class RoundManager : MonoBehaviour {
 			_buttonsClickable = true;
 
 			// Wait around while a button is still on.
-			while (buttonsLeftToClick > 0) {
+			while (_buttonsLeftToClick > 0) {
 				yield return null;
 			}
 
@@ -320,8 +297,8 @@ public class RoundManager : MonoBehaviour {
 		gameStage = GameStage.GameEnd;
 		targetModeSection.SetActive (false);
 
-		for (int i = 0; i < modeBehaviours.Length; i++) {
-			modeBehaviours [i].StopBehaviour ();
+		for (int i = 0; i < _modeBehaviours.Length; i++) {
+			_modeBehaviours [i].StopBehaviour ();
 		}
 
 		Managers.Audio.PlayMusic1 ();
@@ -374,7 +351,7 @@ public class RoundManager : MonoBehaviour {
 		_isPaused = false;
 
 		// Ensure buttonsOn = 0
-		buttonsLeftToClick = 0;
+		_buttonsLeftToClick = 0;
 
 		// Stop TimedGame coroutine
 		StopCoroutine (_currentTimedStage);
@@ -456,12 +433,12 @@ public class RoundManager : MonoBehaviour {
 
 		float timeBonus;
 
-		int changeInButtonsOnAmount = modeLogic.ButtonPressed (button, out timeBonus);
+		int changeInButtonsOnAmount = _modeLogic.ButtonPressed (button, out timeBonus);
 		if (changeInButtonsOnAmount != 0) {
-			if (roundWaitTime >= 0.25f) {
+			if (_roundWaitTime >= 0.25f) {
 				Managers.Audio.PlaySFX (SFX.ButtonUnlit);
 			}
-			buttonsLeftToClick += changeInButtonsOnAmount;
+			_buttonsLeftToClick += changeInButtonsOnAmount;
 		}
 
 		_timer += timeBonus;
@@ -473,13 +450,13 @@ public class RoundManager : MonoBehaviour {
 
 
 	private void TurnOnButtons () {
-		buttonsLeftToClick += modeLogic.TurnOnButtons (_buttons, gameDifficulty.GetButtonsToClick(currentRound));
+		_buttonsLeftToClick += _modeLogic.TurnOnButtons (_buttons, _gameDifficulty.GetButtonsToClick(_currentRound));
 		Managers.Audio.PlaySFX (SFX.ButtonsOn);
 	}
 
 
 	public void TurnOffButtons () {
-		buttonsLeftToClick += modeLogic.TurnOffButtons (_buttons);
+		_buttonsLeftToClick += _modeLogic.TurnOffButtons (_buttons);
 	}
 
 
