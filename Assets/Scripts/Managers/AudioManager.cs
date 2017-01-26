@@ -52,7 +52,9 @@ public class AudioManager : MonoBehaviour {
 
 	[Header ("Sound clips")]
 	public string		musicClip1;
+	public float		pitch1 = 1f;
 	public string		musicClip2;
+	public float		pitch2 = 1f;
 
 	public AudioClip[]	SFX;
 
@@ -200,22 +202,22 @@ public class AudioManager : MonoBehaviour {
 	}
 
 	public void PlayMusic1 () {
-		PlayMusic (Resources.Load("Music/" + musicClip1) as AudioClip);
+		PlayMusic (Resources.Load("Music/" + musicClip1) as AudioClip, pitch1);
 	}
 
 	public void PlayMusic2 () {
-		PlayMusic (Resources.Load("Music/" + musicClip2) as AudioClip);
+		PlayMusic (Resources.Load("Music/" + musicClip2) as AudioClip, pitch2);
 	}
 
 
-	private void PlayMusic (AudioClip clip) {
+	private void PlayMusic (AudioClip clip, float pitch = 1f) {
 		if (!_crossFading) {
-			StartCoroutine ( FadeToMusic (clip) );
+			StartCoroutine ( FadeToMusic (clip, pitch) );
 		}
 	}
 
 
-	private IEnumerator FadeToMusic (AudioClip clip) {
+	private IEnumerator FadeToMusic (AudioClip clip, float pitch) {
 		// Activate Flag to prevent any further calls to FadeTo-Coroutines while they run
 		_crossFading = true;
 
@@ -223,6 +225,7 @@ public class AudioManager : MonoBehaviour {
 		_inactiveMusic.clip = clip;
 
 		// Set the _inactiveMusic volume to zero and start playing
+		_inactiveMusic.pitch = pitch;
 		_inactiveMusic.volume = 0;
 		_inactiveMusic.Play ();
 
