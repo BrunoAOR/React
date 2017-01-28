@@ -7,6 +7,7 @@ using System.Collections;
 [RequireComponent (typeof (AdsManager))]
 [RequireComponent (typeof (StatsManager))]
 [RequireComponent (typeof (UnlockablesManager))]
+[RequireComponent (typeof (LanguageManager))]
 [RequireComponent (typeof (EnumsManager))]
 public class Managers : MonoBehaviour {
 
@@ -17,6 +18,7 @@ public class Managers : MonoBehaviour {
 	public static AdsManager Ads;
 	public static StatsManager Stats;
 	public static UnlockablesManager Unlockables;
+	public static LanguageManager Language;
 	public static EnumsManager Enums;
 
 	public bool killData = false;
@@ -37,6 +39,7 @@ public class Managers : MonoBehaviour {
 		Ads = GetComponent<AdsManager> ();
 		Stats = GetComponent<StatsManager> ();
 		Unlockables = GetComponent<UnlockablesManager> ();
+		Language = GetComponent<LanguageManager> ();
 		Enums = GetComponent<EnumsManager> ();
 
 		if (killData) {
