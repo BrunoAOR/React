@@ -33,7 +33,16 @@ public class MenuDifficultyButton : MonoBehaviour {
 	}
 
 	void OnValidate () {
-		name = difficulty.ToString ();
+		// Note that OnValidate is called in the editor only so the compiler conditional shouldn't be necessary. Using it still, just in case.
+		#if UNITY_EDITOR
+		if (UnityEditor.PrefabUtility.GetPrefabType (gameObject) == UnityEditor.PrefabType.Prefab) {
+			return;
+		}
+		#endif
+
+		if (name != difficulty.ToString ()) {
+			name = difficulty.ToString ();
+		}
 		if (buttonText != null) {
 			buttonText.text = difficulty.ToString ();
 		}
