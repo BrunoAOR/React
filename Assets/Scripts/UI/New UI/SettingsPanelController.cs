@@ -141,8 +141,7 @@ public class SettingsPanelController : MonoBehaviour {
 		}
 		flagRims [flagIndex].SetActive (true);
 
-		// TODO: Here, we should tell the manager to change language.
-		Debug.Log ("Language at index " + flagIndex + " selected!");
+		Managers.Language.SetLanguage ((Languages)flagIndex);
 
 		_selectedLanguageIndex = flagIndex;
 	}

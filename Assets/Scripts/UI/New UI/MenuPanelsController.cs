@@ -19,8 +19,8 @@ public class MenuPanelsController : MonoBehaviour {
 	public float scrollOutYOffset = 1136f;
 
 	[Header ("Full Stats Button text options")]
-	public string showFullStatsString = "Show full stats";
-	public string hideFullStatsString = "Hide full stats";
+	public string showFullStatsKeyword = "Show full stats";
+	public string hideFullStatsKeyword = "Hide full stats";
 
 	private float _originalYPos;
 	private bool _isAnimating;
@@ -152,10 +152,10 @@ public class MenuPanelsController : MonoBehaviour {
 		// Change the buttons text
 		if (_shouldDisplayFullStats) {
 			// When stats are shown, button changes to Hide
-			fullStatsButton.SetText (hideFullStatsString);
+			fullStatsButton.SetText (hideFullStatsKeyword);
 		} else {
 			// When stats are hidden, button changes to Show
-			fullStatsButton.SetText (showFullStatsString);
+			fullStatsButton.SetText (showFullStatsKeyword);
 		}
 
 		// Comunicate the change

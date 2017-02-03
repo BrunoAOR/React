@@ -17,7 +17,7 @@ TrueTypeFontImporter:
   - {fileID: 12800000, guid: 77ed1be1313af214fafdd065e8307286, type: 3}
   - {fileID: 12800000, guid: e8482efe63940454c915ba468db47e08, type: 3}
   customCharacters: "ABCDEFGHIJKLMN\xD1OPQRSTUVWXYZabcdefghijklmn\xF1opqrstuvwxyz0123456789
-    .,:;+-!?"
+    \xC1\xC9\xCD\xD3\xDA\xE1\xE9\xED\xF3\xFA.,:;+-!?"
   fontRenderingMode: 0
   ascentCalculationMode: 1
   userData: 

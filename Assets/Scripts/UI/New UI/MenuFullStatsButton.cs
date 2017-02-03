@@ -6,24 +6,23 @@ using UnityEngine.UI;
 public class MenuFullStatsButton : MonoBehaviour {
 
 	private RectTransform _rectTransform;
-	private Text _text;
+	private LanguageMultiText _languageMultiText;
 
 	void Awake () {
 		_rectTransform = GetComponent<RectTransform> ();
-		_text = GetComponentInChildren<Text> ();
+		_languageMultiText = GetComponentInChildren<LanguageMultiText> ();
 	}
 
 	public void SetActive (bool _) {
 		gameObject.SetActive (_);
 	}
 
-	public void SetText (string message) {
-		_text.text = message;
+	public void SetText (string keyword) {
+		_languageMultiText.ApplyLanguageTranslation (keyword);
 	}
 
 	public void ShiftAnchoredPosition (Vector2 shift) {
 		_rectTransform.anchoredPosition += shift;
-
 	}
 
 	public void ShiftAnchoredPosition (float xShift, float yShift) {

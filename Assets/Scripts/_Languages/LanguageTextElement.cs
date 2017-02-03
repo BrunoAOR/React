@@ -6,7 +6,7 @@ public class LanguageTextElement
 	[ShowOnly]
 	[SerializeField]
 	private Languages language;
-	[TextArea(2,3)]
+	[Multiline(2)]
 	public string text;
 
 	public LanguageTextElement (Languages assignedLanguage) {

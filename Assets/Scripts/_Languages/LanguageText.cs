@@ -6,17 +6,11 @@ using UnityEngine.UI;
 public class LanguageText : MonoBehaviour {
 
 	public Text connectedText;
-	public LanguageArray languageArray;
+	public LanguageArray languages;
 
 	void Reset () {
 		connectedText = GetComponent<Text> ();
-		languageArray = new LanguageArray ();
-		OnValidate ();
-
-	}
-
-	void OnValidate () {
-		languageArray.SetUpLanguagesArray ();
+		languages = new LanguageArray ();
 	}
 
 	void OnEnable () {
@@ -24,6 +18,6 @@ public class LanguageText : MonoBehaviour {
 	}
 
 	private void ApplyLanguageTranslation () {
-		connectedText.text = languageArray.GetTranslation();
+		connectedText.text = languages.GetTranslation();
 	}
 }
