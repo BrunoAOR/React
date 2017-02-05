@@ -17,7 +17,7 @@ public class MenuFullStatsButton : MonoBehaviour {
 		gameObject.SetActive (_);
 	}
 
-	public void SetText (string keyword) {
+	public void ApplyTranslation (string keyword) {
 		_languageMultiText.ApplyLanguageTranslation (keyword);
 	}
 

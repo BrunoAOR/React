@@ -18,7 +18,7 @@ public class MenuPanelsController : MonoBehaviour {
 	public float inOutScrollBounce = 0.2f;
 	public float scrollOutYOffset = 1136f;
 
-	[Header ("Full Stats Button text options")]
+	[Header ("Full Stats Button keyword options")]
 	public string showFullStatsKeyword = "Show full stats";
 	public string hideFullStatsKeyword = "Hide full stats";
 
@@ -152,10 +152,10 @@ public class MenuPanelsController : MonoBehaviour {
 		// Change the buttons text
 		if (_shouldDisplayFullStats) {
 			// When stats are shown, button changes to Hide
-			fullStatsButton.SetText (hideFullStatsKeyword);
+			fullStatsButton.ApplyTranslation (hideFullStatsKeyword);
 		} else {
 			// When stats are hidden, button changes to Show
-			fullStatsButton.SetText (showFullStatsKeyword);
+			fullStatsButton.ApplyTranslation (showFullStatsKeyword);
 		}
 
 		// Comunicate the change

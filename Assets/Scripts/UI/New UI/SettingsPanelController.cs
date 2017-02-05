@@ -63,7 +63,7 @@ public class SettingsPanelController : MonoBehaviour {
 		}
 
 		// TODO: Get the actual saved selectedLanguage from the LanguageManager
-		_selectedLanguageIndex = 0;
+		_selectedLanguageIndex = Managers.Language.GetLanguageIndex();
 		ToggleToFlag (_selectedLanguageIndex);
 	}
 

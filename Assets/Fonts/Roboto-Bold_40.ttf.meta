@@ -5,7 +5,7 @@ licenseType: Free
 TrueTypeFontImporter:
   serializedVersion: 4
   fontSize: 40
-  forceTextureCase: 0
+  forceTextureCase: 3
   characterSpacing: 0
   characterPadding: 1
   includeFontData: 1
@@ -14,7 +14,8 @@ TrueTypeFontImporter:
   - Roboto
   fallbackFontReferences:
   - {fileID: 12800000, guid: 39bca979c5d845441a7f30eefc53fd10, type: 3}
-  customCharacters: 
+  customCharacters: "ABCDEFGHIJKLMN\xD1OPQRSTUVWXYZabcdefghijklmn\xF1opqrstuvwxyz0123456789
+    \xC1\xC9\xCD\xD3\xDA\xE1\xE9\xED\xF3\xFA.,:;+-!?()"
   fontRenderingMode: 0
   ascentCalculationMode: 1
   userData: 

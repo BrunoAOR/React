@@ -35,6 +35,10 @@ public class LanguageArray {
 				
 	}
 
+	public int GetLanguagesCount () {
+		return (languageTextElements.Length);
+	}
+
 	/// <summary>
 	/// Gets the translation for the currently selected language in the LanguageManager.
 	/// </summary>

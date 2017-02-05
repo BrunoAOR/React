@@ -14,7 +14,6 @@ public enum Languages {
 
 public class LanguageManager : MonoBehaviour {
 
-	[ShowOnly]
 	[SerializeField]
 	private Languages language;
 	[SerializeField]
@@ -58,28 +57,6 @@ public class LanguageManager : MonoBehaviour {
 		yield return null;
 		for (int i = 0; i < resetOnLanguageChange.Length; i++) {
 			resetOnLanguageChange[i].SetActive (true);
-		}
-	}
-
-	void Update () {
-		if (Input.GetKeyDown (KeyCode.Alpha1)) {
-			//language = Languages.English;
-		} else if (Input.GetKeyDown (KeyCode.Alpha2)) {
-			//language = Languages.Spanish;
-		} else if (Input.GetKeyDown (KeyCode.Alpha3)) {
-			if (((Languages)1).ToString () != null) {
-				Debug.Log ("L1 is " + ((Languages)1).ToString ());
-			} else {
-				Debug.Log ("L1 is null!");
-			}
-		} else if (Input.GetKeyDown (KeyCode.Alpha4)) {
-			if (((Languages)10).ToString () != null) {
-				Debug.Log ("L2 is " + ((Languages)10).ToString ());
-			} else {
-				Debug.Log ("L2 is null!");
-			}
-		} else if (Input.GetKeyDown (KeyCode.Alpha5)) {
-			Debug.Log ("Languages Count is: " + GetLanguagesCount ());
 		}
 	}
 }

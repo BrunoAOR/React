@@ -1,27 +1,19 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
-[RequireComponent (typeof (Text))]
-public class LanguageMultiText : MonoBehaviour {
+public class LanguageInfo : MonoBehaviour {
 
-	public Text connectedText;
 	public LanguageArray[] languageSets;
-	private string activeKeyword;
 
-	// Fields used for data validation
+	// Fields used for data validation in edit-time
 	private int previousLanguageSetCount;
 	private Dictionary<int,int> sameKeywords = new Dictionary<int, int> ();
 	private List<int> emptyKeywords = new List<int> ();
 
-	void Reset () {
-		connectedText = GetComponent<Text> ();
-		OnValidate ();
-	}
 
-	void OnEnable () {
-		CheckForRepeatedKeywords ();
-		ApplyLanguageTranslation ();
+	void Reset () {
+		OnValidate ();
 	}
 
 	void OnValidate () {
@@ -44,13 +36,26 @@ public class LanguageMultiText : MonoBehaviour {
 		}
 
 		previousLanguageSetCount = languageSets.Length;
-
 		CheckForRepeatedKeywords ();
 	}
 
-	void OnAwake () {
-		activeKeyword = languageSets [0].keyword;
+	public string GetTranslation (string keyword, params string[] parameters) {
+		int keywordIndex = FindKeywordIndex (keyword);
+		if (keywordIndex == -1) {
+			//Debug.LogError (gameObject.name + "(LanguageInfo): Keyword " + keyword + " could not be found in LanguageInfo component in " + gameObject.name + " Game Object.");
+			return (string.Empty);
+		}
+
+		int requiredParametersCount = CountMaxRequiredParameters (languageSets[keywordIndex]);
+		if (requiredParametersCount != 0 && (parameters == null || parameters.Length < requiredParametersCount)) {
+			//Debug.LogError (gameObject.name + "(LanguageInfo): The amount of parameters passed to the ApplyLanguageTranslation method is insufficient");
+			return (string.Empty);
+		}
+
+		string textToFormat = languageSets[keywordIndex].GetTranslation ();
+		return (string.Format (textToFormat, parameters));
 	}
+
 
 	private void CheckForRepeatedKeywords () {
 		if (languageSets.Length <= 1) {
@@ -87,7 +92,7 @@ public class LanguageMultiText : MonoBehaviour {
 		emptyKeywords = newEmptyKeywords;
 		if (emptyKeywordsChanged && emptyKeywords.Count > 0) {
 			System.Text.StringBuilder sb = new System.Text.StringBuilder ();
-			sb.Append (gameObject.name + "(LanguageMultiText): Some elements have empty keywords. Consider assigning ");
+			sb.Append (gameObject.name + "(LanguageInfo): Some elements have empty keywords. Consider assigning ");
 			if (emptyKeywords.Count == 1) {
 				sb.Append ("a keyword for element ");
 			} else {
@@ -125,33 +130,13 @@ public class LanguageMultiText : MonoBehaviour {
 		sameKeywords = newSameKeywords;
 		if (sameKeywordsChanged && sameKeywords.Keys.Count > 0) {
 			foreach (KeyValuePair <int, int> kvp in sameKeywords) {
-				Debug.LogError ("Elements " + kvp.Value + " and " + kvp.Key + " have the same keyword (" + languageSets [kvp.Key].keyword + ")" + "\n"
+				Debug.LogError (gameObject.name + "(LanguageInfo): Elements " + kvp.Value + " and " + kvp.Key + " have the same keyword (" + languageSets [kvp.Key].keyword + ")" + "\n"
 					+ "Change the keyword in one of these elements to prevent element " + kvp.Key + " from never being selected."
 				);
 			}
 
 		}
 
-	}
-
-	private void ApplyLanguageTranslation (int idx = 0) {
-		connectedText.text = languageSets[idx].GetTranslation();
-	}
-
-	public void SetActive (bool _) {
-		gameObject.SetActive (_);
-		ApplyLanguageTranslation (activeKeyword);
-	}
-
-	public void ApplyLanguageTranslation (string keyword) {
-		int index = FindKeywordIndex (keyword);
-		if (index != -1) {
-			activeKeyword = keyword;
-			ApplyLanguageTranslation (index);
-		} else {
-			connectedText.text = "Error: Keyword not found!";
-			Debug.LogWarning ("Keyword " + keyword + " could not be found in LanguageMultiText component in " + gameObject.name + " Game Object.");
-		}
 	}
 
 	private bool KeywordExists (string keyword) {
@@ -170,5 +155,47 @@ public class LanguageMultiText : MonoBehaviour {
 			}
 		}
 		return -1;
+	}
+
+	private int CountMaxRequiredParameters (LanguageArray languageArray) {
+		int count = 0;
+		string testText;
+		for (int i = 0; i < languageArray.GetLanguagesCount (); i++) {
+			testText = languageArray.GetTranslation ((Languages)i);
+			count = Mathf.Max (count, CountParameters(testText));
+		}
+		return (count);
+	}
+
+	private int CountParameters (string testString) {
+		int maxParamIndex = -1;
+		string subString;
+		int parsedInt;
+		for (int c = 0; c < testString.Length; c++) {
+			if (testString [c] == '{' && c < testString.Length - 2) {
+				if (testString [c + 1] == '{') {
+					// Skip the next character which is a '{' because the double '{' does not count as a parameters
+					c++;
+				} else {
+					// Now we look for the closing bracket.
+					for (int t = c + 1; t < testString.Length; t++) {
+						if (testString [t] == '}') {
+							// We found the closing bracket, so now we check if the enclosed string is an int
+							// We get the substring enclosed in the brackets
+							subString = testString.Substring (c + 1, t - (c + 1));
+							// We try to parse it to an Int
+							if (int.TryParse (subString, out parsedInt)) {
+								// If successful, we compare the value (which represent the parameter index) with the current maxParamIndex and store the maximum value.
+								maxParamIndex = Mathf.Max (maxParamIndex, parsedInt);
+							}
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		// We add one because the parameter indexes start at 0
+		return (maxParamIndex + 1);
 	}
 }

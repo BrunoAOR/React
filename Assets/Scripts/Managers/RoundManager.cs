@@ -46,9 +46,11 @@ public class RoundManager : MonoBehaviour {
 
 	[Header ("Game Description")]
 	public GameObject descriptionSubSection;
-	public Text descriptionTitleText;
-	public Text descriptionText;
-	public FlashingUIText descriptionTapPrompt;
+	public LanguageMultiText descriptionTitleLangMultText;
+	public LanguageMultiText descriptionLangMultText;
+	public LanguageMultiText descriptionLangMultTapPrompt;
+	public string continueTapPropmtKeyword = "continueTapPrompt";
+	public string speedUpTapPromptKeyword = "speedUpTapPrompt";
 	public AudioSource _audioSource;
 	public AudioClip typingSound;
 
@@ -144,9 +146,9 @@ public class RoundManager : MonoBehaviour {
 
 		// Description related
 		descriptionSubSection.SetActive (false);
-		descriptionText.gameObject.SetActive (true);
-		descriptionTitleText.gameObject.SetActive (true);
-		descriptionTapPrompt.gameObject.SetActive (true);
+		descriptionLangMultText.gameObject.SetActive (true);
+		descriptionTitleLangMultText.gameObject.SetActive (true);
+		descriptionLangMultTapPrompt.gameObject.SetActive (true);
 
 		HUDSection.SetActive (true);
 		_timer = _modeLogic.startTime;
@@ -226,19 +228,21 @@ public class RoundManager : MonoBehaviour {
 		coverImage.UseStartColor ();
 
 		descriptionSubSection.gameObject.SetActive (true);
-		descriptionText.text = "";
-		descriptionTitleText.text = _modeLogic.modeName;
+		descriptionLangMultText.SetText ("");
+		descriptionTitleLangMultText.ApplyLanguageTranslation (gameMode.ToString ());
 
-		descriptionTapPrompt.SetText ("Tap anywhere to speed up...");
+		descriptionLangMultTapPrompt.ApplyLanguageTranslation (speedUpTapPromptKeyword);
 
 		Managers.Audio.StopMusic ();
 		yield return new WaitForSeconds (0.5f);
 
 		_typingDescription = true;
-		yield return ( StartCoroutine (_textTyper.TypeText(this, descriptionText, _modeLogic.modeDescription, _audioSource, typingSound)) );
+
+		string textToType = descriptionLangMultText.GetLanguageTranslation (gameMode.ToString() + "Description");
+		yield return ( StartCoroutine (_textTyper.TypeText(this, descriptionLangMultText.GetConnectedText(), textToType, _audioSource, typingSound)) );
 		_typingDescription = false;
 
-		descriptionTapPrompt.SetText ("Tap anywhere to continue...");
+		descriptionLangMultTapPrompt.ApplyLanguageTranslation (continueTapPropmtKeyword);
 
 		while (!Input.GetMouseButtonDown (0)) {
 			yield return null;
