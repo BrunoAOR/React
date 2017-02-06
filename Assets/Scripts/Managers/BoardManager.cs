@@ -14,7 +14,7 @@ public class BoardManager : MonoBehaviour {
 	private float buttonScale = 1f;
 
 
-	private Button[] buttons;
+	private CircleButton[] buttons;
 	private Vector3[] buttonPositions;
 
 
@@ -26,7 +26,7 @@ public class BoardManager : MonoBehaviour {
 	}
 
 
-	public Button[] GetButtons () {
+	public CircleButton[] GetButtons () {
 		return buttons;
 	}
 
@@ -95,7 +95,7 @@ public class BoardManager : MonoBehaviour {
 		Vector2 referencePosition = bottomLeftEdge + new Vector2 (spacePerButton/2, spacePerButton/2);
 
 		// Initialize the buttons array and the buttonsPositions array to the right size.
-		buttons = new Button[gridSize * gridSize];
+		buttons = new CircleButton[gridSize * gridSize];
 		buttonPositions = new Vector3[gridSize * gridSize];
 
 		// Now we can create all buttons
@@ -111,7 +111,7 @@ public class BoardManager : MonoBehaviour {
 				positionOffset = new Vector2 (x * spacePerButton, y * spacePerButton);
 				button.transform.localPosition = referencePosition + positionOffset;
 				button.transform.localScale = Vector3.one * buttonScale;
-				buttons[y * gridSize + x] = button.GetComponent<Button> ();
+				buttons[y * gridSize + x] = button.GetComponent<CircleButton> ();
 				buttonPositions [y * gridSize + x] = button.transform.position;
 
 				bMover = button.GetComponent<Mover> ();

@@ -68,7 +68,7 @@ public class RoundManager : MonoBehaviour {
 
 	[Header ("For the buttons")]
 	[ShowOnly] [SerializeField] private int _buttonsLeftToClick;
-	private Button[] _buttons;
+	private CircleButton[] _buttons;
 
 	[Header ("Game Pause Penalty")]
 	public float gamePausePenalty = -0.3f;
@@ -441,7 +441,7 @@ public class RoundManager : MonoBehaviour {
 	}
 
 
-	public void ButtonPressed (Button button) {
+	public void ButtonPressed (CircleButton button) {
 		if (!_buttonsClickable)
 			return;
 

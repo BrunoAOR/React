@@ -2,7 +2,7 @@
 using UnityEngine.EventSystems;
 using System.Collections;
 
-public class Button : MonoBehaviour {
+public class CircleButton : MonoBehaviour {
 
 	[HideInInspector] public bool isLit;
 

@@ -12,7 +12,7 @@ public class MotionBehaviour : ButtonsBehaviour {
 
 	private bool _initialized = false;
 	private bool _started = false;
-	private Button[] buttons;
+	private CircleButton[] buttons;
 	private int[] buttonsCurrentGridPositionIndex;
 	private Vector3[] gridPositions;
 	private Path[] gridPaths;
@@ -35,7 +35,7 @@ public class MotionBehaviour : ButtonsBehaviour {
 	}
 
 
-	public override void InitializeBehaviour (Button[] buttons) {
+	public override void InitializeBehaviour (CircleButton[] buttons) {
 		OnEnable ();
 		this.buttons = buttons;
 

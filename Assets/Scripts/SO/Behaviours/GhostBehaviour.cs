@@ -16,7 +16,7 @@ public class GhostBehaviour : ButtonsBehaviour {
 
 	private bool _initialized = false;
 	private bool _started = false;
-	private Button[] buttons;
+	private CircleButton[] buttons;
 	private Color[] buttonsStartColors;
 	private float[] buttonsAnimationOffset;
 	private float startTime;
@@ -37,7 +37,7 @@ public class GhostBehaviour : ButtonsBehaviour {
 	}
 
 
-	public override void InitializeBehaviour (Button[] buttons) {
+	public override void InitializeBehaviour (CircleButton[] buttons) {
 		OnEnable ();
 		this.buttons = buttons;
 

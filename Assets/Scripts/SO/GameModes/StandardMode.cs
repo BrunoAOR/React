@@ -16,7 +16,7 @@ public class StandardMode : GameModeLogic {
 		// No initialization needed.
 	}
 
-	public override int TurnOnButtons (Button[] buttons, int buttonsToClick)	{
+	public override int TurnOnButtons (CircleButton[] buttons, int buttonsToClick)	{
 		// Verify buttonsToClick
 		if (buttonsToClick < 1) {
 			buttonsToClick = 1;
@@ -43,7 +43,7 @@ public class StandardMode : GameModeLogic {
 		return changeInButtonsOnAmount;
 	}
 
-	public override int TurnOffButtons (Button[] buttons) {
+	public override int TurnOffButtons (CircleButton[] buttons) {
 		int changeInButtonsOnAmount = 0;
 		for (int i = 0; i < buttons.Length; i++) {
 			if (buttons [i].isLit) {
@@ -54,7 +54,7 @@ public class StandardMode : GameModeLogic {
 		return changeInButtonsOnAmount;
 	}
 
-	public override int ButtonPressed (Button button, out float timeBonus)	{
+	public override int ButtonPressed (CircleButton button, out float timeBonus)	{
 		timeBonus = 0;
 		int changeInButtonsOnAmount = 0;
 		if (button.isLit) {		// CORRECT button pressed (button was ON)
