@@ -230,7 +230,7 @@ public class LanguageMultiText : MonoBehaviour {
 			for (int i = 0; i < emptyKeywords.Count; i++) {
 				if (i > 0) {
 					if (i < emptyKeywords.Count - 1) {
-						sb.Append (" ,");
+						sb.Append (", ");
 					} else {
 						sb.Append (" & ");
 					}

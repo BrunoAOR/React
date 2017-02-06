@@ -6,7 +6,7 @@ using UnityEditor;
 [CustomPropertyDrawer (typeof (LanguageTextElement))]
 public class LanguageTextElementDrawer : PropertyDrawer {
 
-	int numberOfLines = 3;
+	int numberOfLines = 4;
 	float lineHeight = 0;
 	int padding = 2;
 	Rect titleRect, textAreaRect;
@@ -25,7 +25,7 @@ public class LanguageTextElementDrawer : PropertyDrawer {
 			position.x,
 			position.y + (lineHeight + padding),
 			position.width,
-			(lineHeight + padding) + lineHeight
+			3 * lineHeight
 		);
 
 		language = property.FindPropertyRelative ("language");
@@ -38,9 +38,11 @@ public class LanguageTextElementDrawer : PropertyDrawer {
 		EditorGUI.LabelField (titleRect, titleText, italicLabel);
 
 		// Draw textArea
+		GUIStyle wrapTextArea = new GUIStyle (EditorStyles.textArea);
+		wrapTextArea.wordWrap = true;
 		EditorGUI.BeginProperty (textAreaRect, GUIContent.none, property);
 		EditorGUI.BeginChangeCheck ();
-		string newText = EditorGUI.TextArea (textAreaRect, text.stringValue);
+		string newText = EditorGUI.TextArea (textAreaRect, text.stringValue, wrapTextArea);
 
 		if (EditorGUI.EndChangeCheck ()) {
 			text.stringValue = newText;
@@ -51,6 +53,6 @@ public class LanguageTextElementDrawer : PropertyDrawer {
 	public override float GetPropertyHeight (SerializedProperty property, GUIContent label)
 	{
 		lineHeight = base.GetPropertyHeight (property, label);
-		return (numberOfLines * (lineHeight + padding));
+		return (numberOfLines * lineHeight + padding);
 	}
 }
