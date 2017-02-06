@@ -21,8 +21,8 @@ public class RoundResultController : MonoBehaviour {
 
 	[Header ("References")]
 	public GameObject roundResultPanel;
-	public LanguageMultiText gameModeLangMultText;
-	public LanguageMultiText difficultyLangMultText;
+	public LanguageText gameModeLangText;
+	public LanguageText difficultyLangText;
 	public GameObject scoreSection;
 	public Image separator;
 	public Text highscoreText;
@@ -126,8 +126,8 @@ public class RoundResultController : MonoBehaviour {
 		SetElementsState (false);
 
 		// Set up labels
-		gameModeLangMultText.ApplyLanguageTranslation (gameMode.ToString());
-		difficultyLangMultText.ApplyLanguageTranslation (difficulty.ToString ());
+		gameModeLangText.ApplyTranslation (gameMode.ToString());
+		difficultyLangText.ApplyTranslation (difficulty.ToString ());
 		highscoreText.text = _previousHighscore.ToString ();
 		currentScoreText.text = "";
 
@@ -150,21 +150,21 @@ public class RoundResultController : MonoBehaviour {
 		yield return (_waitTime);
 
 		// Animate the gameModeText (downwards) and the dificultyText (upwards) entries
-		gameModeLangMultText.gameObject.SetActive (true);
-		difficultyLangMultText.gameObject.SetActive (true);
+		gameModeLangText.gameObject.SetActive (true);
+		difficultyLangText.gameObject.SetActive (true);
 
-		Vector3 modeInPos = gameModeLangMultText.rectTransform.localPosition;
+		Vector3 modeInPos = gameModeLangText.rectTransform.localPosition;
 		Vector3 modeOutPos = modeInPos;
-		modeOutPos.y += gameModeLangMultText.rectTransform.sizeDelta.y;
+		modeOutPos.y += gameModeLangText.rectTransform.sizeDelta.y;
 
-		Vector3 diffInPos = difficultyLangMultText.rectTransform.localPosition;
+		Vector3 diffInPos = difficultyLangText.rectTransform.localPosition;
 		Vector3 diffOutPos = diffInPos;
-		diffOutPos.y -= difficultyLangMultText.rectTransform.sizeDelta.y;
+		diffOutPos.y -= difficultyLangText.rectTransform.sizeDelta.y;
 
 		if (clips [1] != null)
 		Managers.Audio.PlaySound (clips [1], true);
-		_showRoundResultInnerCoroutines [0] = ScrollIn (gameModeLangMultText.gameObject, modeOutPos, modeInPos, modeAndDifficultyEntryDuration);
-		_showRoundResultInnerCoroutines [1] = ScrollIn (difficultyLangMultText.gameObject, diffOutPos, diffInPos, modeAndDifficultyEntryDuration);
+		_showRoundResultInnerCoroutines [0] = ScrollIn (gameModeLangText.gameObject, modeOutPos, modeInPos, modeAndDifficultyEntryDuration);
+		_showRoundResultInnerCoroutines [1] = ScrollIn (difficultyLangText.gameObject, diffOutPos, diffInPos, modeAndDifficultyEntryDuration);
 		StartCoroutine (_showRoundResultInnerCoroutines [0]);
 		yield return (_showRoundResultInnerCoroutines [1]);
 		_showRoundResultInnerCoroutines [0] = null;
@@ -237,8 +237,8 @@ public class RoundResultController : MonoBehaviour {
 
 	private void SetElementsState (bool activeState) {
 		roundResultPanel.gameObject.SetActive (activeState);
-		gameModeLangMultText.gameObject.SetActive (activeState);
-		difficultyLangMultText.gameObject.SetActive (activeState);
+		gameModeLangText.gameObject.SetActive (activeState);
+		difficultyLangText.gameObject.SetActive (activeState);
 		scoreSection.gameObject.SetActive (activeState);
 		separator.gameObject.SetActive (activeState);
 		highscoreText.gameObject.SetActive (activeState);
@@ -250,8 +250,8 @@ public class RoundResultController : MonoBehaviour {
 	private void RecordElementsLocalPositions () {
 		int idx = 0;
 		_elementsLocalPositions [idx++] = roundResultPanel.transform.localPosition;
-		_elementsLocalPositions [idx++] = gameModeLangMultText.transform.localPosition;
-		_elementsLocalPositions [idx++] = difficultyLangMultText.transform.localPosition;
+		_elementsLocalPositions [idx++] = gameModeLangText.transform.localPosition;
+		_elementsLocalPositions [idx++] = difficultyLangText.transform.localPosition;
 		_elementsLocalPositions [idx++] = scoreSection.transform.localPosition;
 		_elementsLocalPositions [idx++] = separator.transform.localPosition;
 		_elementsLocalPositions [idx++] = highscoreText.transform.localPosition;
@@ -263,8 +263,8 @@ public class RoundResultController : MonoBehaviour {
 	private void ApplyElementsLocalPositions () {
 		int idx = 0;
 		roundResultPanel.transform.localPosition = _elementsLocalPositions [idx++];
-		gameModeLangMultText.transform.localPosition = _elementsLocalPositions [idx++];
-		difficultyLangMultText.transform.localPosition = _elementsLocalPositions [idx++];
+		gameModeLangText.transform.localPosition = _elementsLocalPositions [idx++];
+		difficultyLangText.transform.localPosition = _elementsLocalPositions [idx++];
 		scoreSection.transform.localPosition = _elementsLocalPositions [idx++];
 		separator.transform.localPosition = _elementsLocalPositions [idx++];
 		highscoreText.transform.localPosition = _elementsLocalPositions [idx++];

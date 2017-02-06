@@ -67,7 +67,11 @@ public class MenuPanelsController : MonoBehaviour {
 	}
 
 	public bool IsAnimating () {
-		return (_isAnimating);
+		bool animating = _isAnimating;
+		for (int i = 0; i < gameModePanels.Length; i++) {
+			animating |= gameModePanels [i].IsAnimating ();
+		}
+		return (animating);
 	}
 
 	public void SetButtonsColors (Color unlockedColor, Color lockedColor, Color lockImageColor) {

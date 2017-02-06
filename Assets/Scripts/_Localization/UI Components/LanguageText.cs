@@ -1,13 +1,22 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 [RequireComponent (typeof (Text))]
 public class LanguageText : MonoBehaviour {
 
-
 	[SerializeField]
 	private Text connectedText;
+	public string activeKeyword;
+	public bool parametersAsKeywords = false;
+	public string[] activeParameters;
+
+	public RectTransform rectTransform {
+		get {
+			return (connectedText.rectTransform);
+		}
+	}
 	public Color color {
 		get {
 			return (connectedText.color);
@@ -16,31 +25,35 @@ public class LanguageText : MonoBehaviour {
 			connectedText.color = value;
 		}
 	}
-	public RectTransform rectTransform {
-		get {
-			return (connectedText.rectTransform);
-		}
-	}
-	public LanguageArray languages;
 
 	private int requiredParametersCount = 0;
 
-	void Reset () {
-		connectedText = GetComponent<Text> ();
-		languages = new LanguageArray ();
-	}
-
-	void Awake () {
-		connectedText = GetComponent<Text> ();
-		if (languages == null) {
-			languages = new LanguageArray ();
+	private void Reset () {
+		if (connectedText == null) {
+			connectedText = GetComponent<Text> ();
 		}
-		requiredParametersCount = CountMaxRequiredParameters (languages);
 	}
 
-	void OnEnable () {
+	private void Awake () {
+		if (connectedText == null) {
+			connectedText = GetComponent<Text> ();
+		}
+	}
+
+	private void OnEnable () {
+		if (string.IsNullOrEmpty (activeKeyword)) {
+			connectedText.text = "ERROR: No keyword";
+			return;
+		}
+
 		if (requiredParametersCount == 0) {
-			ApplyLanguageTranslation ();
+			ApplyTranslation (activeKeyword);
+		} else if (activeParameters != null) {
+			if (parametersAsKeywords) {
+				ApplyTranslation (activeKeyword, true, activeParameters);
+			} else {
+				ApplyTranslation (activeKeyword, false, activeParameters);
+			}
 		}
 	}
 
@@ -52,64 +65,84 @@ public class LanguageText : MonoBehaviour {
 		return connectedText;
 	}
 
-	public string GetLanguageTranslation (params string[] parameters) {
-		if (requiredParametersCount != 0 && (parameters == null || parameters.Length < requiredParametersCount)) {
-			Debug.LogError (gameObject.name + "(LanguageText): The amount of parameters passed to the ApplyLanguageTranslation method is insufficient" + requiredParametersCount);
-			return (string.Empty);
-		}
-		string textToFormat = languages.GetTranslation ();
-		return (string.Format(textToFormat, parameters));
+	public string GetTranslation (bool tryParametersAsKeywords = false, params string[] parameters) {
+		return GetTranslation (activeKeyword, tryParametersAsKeywords, parameters);
 	}
 
-	private void ApplyLanguageTranslation (params string[] parameters) {
+	public string GetTranslation (string keyword, bool tryParametersAsKeywords = false, params string[] parameters) {
+
+		string translation = Managers.Language.GetTranslation (keyword);
+
+		if (translation == null) {
+			Debug.LogError (gameObject.name + "(LanguageText): Keyword " + keyword + " does not exist.");
+			return (null);
+		}
+
+		requiredParametersCount = Managers.Language.GetRequiredParametersCount(keyword);
 		if (requiredParametersCount != 0 && (parameters == null || parameters.Length < requiredParametersCount)) {
-			Debug.LogError (gameObject.name + "(LanguageText): The amount of parameters passed to the ApplyLanguageTranslation method is insufficient" + requiredParametersCount);
+			Debug.LogError (gameObject.name + "(LanguageText): The amount of parameters passed to the GetTranslation method is insufficient");
+			return (null);
+		}
+
+		if (tryParametersAsKeywords) {
+			parametersAsKeywords = true;
+			string[] translatedParameters = new string[parameters.Length];
+
+			for (int i = 0; i < parameters.Length; i++) {
+				string translatedString = Managers.Language.GetTranslation (parameters [i]);
+				if (translatedString != string.Empty) {
+					translatedParameters [i] = translatedString;
+				} else {
+					translatedParameters [i] = parameters [i];
+				}
+			}
+			connectedText.text = string.Format (translation, translatedParameters);
+		} else {
+			parametersAsKeywords = false;
+			connectedText.text = string.Format (translation, parameters);
+		}
+		return (string.Format (translation, parameters));
+	}
+
+	public void ApplyTranslation (bool tryParametersAsKeywords = false, params string[] parameters) {
+		ApplyTranslation (activeKeyword, tryParametersAsKeywords, parameters);
+	}
+
+	public void ApplyTranslation (string keyword, bool tryParametersAsKeywords = false, params string[] parameters) {
+
+		string translation = Managers.Language.GetTranslation (keyword);
+
+		if (translation == null) {
+			Debug.LogError (gameObject.name + "(LanguageText): Keyword " + keyword + " does not exist.");
 			return;
 		}
 
-		string textToFormat = languages.GetTranslation ();
-		connectedText.text = string.Format (textToFormat, parameters);
-	}
-
-	private int CountMaxRequiredParameters (LanguageArray languageArray) {
-		int count = 0;
-		string testText;
-		for (int i = 0; i < languageArray.GetLanguagesCount (); i++) {
-			testText = languageArray.GetTranslation ((Languages)i);
-			count = Mathf.Max (count, CountParameters(testText));
+		requiredParametersCount = Managers.Language.GetRequiredParametersCount(keyword);
+		if (requiredParametersCount != 0 && (parameters == null || parameters.Length < requiredParametersCount)) {
+			Debug.LogError (gameObject.name + "(LanguageText): The amount of parameters passed to the ApplyTranslation method is insufficient");
+			return;
 		}
-		return (count);
-	}
 
-	private int CountParameters (string testString) {
-		int maxParamIndex = -1;
-		string subString;
-		int parsedInt;
-		for (int c = 0; c < testString.Length; c++) {
-			if (testString [c] == '{' && c < testString.Length - 2) {
-				if (testString [c + 1] == '{') {
-					// Skip the next character which is a '{' because the double '{' does not count as a parameters
-					c++;
+		activeKeyword = keyword;
+		activeParameters = parameters;
+		if (tryParametersAsKeywords) {
+			parametersAsKeywords = true;
+			string[] translatedParameters = new string[parameters.Length];
+
+			for (int i = 0; i < parameters.Length; i++) {
+				string translatedString = Managers.Language.GetTranslation (parameters [i]);
+				if (translatedString != null) {
+					translatedParameters [i] = translatedString;
 				} else {
-					// Now we look for the closing bracket.
-					for (int t = c + 1; t < testString.Length; t++) {
-						if (testString [t] == '}') {
-							// We found the closing bracket, so now we check if the enclosed string is an int
-							// We get the substring enclosed in the brackets
-							subString = testString.Substring (c + 1, t - (c + 1));
-							// We try to parse it to an Int
-							if (int.TryParse (subString, out parsedInt)) {
-								// If successful, we compare the value (which represent the parameter index) with the current maxParamIndex and store the maximum value.
-								maxParamIndex = Mathf.Max (maxParamIndex, parsedInt);
-							}
-							break;
-						}
-					}
+					translatedParameters [i] = parameters [i];
 				}
 			}
+			connectedText.text = string.Format (translation, translatedParameters);
+		} else {
+			parametersAsKeywords = false;
+			connectedText.text = string.Format (translation, parameters);
 		}
 
-		// We add one because the parameter indexes start at 0
-		return (maxParamIndex + 1);
 	}
+
 }

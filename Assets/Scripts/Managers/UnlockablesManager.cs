@@ -95,7 +95,7 @@ public class UnlockCondition {
 	public CountOf aCountOf;
 	public int minValue;
 
-	public void ApplyTranslation (LanguageMultiText langText, string playCountKeyword, string cumulativeScoreKeyword) {
+	public void ApplyTranslation (LanguageText langText, string playCountKeyword, string cumulativeScoreKeyword) {
 		string selectedKeyword = "_";
 		switch (aCountOf) {
 		case UnlockCondition.CountOf.PlayCount:
@@ -105,7 +105,7 @@ public class UnlockCondition {
 			selectedKeyword = cumulativeScoreKeyword;
 			break;
 		}
-		langText.ApplyLanguageTranslationWithParametersAsKeywords (selectedKeyword, minValue.ToString(), gameMode.ToString (), difficulty.ToString ());
+		langText.ApplyTranslation (selectedKeyword, true, minValue.ToString(), gameMode.ToString (), difficulty.ToString ());
 	}
 
 }

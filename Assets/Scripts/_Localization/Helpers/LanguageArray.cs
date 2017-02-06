@@ -44,7 +44,7 @@ public class LanguageArray {
 	/// </summary>
 	/// <returns>The translation.</returns>
 	public string GetTranslation () {
-		return (languageTextElements [Managers.Language.GetLanguageIndex ()].text);
+		return (languageTextElements [Managers.Language.GetActiveLanguageIndex ()].text);
 	}
 
 

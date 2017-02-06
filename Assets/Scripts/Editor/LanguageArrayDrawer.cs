@@ -38,7 +38,7 @@ public class LanguageArrayDrawer : PropertyDrawer {
 		keywordFieldRect = new Rect (
 			position.x + keywordLabelWidth,
 			position.y + (lineHeight + padding),
-			position.width / 2f - keywordLabelWidth,
+			position.width - 2 * keywordLabelWidth,
 			lineHeight
 		);
 

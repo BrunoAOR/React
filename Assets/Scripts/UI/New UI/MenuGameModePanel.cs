@@ -16,10 +16,10 @@ public class MenuGameModePanel : MonoBehaviour {
 	public MenuDifficultyButton[] difficultyButtons;
 	public MenuArrow[] menuArrows;
 
-	public LanguageMultiText gameModeName;
+	public LanguageText gameModeNameLangText;
 	public string modeLockedKeyword = "Locked";
 	public string modeUnlockingKeyword = "Unlocking";
-	public LanguageMultiText descriptionLangMultText;
+	public LanguageText descriptionLangText;
 	public string playCountUnlockConditionKeyword = "playCountUnlockCondition";
 	public string CumuScoreUnlockConditionKeyword = "cumuScoreUnlockCondition";
 	public GameObject difficultiesPanel;
@@ -47,11 +47,11 @@ public class MenuGameModePanel : MonoBehaviour {
 		Transform tT;
 		tT = transform.Find ("GameModeName");
 		if (tT != null) {
-			gameModeName = tT.GetComponent<LanguageMultiText> ();
+			gameModeNameLangText = tT.GetComponent<LanguageText> ();
 		}
 		tT = transform.Find ("BottomSection/GameModeDescription");
 		if (tT != null) {
-			descriptionLangMultText = tT.GetComponent<LanguageMultiText> ();
+			descriptionLangText = tT.GetComponent<LanguageText> ();
 		}
 		tT = transform.FindChild ("BottomSection/Difficulties");
 		if (tT != null) {
@@ -76,8 +76,8 @@ public class MenuGameModePanel : MonoBehaviour {
 		if (name != gameMode.ToString ()) {
 			name = gameMode.ToString ();
 		}
-		if (gameModeName != null) {
-			gameModeName.SetText(name + " Mode");
+		if (gameModeNameLangText != null) {
+			gameModeNameLangText.SetText(name + " Mode");
 		}
 	}
 
@@ -90,11 +90,15 @@ public class MenuGameModePanel : MonoBehaviour {
 	}
 
 	void Start () {
-		gameModeName.ApplyLanguageTranslation (gameMode.ToString());
+		gameModeNameLangText.ApplyTranslation (gameMode.ToString());
 	}
 
 	public bool IsAnimating () {
-		return (_isAnimating);
+		bool animating = _isAnimating;
+		for (int i = 0; i < difficultyButtons.Length; i++) {
+			animating |= difficultyButtons [i].IsAnimating ();
+		}
+		return (animating);
 	}
 
 	public bool IsUnlocked () {
@@ -157,22 +161,22 @@ public class MenuGameModePanel : MonoBehaviour {
 
 	private void Unlock () {
 		_isUnlocked = true;
-		gameModeName.ApplyLanguageTranslation (gameMode.ToString ());
+		gameModeNameLangText.ApplyTranslation (gameMode.ToString ());
 		difficultiesPanel.SetActive (true);
 		generalLockImage.SetActive (false);
 		if (parentPanelsController.PanelCanShowRightArrow (this)) {
 			ArrowVisible (MenuArrow.Direction.Right, true);
 		}
-		descriptionLangMultText.ApplyLanguageTranslation (gameMode.ToString () + "Description");
+		descriptionLangText.ApplyTranslation (gameMode.ToString () + "Description");
 	}
 
 	private void Lock (UnlockCondition unlockCondition) {
 		_isUnlocked = false;
-		gameModeName.ApplyLanguageTranslation (modeLockedKeyword);
+		gameModeNameLangText.ApplyTranslation (modeLockedKeyword);
 		difficultiesPanel.SetActive (false);
 		generalLockImage.SetActive (true);
 		ArrowVisible (MenuArrow.Direction.Right, false);
-		unlockCondition.ApplyTranslation (descriptionLangMultText, playCountUnlockConditionKeyword, CumuScoreUnlockConditionKeyword);
+		unlockCondition.ApplyTranslation (descriptionLangText, playCountUnlockConditionKeyword, CumuScoreUnlockConditionKeyword);
 	}
 
 	public void DisplayFullStats (bool fullDisplay) {
@@ -206,35 +210,35 @@ public class MenuGameModePanel : MonoBehaviour {
 			yield return null;
 		}
 
-		// Change gameModeName text to Unlocking...
-		gameModeName.ApplyLanguageTranslation(modeUnlockingKeyword);
+		// Change gameModeNameLangText text to Unlocking...
+		gameModeNameLangText.ApplyTranslation(modeUnlockingKeyword);
 
 		float timeStart = Time.time;
 		float u;
 		Vector3 startScale = generalLockImage.transform.localScale;
 		Vector3 targetScale = Vector3.zero;
-		Color startColor = descriptionLangMultText.color;
+		Color startColor = descriptionLangText.color;
 		Color dimmedColor = startColor;
 		dimmedColor.a = 0;
 
 		while ((Time.time - timeStart) < lockShrinkDuration) {
 			u = (Time.time - timeStart) / lockShrinkDuration;
 			generalLockImage.transform.localScale = Vector3.Lerp (startScale, targetScale, u);
-			descriptionLangMultText.color = Color.Lerp (startColor, dimmedColor, u);
+			descriptionLangText.color = Color.Lerp (startColor, dimmedColor, u);
 			yield return null;
 		}
 
-		descriptionLangMultText.color = dimmedColor;
+		descriptionLangText.color = dimmedColor;
 
 		// Reset lockImage scale and turn it off
 		generalLockImage.transform.localScale = startScale;
 		generalLockImage.gameObject.SetActive (false);
 
-		// Change gameModeName text to the actual game mode name
-		gameModeName.ApplyLanguageTranslation(gameMode.ToString());
+		// Change gameModeNameLangText text to the actual game mode name
+		gameModeNameLangText.ApplyTranslation(gameMode.ToString());
 
 		// Change the description text to the actual game mode description
-		descriptionLangMultText.ApplyLanguageTranslation (gameMode.ToString () + "Description");
+		descriptionLangText.ApplyTranslation (gameMode.ToString () + "Description");
 
 		// Turn on the difficulties panel
 		difficultiesPanel.gameObject.SetActive (true);
@@ -243,12 +247,12 @@ public class MenuGameModePanel : MonoBehaviour {
 
 		while ((Time.time - timeStart) < textAppearDuration) {
 			u = (Time.time - timeStart) / textAppearDuration;
-			descriptionLangMultText.color = Color.Lerp (dimmedColor, startColor, u);
+			descriptionLangText.color = Color.Lerp (dimmedColor, startColor, u);
 			_difficultiesPanelCanvasGroup.alpha = u;
 			yield return null;
 		}
 
-		descriptionLangMultText.color = startColor;
+		descriptionLangText.color = startColor;
 		_difficultiesPanelCanvasGroup.alpha = 1f;
 
 		// Make the right arrow visible
@@ -264,7 +268,7 @@ public class MenuGameModePanel : MonoBehaviour {
 		if (!_interactable || _isAnimating)
 			return;
 
-		Debug.Log (direction.ToString () + " arrow clicked on " + gameMode.ToString () + " mode.");
+		//Debug.Log (direction.ToString () + " arrow clicked on " + gameMode.ToString () + " mode.");
 		Managers.Audio.PlaySFX (SFX.MenuButton);
 		parentPanelsController.OnArrowClicked (this, direction);
 	}
@@ -273,7 +277,7 @@ public class MenuGameModePanel : MonoBehaviour {
 		if (!_interactable || _isAnimating)
 			return;
 
-		Debug.Log (difficulty.ToString () + " button clicked on " + gameMode.ToString () + " mode.");
+		//Debug.Log (difficulty.ToString () + " button clicked on " + gameMode.ToString () + " mode.");
 		parentPanelsController.OnDifficultyButtonClicked (gameMode, difficulty);
 	}
 

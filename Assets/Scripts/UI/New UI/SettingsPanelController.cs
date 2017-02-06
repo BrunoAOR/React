@@ -35,6 +35,7 @@ public class SettingsPanelController : MonoBehaviour {
 
 	private bool _interactable {
 		get {
+			Debug.Log ("controller says: " +menuController.CanShowSettingsPanel ());
 			return (menuController.CanShowSettingsPanel ());
 		}
 	}
@@ -63,7 +64,7 @@ public class SettingsPanelController : MonoBehaviour {
 		}
 
 		// TODO: Get the actual saved selectedLanguage from the LanguageManager
-		_selectedLanguageIndex = Managers.Language.GetLanguageIndex();
+		_selectedLanguageIndex = Managers.Language.GetActiveLanguageIndex();
 		ToggleToFlag (_selectedLanguageIndex);
 	}
 
@@ -76,6 +77,7 @@ public class SettingsPanelController : MonoBehaviour {
 			return;
 		}
 		Managers.Audio.PlaySFX (SFX.IconClicked_NewSection);
+
 		StartCoroutine (ShowHidePanel ());
 	}
 
@@ -141,7 +143,7 @@ public class SettingsPanelController : MonoBehaviour {
 		}
 		flagRims [flagIndex].SetActive (true);
 
-		Managers.Language.SetLanguage ((Languages)flagIndex);
+		Managers.Language.SetActiveLanguage ((Languages)flagIndex);
 
 		_selectedLanguageIndex = flagIndex;
 	}

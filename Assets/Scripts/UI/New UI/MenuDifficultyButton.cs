@@ -9,12 +9,12 @@ public class MenuDifficultyButton : MonoBehaviour {
 	public Difficulty difficulty;
 	[HideInInspector] public Color unlockedColor;
 	[HideInInspector] public Color lockedColor;
-	public LanguageMultiText buttonLangMultText;
-	public LanguageText fullStatsTextLeft;
+	public LanguageText buttonLangText;
+	public LanguageText fullStatsLeftLangText;
 	public Text fullStatsTextRight;
-	public LanguageMultiText informationLangMultText;
+	public LanguageText informationLangText;
 	public string shortStatsKeyword = "diffButtonShortStats";
-	public string playCountUnlockConditionKeyword = "diffButtonPlayCountUnlockCondition";
+	public string playCountUnlockConditionKeyword = "playCountUnlockCondition";
 	public string CumuScoreUnlockConditionKeyword = "diffButtonCumuScoreUnlockCondition";
 	public Image lockImage;
 
@@ -47,8 +47,8 @@ public class MenuDifficultyButton : MonoBehaviour {
 		if (name != difficulty.ToString ()) {
 			name = difficulty.ToString ();
 		}
-		if (buttonLangMultText != null) {
-			buttonLangMultText.SetText(difficulty.ToString ());
+		if (buttonLangText != null) {
+			buttonLangText.SetText(difficulty.ToString ());
 		}
 	}
 
@@ -61,8 +61,12 @@ public class MenuDifficultyButton : MonoBehaviour {
 	}
 
 	void Start () {
-		buttonLangMultText.ApplyLanguageTranslation (difficulty.ToString ());
+		buttonLangText.ApplyTranslation (difficulty.ToString ());
 		lockImage.color = lockImageColor;
+	}
+
+	public bool IsAnimating () {
+		return (_isAnimating);
 	}
 
 	public void SetButtonsColors (Color unlockedColor, Color lockedColor, Color lockImageColor) {
@@ -113,7 +117,7 @@ public class MenuDifficultyButton : MonoBehaviour {
 		_isUnlocked = true;
 		_image.color = unlockedColor;
 		lockImage.gameObject.SetActive (false);
-		buttonLangMultText.gameObject.SetActive (true);
+		buttonLangText.gameObject.SetActive (true);
 		DisplayStatsInformation ();
 	}
 
@@ -121,7 +125,7 @@ public class MenuDifficultyButton : MonoBehaviour {
 		_isUnlocked = false;
 		_image.color = lockedColor;
 		lockImage.gameObject.SetActive (true);
-		buttonLangMultText.gameObject.SetActive (false);
+		buttonLangText.gameObject.SetActive (false);
 		DisplayUnlockConditions (unlockCondition);
 	}
 
@@ -160,8 +164,8 @@ public class MenuDifficultyButton : MonoBehaviour {
 
 	private void DisplayStatsInformation () {
 		if (_shouldDisplayFullStats) {
-			informationLangMultText.gameObject.SetActive (false);
-			fullStatsTextLeft.gameObject.SetActive (true);
+			informationLangText.gameObject.SetActive (false);
+			fullStatsLeftLangText.gameObject.SetActive (true);
 			fullStatsTextRight.gameObject.SetActive (true);
 			
 			fullStatsTextRight.text = string.Format ("{0:N0}\n{1:N0}\n{2:N0}", 
@@ -170,19 +174,19 @@ public class MenuDifficultyButton : MonoBehaviour {
 				Managers.Stats.GetCumulativeScore (parentModePanel.gameMode, difficulty)
 			);
 		} else {
-			informationLangMultText.gameObject.SetActive (true);
-			fullStatsTextLeft.gameObject.SetActive (false);
+			informationLangText.gameObject.SetActive (true);
+			fullStatsLeftLangText.gameObject.SetActive (false);
 			fullStatsTextRight.gameObject.SetActive (false);
 
-			informationLangMultText.ApplyLanguageTranslation (shortStatsKeyword, (Managers.Score.GetHighscore (parentModePanel.gameMode, difficulty)).ToString());
+			informationLangText.ApplyTranslation (shortStatsKeyword, false, string.Format("{0:NO}", (Managers.Score.GetHighscore (parentModePanel.gameMode, difficulty).ToString()) ));
 		}
 	}
 
 	private void DisplayUnlockConditions (UnlockCondition unlockCondition) {
-		informationLangMultText.gameObject.SetActive (true);
-		fullStatsTextLeft.gameObject.SetActive (false);
+		informationLangText.gameObject.SetActive (true);
+		fullStatsLeftLangText.gameObject.SetActive (false);
 		fullStatsTextRight.gameObject.SetActive (false);
-		unlockCondition.ApplyTranslation (informationLangMultText,  playCountUnlockConditionKeyword, CumuScoreUnlockConditionKeyword);
+		unlockCondition.ApplyTranslation (informationLangText,  playCountUnlockConditionKeyword, CumuScoreUnlockConditionKeyword);
 	}
 
 	public IEnumerator TriggerUnlockAnimations () {
@@ -206,7 +210,7 @@ public class MenuDifficultyButton : MonoBehaviour {
 		float u;
 		Vector3 startScale = lockImage.transform.localScale;
 		Vector3 targetScale = Vector3.zero;
-		Color startColor = fullStatsTextLeft.color;
+		Color startColor = fullStatsLeftLangText.color;
 		Color dimmedColor = startColor;
 		dimmedColor.a = 0;
 
@@ -214,7 +218,7 @@ public class MenuDifficultyButton : MonoBehaviour {
 		while ((Time.time - timeStart) < lockShrinkDuration) {
 			u = (Time.time - timeStart) / lockShrinkDuration;
 			lockImage.transform.localScale = Vector3.Lerp (startScale, targetScale, u);
-			fullStatsTextLeft.color = Color.Lerp (startColor, dimmedColor, u);
+			fullStatsLeftLangText.color = Color.Lerp (startColor, dimmedColor, u);
 			yield return null;
 		}
 
@@ -229,20 +233,20 @@ public class MenuDifficultyButton : MonoBehaviour {
 		DisplayStatsInformation ();
 
 		// Appear both the difficultyText and the highscore Text
-		buttonLangMultText.gameObject.SetActive (true);
-		buttonLangMultText.color = dimmedColor;
+		buttonLangText.gameObject.SetActive (true);
+		buttonLangText.color = dimmedColor;
 
 		timeStart = Time.time;
 
 		while ((Time.time - timeStart) < textAppearDuration) {
 			u = (Time.time - timeStart) / textAppearDuration;
-			buttonLangMultText.color = Color.Lerp (dimmedColor, startColor, u);
-			fullStatsTextLeft.color = Color.Lerp (dimmedColor, startColor, u);
+			buttonLangText.color = Color.Lerp (dimmedColor, startColor, u);
+			fullStatsLeftLangText.color = Color.Lerp (dimmedColor, startColor, u);
 			yield return null;
 		}
 
-		buttonLangMultText.color = startColor;
-		fullStatsTextLeft.color = startColor;
+		buttonLangText.color = startColor;
+		fullStatsLeftLangText.color = startColor;
 
 		// Set _isUnlocked to true to allow clicking after the animation.
 		_isUnlocked = true;
