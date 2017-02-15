@@ -35,7 +35,6 @@ public class SettingsPanelController : MonoBehaviour {
 
 	private bool _interactable {
 		get {
-			Debug.Log ("controller says: " +menuController.CanShowSettingsPanel ());
 			return (menuController.CanShowSettingsPanel ());
 		}
 	}
@@ -143,7 +142,7 @@ public class SettingsPanelController : MonoBehaviour {
 		}
 		flagRims [flagIndex].SetActive (true);
 
-		Managers.Language.SetActiveLanguage ((Languages)flagIndex);
+		Managers.Language.SetActiveLanguage (flagIndex);
 
 		_selectedLanguageIndex = flagIndex;
 	}

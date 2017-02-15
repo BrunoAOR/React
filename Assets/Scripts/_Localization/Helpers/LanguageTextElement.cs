@@ -5,19 +5,19 @@ public class LanguageTextElement
 {
 	[ShowOnly]
 	[SerializeField]
-	private Languages language;
+	private string language;
 	[Multiline(2)]
 	public string text;
 
-	public LanguageTextElement (Languages assignedLanguage) {
-		language = assignedLanguage;
+	public LanguageTextElement (string languageName) {
+		language = languageName;
 	}
 
-	public void SetTextLanguage (Languages language) {
-		this.language = language;
+	public void SetTextLanguage (string languageName) {
+		language = languageName;
 	}
 
-	public Languages GetTextLanguage () {
+	public string GetTextLanguage () {
 		return (language);
 	}
 }

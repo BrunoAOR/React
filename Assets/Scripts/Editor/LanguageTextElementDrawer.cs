@@ -34,8 +34,7 @@ public class LanguageTextElementDrawer : PropertyDrawer {
 		// Draw label
 		GUIStyle italicLabel = new GUIStyle (EditorStyles.label);
 		italicLabel.fontStyle = FontStyle.Italic;
-		string titleText = language.enumNames[language.enumValueIndex];
-		EditorGUI.LabelField (titleRect, titleText, italicLabel);
+		EditorGUI.LabelField (titleRect, language.stringValue, italicLabel);
 
 		// Draw textArea
 		GUIStyle wrapTextArea = new GUIStyle (EditorStyles.textArea);

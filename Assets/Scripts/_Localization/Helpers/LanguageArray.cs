@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 [System.Serializable]
 public class LanguageArray {
@@ -11,16 +9,21 @@ public class LanguageArray {
 	[SerializeField]
 	private bool showLanguages;
 
-	public LanguageArray () {
-		SetUpLanguageArray ();
+	public LanguageArray (string[] languages) {
+		SetUpLanguageArray (languages);
 	}
 
-	public void SetUpLanguageArray () {
-		int languageCount = System.Enum.GetValues (typeof(Languages)).Length;
-		if (languageTextElements == null || languageTextElements.Length != languageCount) {
-			languageTextElements = new LanguageTextElement[languageCount];
+	public void SetUpLanguageArray (string[] languages) {
+		if (languageTextElements == null) {
+			languageTextElements = new LanguageTextElement[languages.Length];
 			for (int i = 0; i < languageTextElements.Length; i++) {
-				languageTextElements [i] = new LanguageTextElement ((Languages)i);
+				languageTextElements [i] = new LanguageTextElement (languages [i]);
+			}
+		} else if (languages.Length != languageTextElements.Length) {
+			ResizeArray (languages);
+		} else {
+			for (int i = 0; i < languageTextElements.Length; i++) {
+				languageTextElements [i].SetTextLanguage (languages [i]);
 			}
 		}
 	}
@@ -32,7 +35,6 @@ public class LanguageArray {
 				languageTextElements [i].text = "";
 			}
 		}
-				
 	}
 
 	public int GetLanguagesCount () {
@@ -40,31 +42,35 @@ public class LanguageArray {
 	}
 
 	/// <summary>
-	/// Gets the translation for the currently selected language in the LanguageManager.
+	/// Gets the translation for the specific index..
 	/// </summary>
-	/// <returns>The translation.</returns>
-	public string GetTranslation () {
-		return (languageTextElements [Managers.Language.GetActiveLanguageIndex ()].text);
-	}
-
-
-	/// <summary>
-	/// Gets the translation for the specified Language.
-	/// </summary>
-	/// <returns>The translation.</returns>
-	/// <param name="language">Language (enum).</param>
-	public string GetTranslation (Languages language) {
-		return (GetTranslation ((int)language));
-	}
-
-	private string GetTranslation (int languageIndex) {
+	/// <returns>The translation for the selected index.</returns>
+	/// <param name="languageIndex">Language index in the langauges list.</param>
+	public string GetTranslation (int languageIndex) {
 		if (languageIndex < 0) {
 			languageIndex = 0;
-		} else if (languageIndex >= Managers.Language.GetLanguagesCount ()) {
-			languageIndex = Managers.Language.GetLanguagesCount () - 1;
+		} else if (languageIndex >= languageTextElements.Length) {
+			languageIndex = languageTextElements.Length - 1;
 		}
 
 		return (languageTextElements[languageIndex].text);
+	}
+
+	private void ResizeArray (string[] newLanguages) {
+		if (languageTextElements.Length == newLanguages.Length) {
+			return;
+		}
+
+		LanguageTextElement[] newLTE = new LanguageTextElement[newLanguages.Length];
+		for (int i = 0; i < newLTE.Length; i++) {
+			if (i < languageTextElements.Length) {
+				newLTE [i] = languageTextElements [i];
+				newLTE [i].SetTextLanguage (newLanguages [i]);
+			} else {
+				newLTE [i] = new LanguageTextElement (newLanguages [i]);
+			}
+		}
+		languageTextElements = newLTE;
 	}
 
 }

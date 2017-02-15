@@ -1,9 +1,12 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu (menuName = "Localization/Language Data", fileName = "New Language Data")]
 public class LanguageData : ScriptableObject {
+
+
+	[SerializeField]
+	private string[] languages;
 
 	[SerializeField]
 	private LanguageArray[] languageSets;
@@ -17,13 +20,13 @@ public class LanguageData : ScriptableObject {
 	private void OnValidate () {
 		if (languageSets == null || languageSets.Length == 0) {
 			languageSets = new LanguageArray[1];
-			languageSets [0] = new LanguageArray ();
+			languageSets [0] = new LanguageArray (languages);
 
 		}
 
 		if (languageSets.Length > 0) {
 			for (int i = 0; i < languageSets.Length; i++) {
-				languageSets [i].SetUpLanguageArray ();
+				languageSets [i].SetUpLanguageArray (languages);
 			}
 		}
 
@@ -37,8 +40,16 @@ public class LanguageData : ScriptableObject {
 		CheckForRepeatedKeywords ();
 	}
 
-	public string Check () {
-		return ("CHECKED");
+	public int GetLanguageCount () {
+		return (languages.Length);
+	}
+
+	public string GetLanguageName (int languageIndex) {
+		if (languageIndex < 0 || languageIndex >= languages.Length) {
+			return (null);
+		} else {
+			return (languages [languageIndex]);
+		}
 	}
 
 	public string GetTranslation (string keyword) {
@@ -46,7 +57,7 @@ public class LanguageData : ScriptableObject {
 		if (keywordIndex == -1) {
 			return (null);
 		}
-		return (languageSets[keywordIndex].GetTranslation ());
+		return (languageSets[keywordIndex].GetTranslation (Managers.Language.GetActiveLanguageIndex ()));
 	}
 
 	public int GetRequiredParametersCount (string keyword) {
@@ -193,12 +204,11 @@ public class LanguageData : ScriptableObject {
 		int count = 0;
 		string testText;
 		for (int i = 0; i < languageArray.GetLanguagesCount (); i++) {
-			testText = languageArray.GetTranslation ((Languages)i);
+			testText = languageArray.GetTranslation (i);
 			count = Mathf.Max (count, CountParameters(testText));
 		}
 		return (count);
 	}
-
 
 	private int CountParameters (string testString) {
 		int maxParamIndex = -1;
