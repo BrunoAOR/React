@@ -6,8 +6,6 @@ using UnityEditor;
 [CustomPropertyDrawer (typeof(LanguageArray))]
 public class LanguageArrayDrawer : PropertyDrawer {
 	
-	float lineHeight = 0;
-	const int padding = 2;
 	Rect titleRect, keywordLabelRect, keywordFieldRect;
 	Rect[] languagesRects;
 	SerializedProperty languageTextElements, keyword, showLanguages;
@@ -24,29 +22,29 @@ public class LanguageArrayDrawer : PropertyDrawer {
 			position.x,
 			position.y,
 			position.width,
-			lineHeight
+			EditorGUIUtility.singleLineHeight
 		);
 
 		float keywordLabelWidth = (position.width / 4f) >= 80 ? 80f : position.width / 4f;
 		keywordLabelRect = new Rect (
 			position.x,
-			position.y + (lineHeight + padding),
+			position.y + (EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing),
 			keywordLabelWidth,
-			lineHeight
+			EditorGUIUtility.singleLineHeight
 		);
 
 		keywordFieldRect = new Rect (
 			position.x + keywordLabelWidth,
-			position.y + (lineHeight + padding),
+			position.y + (EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing),
 			position.width - 2 * keywordLabelWidth,
-			lineHeight
+			EditorGUIUtility.singleLineHeight
 		);
 
 		languagesRects = new Rect[languageTextElements.arraySize];
 		for (int i = 0; i < languagesRects.Length; i++) {
 			languagesRects [i] = new Rect (
 				position.x,
-				position.y + 2 * (lineHeight + padding) + lteHeight * i,
+				position.y + 2 * (EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing) + lteHeight * i,
 				position.width,
 				lteHeight
 			);
@@ -82,8 +80,6 @@ public class LanguageArrayDrawer : PropertyDrawer {
 	{
 		AssignSerializedProperties (property);
 
-		lineHeight = base.GetPropertyHeight (property, label);
-
 		if (languageTextElements.arraySize > 0) {
 			lteHeight = EditorGUI.GetPropertyHeight (languageTextElements.GetArrayElementAtIndex (0));
 		} else {
@@ -93,9 +89,9 @@ public class LanguageArrayDrawer : PropertyDrawer {
 		float height = 0;
 
 		if (showLanguages.boolValue) {
-			height = 2 * (lineHeight + padding) + (languageTextElements.arraySize * lteHeight);
+			height = 2 * (EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing) + (languageTextElements.arraySize * lteHeight);
 		} else {
-			height = lineHeight + padding;
+			height = EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
 		}
 
 		return (height);

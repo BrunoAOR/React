@@ -5,7 +5,7 @@ public class LanguageArray {
 
 	public string keyword;
 	[SerializeField]
-	private LanguageTextElement[] languageTextElements;
+	private LanguageTextElement[] languageTextElements = new LanguageTextElement[0];
 	[SerializeField]
 	private bool showLanguages;
 

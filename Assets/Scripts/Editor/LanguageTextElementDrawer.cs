@@ -7,8 +7,6 @@ using UnityEditor;
 public class LanguageTextElementDrawer : PropertyDrawer {
 
 	int numberOfLines = 4;
-	float lineHeight = 0;
-	int padding = 2;
 	Rect titleRect, textAreaRect;
 	SerializedProperty language, text;
 
@@ -18,14 +16,14 @@ public class LanguageTextElementDrawer : PropertyDrawer {
 			position.x,
 			position.y,
 			position.width,
-			lineHeight
+			EditorGUIUtility.singleLineHeight
 		);
 
 		textAreaRect = new Rect (
 			position.x,
-			position.y + (lineHeight + padding),
+			position.y + (EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing),
 			position.width,
-			3 * lineHeight
+			3 * EditorGUIUtility.singleLineHeight
 		);
 
 		language = property.FindPropertyRelative ("language");
@@ -51,7 +49,6 @@ public class LanguageTextElementDrawer : PropertyDrawer {
 
 	public override float GetPropertyHeight (SerializedProperty property, GUIContent label)
 	{
-		lineHeight = base.GetPropertyHeight (property, label);
-		return (numberOfLines * lineHeight + padding);
+		return (numberOfLines * EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing);
 	}
 }
