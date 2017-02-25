@@ -20,7 +20,6 @@ public class AdsController : MonoBehaviour {
 		if (Managers.Ads.IsReady ()) {
 			watchAdPrompt.SetActive (true);
 		} else {
-			Debug.Log ("Ads are NOT ready to be shown!");
 			if (Managers.Lives.GetLivesCount () <= 0) {
 				noLivesPrompt.SetActive (true);
 			} else {
@@ -88,7 +87,6 @@ public class AdsController : MonoBehaviour {
 
 
 	private void HandleAdFinished () {
-		Debug.Log ("Ad completed. Should reward player.");
 		watchAdPrompt.SetActive (false);
 
 		Managers.Lives.FillLives ();

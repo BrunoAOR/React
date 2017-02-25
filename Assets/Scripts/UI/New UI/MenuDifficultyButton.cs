@@ -105,9 +105,7 @@ public class MenuDifficultyButton : MonoBehaviour {
 	}
 
 	public void SkipUnlockAnimation () {
-		Debug.Log ("Entered skip");
 		if (_isUnlocked == false && _nextLockState == MenuLockState.Unlocked) {
-			Debug.Log ("Entered skip if");
 			// So, only when there was meant to be an unlock animation
 			Unlock ();
 		}

@@ -72,7 +72,6 @@ public class MenuController : MenuControllerBase {
 			StartCoroutine (LaunchGameCoroutine (gameMode, difficulty));
 		} else {
 			Managers.Audio.PlaySFX (SFX.IconClicked_NewSection);
-			Debug.Log ("No tries left!");
 			StartCoroutine (PromptForAds ());
 		}
 	}
@@ -90,7 +89,6 @@ public class MenuController : MenuControllerBase {
 		yield return (panelsController.ScrollInOut (MenuPanelsController.MenuDirection.Out));
 		panelsController.gameObject.SetActive (false);
 		RoundManager.S.StartGame (gameMode, difficulty);
-		Debug.Log ("Launch Game Done");
 	}
 
 }

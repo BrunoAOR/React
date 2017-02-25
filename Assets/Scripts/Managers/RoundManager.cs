@@ -220,7 +220,7 @@ public class RoundManager : MonoBehaviour {
 
 
 	private IEnumerator preStartStage () {
-		Debug.Log ("PRE START");
+		//Debug.Log ("PRE START");
 		gameStage = GameStage.preStart;
 		Managers.Score.ResetScore ();
 
@@ -263,7 +263,7 @@ public class RoundManager : MonoBehaviour {
 
 
 	private IEnumerator TimedGame () {
-		Debug.Log ("TIMED STAGE");
+		//Debug.Log ("TIMED STAGE");
 		gameStage = GameStage.Timed;
 
 		if (_modeLogic.GetType() == typeof(TargetMode)) {
@@ -305,7 +305,7 @@ public class RoundManager : MonoBehaviour {
 
 
 	private IEnumerator GameEnd () {
-		Debug.Log ("GAME ENDED");
+		//Debug.Log ("GAME ENDED");
 		gameStage = GameStage.GameEnd;
 		targetModeSection.SetActive (false);
 

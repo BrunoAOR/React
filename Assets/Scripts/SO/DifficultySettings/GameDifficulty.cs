@@ -32,7 +32,7 @@ public class GameDifficulty : ScriptableObject {
 
 			currentButtonsToClick = Mathf.Clamp (startButtonsToClick + increaseSteps, startButtonsToClick, finalButtonsToClick);
 		}
-		Debug.Log ("Round: " + roundNumber + " || buttons to click: " + currentButtonsToClick);
+		//Debug.Log ("Round: " + roundNumber + " || buttons to click: " + currentButtonsToClick);
 		return (currentButtonsToClick);
 	}
 
@@ -44,7 +44,7 @@ public class GameDifficulty : ScriptableObject {
 		float currentMaxWaitTime = (1 - u) * startMaxWaitTime + u * finalMaxWaitTime;
 
 		float waitTime = Random.Range (currentMinWaitTime, currentMaxWaitTime);
-		Debug.Log ("Round: " + roundNumber + "|| u = " + u + " || Min: " + currentMinWaitTime + " | Max: " + currentMaxWaitTime + " | Actual Wait: " + waitTime);
+		//Debug.Log ("Round: " + roundNumber + "|| u = " + u + " || Min: " + currentMinWaitTime + " | Max: " + currentMaxWaitTime + " | Actual Wait: " + waitTime);
 		if (waitTime < 0) {
 			waitTime = 0;
 		}

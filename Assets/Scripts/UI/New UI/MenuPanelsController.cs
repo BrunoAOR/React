@@ -133,7 +133,7 @@ public class MenuPanelsController : MonoBehaviour {
 		if (direction == MenuArrow.Direction.Right && _currentPanelIndex == gameModePanels.Length - 1)
 			return;
 
-		Debug.Log ("Scrolling " + direction + " from " + gameModePanels [_currentPanelIndex].gameMode.ToString () + " to " + gameModePanels [_currentPanelIndex + (int)direction].gameMode.ToString ());
+		//Debug.Log ("Scrolling " + direction + " from " + gameModePanels [_currentPanelIndex].gameMode.ToString () + " to " + gameModePanels [_currentPanelIndex + (int)direction].gameMode.ToString ());
 
 		StartCoroutine (ScrollPanelsTowards (direction));
 	}

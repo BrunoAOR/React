@@ -35,7 +35,7 @@ public static class DataManager {
 		bf.Serialize(file, localData);
 		file.Close ();
 
-		Debug.Log ("DATA SAVED");
+		//Debug.Log ("DATA SAVED");
 	}
 		
 
@@ -45,10 +45,10 @@ public static class DataManager {
 			FileStream file = File.Open (Application.persistentDataPath + "/" + fileName, FileMode.Open);
 			localData = (SaveData)bf.Deserialize (file); 
 			file.Close ();
-			Debug.Log ("DATA LOADED");
+			//Debug.Log ("DATA LOADED");
 		} else {
 			localData = new SaveData ();
-			Debug.Log ("No saved data found!");
+			//Debug.Log ("No saved data found!");
 		}
 	}
 
@@ -56,9 +56,9 @@ public static class DataManager {
 	public static void DeleteData () {
 		if (File.Exists (Application.persistentDataPath + "/" + fileName)) {
 			File.Delete (Application.persistentDataPath + "/" + fileName);
-			Debug.Log ("DATA DELETED");
+			//Debug.Log ("DATA DELETED");
 		} else {
-			Debug.Log ("No saved data found to delete.");
+			//Debug.Log ("No saved data found to delete.");
 		}
 	}
 
