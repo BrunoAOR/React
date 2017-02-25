@@ -450,10 +450,10 @@ public class RoundManager : MonoBehaviour {
 
 		int changeInButtonsOnAmount = _modeLogic.ButtonPressed (button, out timeBonus);
 		if (changeInButtonsOnAmount != 0) {
-			if (_roundWaitTime >= 0.25f) {
+			_buttonsLeftToClick += changeInButtonsOnAmount;
+			if (_buttonsLeftToClick > 0 || _roundWaitTime >= 0.1f) {
 				Managers.Audio.PlaySFX (SFX.ButtonUnlit);
 			}
-			_buttonsLeftToClick += changeInButtonsOnAmount;
 		}
 
 		_timer += timeBonus;
