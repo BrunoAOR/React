@@ -4,7 +4,7 @@ using System.Collections;
 
 [RequireComponent (typeof (RectTransform))]
 [RequireComponent (typeof (Text))]
-public class AnimatedUIText : MonoBehaviour {
+public class AnimatedUIText : MonoBehaviour, IPoolable<AnimatedUIText> {
 
 	[Header ("Time Range (for free animation)")]
 	public float timeStart = 1f;
@@ -49,6 +49,9 @@ public class AnimatedUIText : MonoBehaviour {
 	public float shakeCycle = 0.1f;
 	public float shakeAmplitude = 10f;
 
+	// IPoolable
+	public UnspawnDelegate<AnimatedUIText> Unspawn {get; set;}
+
 	private Quaternion _referenceRotation;
 	private Quaternion _currentRotation;
 	private float _refZRot;
@@ -73,17 +76,12 @@ public class AnimatedUIText : MonoBehaviour {
 		_refZRot = _referenceRotation.eulerAngles.z;
 	}
 
-
-	void Start () {
+	void OnEnable () {
+		_rectTransform.rotation = _referenceRotation;
 		if (shouldAnimateOnTime) {
 			animatingOnTime = true;
 			_startTime = Time.time;
 		}
-	}
-
-
-	void OnEnable () {
-		_rectTransform.rotation = _referenceRotation;
 	}
 
 
@@ -104,7 +102,11 @@ public class AnimatedUIText : MonoBehaviour {
 		Animate ();
 
 		if (_elapsedTime >= lifeTimeAfterDelay) {
-			Destroy (gameObject);
+			if (Unspawn != null) {
+				Unspawn (this);
+			} else {
+				Destroy (gameObject);
+			}
 		}
 	}
 
@@ -114,6 +116,7 @@ public class AnimatedUIText : MonoBehaviour {
 		if (!animatingOnTime)
 			_text.text = timeStart.ToString ("F1");
 
+		_rectTransform.anchoredPosition = Vector3.zero;
 		_rectTransform.anchorMin = startAnchor;
 		_rectTransform.anchorMax = startAnchor;
 		_text.fontSize = startFontSize;

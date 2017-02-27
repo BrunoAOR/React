@@ -57,6 +57,15 @@ public class ComponentPool<T> where T : Component, IPoolable<T>  {
 	}
 
 	/// <summary>
+	/// Destroys all objects in the pool
+	/// </summary>
+	public void ClearPool () {
+		while (_inactiveInstances.Count > 0) {
+			Object.Destroy (_inactiveInstances.Pop ().gameObject);
+		}
+	}
+
+	/// <summary>
 	/// Returns and object of type T from the pool if one is available or creates a new one if none is available.
 	/// </summary>
 	public T Spawn (bool setActive = true) {
@@ -110,10 +119,10 @@ public class ComponentPool<T> where T : Component, IPoolable<T>  {
 			return;
 		}
 		// Object accepted
+		objectToUnspawn.gameObject.SetActive (false);
 		objectToUnspawn.transform.position = Vector3.zero;
 		objectToUnspawn.transform.rotation = Quaternion.identity;
 		objectToUnspawn.transform.SetParent (_poolTransform, false);
-		objectToUnspawn.gameObject.SetActive (false);
 		_inactiveInstances.Push (objectToUnspawn);
 	}
 

@@ -396,7 +396,7 @@ public class RoundManager : MonoBehaviour {
 		// Go to menu
 		GoToMenu ();
 	}
-		
+
 
 	public void GoToMenu () {
 		// Set background alpha
