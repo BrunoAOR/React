@@ -5,15 +5,11 @@ using System.Collections.Generic;
 public static class Utils {
 
 	static public string GetSignedStringFromNumber (float number) {
-		string message = number < 0 ? "" : "+";
-		message += number.ToString ("F1");
-		return message;
+		return (string.Format ("{0}{1}", number < 0 ? "" : "+", number.ToString ("F1")));
 	}
 
 	static public string GetSignedStringFromNumber (int number) {
-		string message = number < 0 ? "" : "+";
-		message += number.ToString ("D");
-		return message;
+		return (string.Format ("{0}{1}", number < 0 ? "" : "+", number.ToString ("D")));
 	}
 
 	static public Color SetAlpha (Color color, float alpha) {

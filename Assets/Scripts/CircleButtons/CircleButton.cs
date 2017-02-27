@@ -105,7 +105,6 @@ public class CircleButton : MonoBehaviour {
 	public void SpawnBadTimeBonus (float timeBonus) {
 		Vector2 buttonPositionInViewport = Camera.main.WorldToViewportPoint (transform.position);
 		PointsSpawner.S.AnimateBadTimeBonus (Utils.GetSignedStringFromNumber (timeBonus), buttonPositionInViewport);
-		
 	}
 
 
