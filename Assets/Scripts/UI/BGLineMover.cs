@@ -2,13 +2,14 @@
 using UnityEngine.UI;
 using System.Collections;
 
-public class BGLineMover : MonoBehaviour {
+public class BGLineMover : MonoBehaviour, IPoolable<BGLineMover> {
 
 	public float speed = 1;
-	public float lifeTime = 3;
 
 	public RectTransform rectTransform;
 	public Image image;
+
+	public UnspawnDelegate<BGLineMover> Unspawn { get ; set; }
 
 	private float screenWidth;
 
@@ -21,24 +22,18 @@ public class BGLineMover : MonoBehaviour {
 	void Start () {
 		screenWidth = Camera.main.pixelWidth;
 	}
-
+	
 	void Update () {
-
 		transform.Translate (Vector3.right * screenWidth * speed * Time.deltaTime, Space.Self);
-
 	}
 
-	public void ReturnToPoolAfterLifeTime () {
-		StartCoroutine (ReturnToPoolCoroutine ());
+	public void ReturnToPoolAfter (float time) {
+		Invoke ("ReturnToPool", time);
 	}
 
-	private IEnumerator ReturnToPoolCoroutine () {
-		PooledGameObject pooledGameObject = GetComponent<PooledGameObject> ();
-
-		yield return new WaitForSeconds (lifeTime);
-
-		if (pooledGameObject != null) {
-			pooledGameObject.pool.ReturnGameObject (gameObject);
+	private void ReturnToPool () {
+		if (Unspawn != null) {
+			Unspawn (this);
 		} else {
 			Destroy (gameObject);
 		}

@@ -4,8 +4,8 @@ using System.Collections;
 
 public class BGLineSpawner : MonoBehaviour {
 
-	public GameObject linePrefab;
-	public GameObjectPool lineObjectPool;
+	public BGLineMover linePrefab;
+	public Transform poolTransform;
 
 	public bool shouldSpawn = true;
 	public int spawnRate = 5;
@@ -20,6 +20,7 @@ public class BGLineSpawner : MonoBehaviour {
 
 	public float alphaChangeSpeed = 1f;
 
+	private ComponentPool<BGLineMover> lineMoverPool;
 	private CanvasScaler _canvasScaler;
 	private CanvasGroup _canvasGroup;
 	private float _screenWidthPx;
@@ -33,8 +34,11 @@ public class BGLineSpawner : MonoBehaviour {
 		_canvasScaler = GetComponentInParent <CanvasScaler> ();
 		_canvasGroup = GetComponent <CanvasGroup> ();
 
-		if (lineObjectPool == null)
+		if (linePrefab == null) {
 			enabled = false;
+			return;
+		}
+		lineMoverPool = new ComponentPool<BGLineMover> (linePrefab, poolTransform);
 	}
 
 
@@ -89,12 +93,8 @@ public class BGLineSpawner : MonoBehaviour {
 		if (_timeWaited >= 1f / spawnRate) {
 			// Spawn new line
 			_timeWaited = 0;
-			GameObject tGO = lineObjectPool.GetGameObject ();
-			tGO.transform.SetParent (transform);
-			tGO.transform.localScale = Vector3.one;
-
-			// Get a reference to the BGLineMover (which contains references to the RectTransform and the Image)
-			BGLineMover tBGLineMover = tGO.GetComponent<BGLineMover> ();
+			BGLineMover tBGLineMover = lineMoverPool.Spawn ();
+			tBGLineMover.transform.SetParent (transform, false);
 
 			// Assign a random line length
 			float lineLength = Random.Range (_lengthMin, _lengthMax);
@@ -111,30 +111,28 @@ public class BGLineSpawner : MonoBehaviour {
 			float random = 4 * Random.value;
 			float scalableLineLength = lineLength / _canvasScaler.referenceResolution.x * _screenWidthPx;
 
+			float lifeTime = 0;
 			if (random < 1) {
 				// UP
 				tBGLineMover.rectTransform.position = new Vector2 (Random.Range(0, _screenWidthPx), _screenHeightPx + scalableLineLength / 2);
 				tBGLineMover.rectTransform.rotation = Quaternion.Euler (0, 0, 270);
-				tBGLineMover.lifeTime = (scalableLineLength + _screenHeightPx) / (lineSpeed * _screenWidthPx);
+				lifeTime = (scalableLineLength + _screenHeightPx) / (lineSpeed * _screenWidthPx);
 			} else if (random < 2) {
 				// DOWN
 				tBGLineMover.rectTransform.position = new Vector2 (Random.Range(0, _screenWidthPx), 0 - scalableLineLength / 2);
 				tBGLineMover.rectTransform.rotation = Quaternion.Euler (0, 0, 90);
-				tBGLineMover.lifeTime = (scalableLineLength + _screenHeightPx) / (lineSpeed * _screenWidthPx);
+				lifeTime = (scalableLineLength + _screenHeightPx) / (lineSpeed * _screenWidthPx);
 			} else if (random < 3) {
 				// LEFT
 				tBGLineMover.rectTransform.position = new Vector2 (0 - scalableLineLength / 2, Random.Range(0, _screenHeightPx));
 				tBGLineMover.rectTransform.rotation = Quaternion.Euler (0, 0, 0);
-				tBGLineMover.lifeTime = (scalableLineLength + _screenWidthPx) / (lineSpeed * _screenWidthPx);
+				lifeTime = (scalableLineLength + _screenWidthPx) / (lineSpeed * _screenWidthPx);
 			} else {	// random <4
 				// RIGHT
 				tBGLineMover.rectTransform.position = new Vector2 (_screenWidthPx + scalableLineLength / 2, Random.Range(0,_screenHeightPx));
-				tBGLineMover.rectTransform.rotation = Quaternion.Euler (0, 0, 180);
-				tBGLineMover.lifeTime = (scalableLineLength + _screenWidthPx) / (lineSpeed * _screenWidthPx);
+				lifeTime = (scalableLineLength + _screenWidthPx) / (lineSpeed * _screenWidthPx);
 			}
-
-			tBGLineMover.ReturnToPoolAfterLifeTime ();
-
+			tBGLineMover.ReturnToPoolAfter (lifeTime);
 		}
 	}
 
