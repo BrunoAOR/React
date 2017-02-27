@@ -2,7 +2,7 @@
 using System.Collections;
 
 public class BoardManager : MonoBehaviour {
-	public GameObject buttonPrefab;
+	public CircleButton buttonPrefab;
 	[Range (3,5)]
 	public int gridSize = 4;
 	[Range (0,1)]
@@ -100,7 +100,7 @@ public class BoardManager : MonoBehaviour {
 
 		// Now we can create all buttons
 		float screenWidth = 2 * Camera.main.orthographicSize * Camera.main.aspect;
-		GameObject button;
+		CircleButton button;
 		Vector2 positionOffset;
 		Mover bMover;		// the Mover is used for the EndGame animation where all buttons move to the center of the buttonsGrid after loss.
 		Vector3 moveVector;
@@ -111,7 +111,7 @@ public class BoardManager : MonoBehaviour {
 				positionOffset = new Vector2 (x * spacePerButton, y * spacePerButton);
 				button.transform.localPosition = referencePosition + positionOffset;
 				button.transform.localScale = Vector3.one * buttonScale;
-				buttons[y * gridSize + x] = button.GetComponent<CircleButton> ();
+				buttons [y * gridSize + x] = button;
 				buttonPositions [y * gridSize + x] = button.transform.position;
 
 				bMover = button.GetComponent<Mover> ();
