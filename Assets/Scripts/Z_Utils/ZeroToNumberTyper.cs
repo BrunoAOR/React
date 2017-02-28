@@ -54,8 +54,7 @@ public class ZeroToNumberTyper {
 	}
 
 	private void PlayRandomPitchClip (AudioSource source, AudioClip clip) {
-		float pitch = Random.Range (minPitch, maxPitch);
-		source.pitch = pitch;
+		source.pitch = Random.Range (minPitch, maxPitch);
 		source.PlayOneShot (clip);
 	}
 }

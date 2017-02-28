@@ -4,26 +4,33 @@ using System.Collections;
 
 public class TextTyper {
 
-	private WaitForSeconds waitAfterChar = new WaitForSeconds (0.05f);
-	private WaitForSeconds waitAfterSpace = new WaitForSeconds (0.1f);
-	private WaitForSeconds waitAfterComma = new WaitForSeconds (0.1f);
-	private WaitForSeconds waitAfterPoint = new WaitForSeconds (0.5f);
-	private WaitForSeconds waitZero = new WaitForSeconds (0.001f);
-	private float minPitch = 0.8f;
-	private float maxPitch = 1.2f;
-	private bool rushTyping = false;
-	private bool abortTyping = false;
+	private WaitForSeconds _waitZero = new WaitForSeconds (0.001f);
+	private WaitForSeconds _waitAfterChar;
+	private WaitForSeconds _waitAfterSpace;
+	private WaitForSeconds _waitAfterComma;
+	private WaitForSeconds _waitAfterPoint;
+	private float _minPitch = 0.8f;
+	private float _maxPitch = 1.2f;
+	private bool _rushTyping = false;
+	private bool _abortTyping = false;
 
-	public void SetWaitParameters (float aWaitAfterChar, float aWaitAfterSpace, float aWaitAfterComma, float aWaitAfterPoint) {
-		waitAfterChar = new WaitForSeconds (aWaitAfterChar);
-		waitAfterSpace = new WaitForSeconds (aWaitAfterSpace);
-		waitAfterComma = new WaitForSeconds (aWaitAfterComma);
-		waitAfterPoint = new WaitForSeconds (aWaitAfterPoint);
+	private System.Text.StringBuilder _stringBuilder = new System.Text.StringBuilder ();
+
+	public TextTyper (float minimumPitch = 0.8f, float maximumPitch = 1.2f, float waitAfterChar = 0.05f, float waitAfterSpace = 0.1f, float waitAfterComma = 0.1f, float waitAfterPoint = 0.5f) {
+		SetAudioPitchParameters (minimumPitch, maximumPitch);
+		SetWaitParameters (waitAfterChar, waitAfterSpace, waitAfterComma, waitAfterPoint);
+	}
+
+	public void SetWaitParameters (float waitAfterChar, float waitAfterSpace, float waitAfterComma, float waitAfterPoint) {
+		_waitAfterChar = new WaitForSeconds (waitAfterChar);
+		_waitAfterSpace = new WaitForSeconds (waitAfterSpace);
+		_waitAfterComma = new WaitForSeconds (waitAfterComma);
+		_waitAfterPoint = new WaitForSeconds (waitAfterPoint);
 	}
 
 	public void SetAudioPitchParameters (float minimumPitch, float maximumPitch) {
-		minPitch = minimumPitch;
-		maxPitch = maximumPitch;
+		_minPitch = minimumPitch;
+		_maxPitch = maximumPitch;
 	}
 
 	/// <summary>
@@ -44,19 +51,21 @@ public class TextTyper {
 			originalPitch = audioSource.pitch;
 		}
 
-		string message = "";
+		_stringBuilder.Length = 0;
+		//string message = "";
 		for (int c = 0; c < textToType.Length; c++) {
-			if (abortTyping) {
-				message = textToType;
-				textField.text = message;
+			if (_abortTyping) {
+				textField.text = textToType;
 				break;
 			}
 
-			message += textToType[c];
-			textField.text = message;
+			_stringBuilder.Append (textToType [c]);
+			//message += textToType[c];
+			textField.text = _stringBuilder.ToString ();
+			//textField.text = message;
 
-			if (rushTyping) {
-				yield return waitZero;
+			if (_rushTyping) {
+				yield return _waitZero;
 			} else {
 				if (audioSource != null && typingClip != null) {
 					PlayRandomPitchClip (audioSource, typingClip);
@@ -68,8 +77,8 @@ public class TextTyper {
 		if (audioSource != null && typingClip != null) {
 			audioSource.pitch = originalPitch;
 		}
-		rushTyping = false;
-		abortTyping = false;
+		_rushTyping = false;
+		_abortTyping = false;
 		yield return null;
 	}
 
@@ -77,9 +86,7 @@ public class TextTyper {
 		if (textField == null)
 			yield break;
 
-		string textToType = textField.text;
-
-		yield return (caller.StartCoroutine (TypeText (caller, textField, textToType, audioSource, typingClip)));
+		yield return (caller.StartCoroutine (TypeText (caller, textField, textField.text, audioSource, typingClip)));
 
 	}
 
@@ -95,53 +102,43 @@ public class TextTyper {
 		if (textField == null)
 			yield break;
 
-		string textToType = textField.text;
-
-		yield return (caller.StartCoroutine (TypeText (caller, textField, textToType)));
+		yield return (caller.StartCoroutine (TypeText (caller, textField, textField.text)));
 	}
 
 	private WaitForSeconds GetWaitTime (char c) {
-		WaitForSeconds waitTime;
 		switch (c){
 		case '.':
 		case '!':
 		case '?':
-			waitTime = waitAfterPoint;
-			break;
+			return (_waitAfterPoint);
 		case ',':
 		case ':':
 		case ';':
-			waitTime = waitAfterComma;
-			break;
+			return (_waitAfterComma);
 		case ' ':
-			waitTime = waitAfterSpace;
-			break;
+			return (_waitAfterSpace);
 		default:
-			waitTime = waitAfterChar;
-			break;
+			return (_waitAfterChar);
 		}
-
-		return waitTime;
 	}
 
 	public void RushTyping () {
-		if (!rushTyping) {
-			rushTyping = true;
+		if (!_rushTyping) {
+			_rushTyping = true;
 		} else {
-			if (!abortTyping) {
-				abortTyping = true;
+			if (!_abortTyping) {
+				_abortTyping = true;
 			}
 		}
 
 	}
 
 	public void AbortTyping () {
-		abortTyping = true;
+		_abortTyping = true;
 	}
 
 	private void PlayRandomPitchClip (AudioSource source, AudioClip clip) {
-		float pitch = Random.Range (minPitch, maxPitch);
-		source.pitch = pitch;
+		source.pitch = Random.Range (_minPitch, _maxPitch);
 		source.PlayOneShot (clip);
 	}
 	
