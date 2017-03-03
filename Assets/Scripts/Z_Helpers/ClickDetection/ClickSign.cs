@@ -18,18 +18,18 @@ public class ClickSign : MonoBehaviour, IPoolable<ClickSign> {
 	}
 
 	private void OnEnable () {
-		timeStart = Time.time;
+		timeStart = Time.unscaledTime;
 	}
 
 	private void Update () {
 
-		if (Time.time - timeStart > lifeTime) {
+		if (Time.unscaledTime - timeStart > lifeTime) {
 			_rectTransform.sizeDelta = initialSize;
 			Unspawn (this);
 			return;
 		}
 
-		float u = (Time.time - timeStart) / lifeTime;
+		float u = (Time.unscaledTime - timeStart) / lifeTime;
 		Vector2 currentSize = Vector2.Lerp (initialSize, finalSize, u);
 
 		_rectTransform.sizeDelta = currentSize;
