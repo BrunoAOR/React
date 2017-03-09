@@ -55,7 +55,7 @@ public class FlashingUIText : MonoBehaviour {
 	}
 
 
-	private void Flash () {
+	public void Flash () {
 		Setup ();
 		_flashing = true;
 		_startTime = Time.time;
@@ -64,7 +64,7 @@ public class FlashingUIText : MonoBehaviour {
 	}
 
 
-	private void StopFlash () {
+	public void StopFlash () {
 		_flashing = false;
 		_text.color = _startColor;
 		_text.gameObject.transform.localScale = _startScale;

@@ -39,6 +39,7 @@ public class RoundResultController : MonoBehaviour {
 	private IEnumerator _showRoundResultCoroutine;
 	private IEnumerator[] _showRoundResultInnerCoroutines = new IEnumerator[2];
 	private ZeroToNumberTyper _numberTyper;
+	private FlashingUIText highscoreTextFlasher;
 
 	void Awake () {
 		_canvasReferenceResolution = GetComponentInParent<CanvasScaler> ().referenceResolution;
@@ -46,6 +47,7 @@ public class RoundResultController : MonoBehaviour {
 		_initialDelay = new WaitForSeconds (initialDelay);
 		_waitTime = new WaitForSeconds (stepWaitTime);
 		_numberTyper = new ZeroToNumberTyper ();
+		highscoreTextFlasher = highscoreText.GetComponent<FlashingUIText> ();
 		RecordElementsLocalPositions ();
 	}
 
@@ -59,6 +61,8 @@ public class RoundResultController : MonoBehaviour {
 			SkipAnimations ();
 		} else {
 			// So, the animation has already finished...
+
+			highscoreTextFlasher.StopFlash ();
 
 			Managers.Audio.PlaySFX (SFX.TapPrompt);
 
@@ -98,6 +102,12 @@ public class RoundResultController : MonoBehaviour {
 		if (!_newHighscore) {
 			newHighscoreLabel.gameObject.SetActive (false);
 		}
+
+		if (_newHighscore) {
+			highscoreText.text = _currentScore.ToString ();
+			highscoreTextFlasher.Flash ();
+		}
+
 	}
 
 	public void ShowRoundResult (GameMode gameMode, Difficulty difficulty, int score) {
@@ -201,6 +211,7 @@ public class RoundResultController : MonoBehaviour {
 		_showRoundResultInnerCoroutines [0] = null;
 		_showRoundResultInnerCoroutines [1] = null;
 
+		// Count up to the achieved score
 		Managers.Audio.PlaySFX (SFX.ScoreCounting, true);
 		_showRoundResultInnerCoroutines [0] = _numberTyper.StartCounter (currentScoreText, 0, _currentScore, _currentScore / (float)scoreCountedPerSecond);
 		yield return (StartCoroutine(_showRoundResultInnerCoroutines[0]));
@@ -211,6 +222,8 @@ public class RoundResultController : MonoBehaviour {
 		yield return (_waitTime);
 		if (_newHighscore) {
 			newHighscoreLabel.gameObject.SetActive (true);
+			highscoreText.text = _currentScore.ToString ();
+			highscoreTextFlasher.Flash ();
 		}
 
 		// Show the tap to continue label
