@@ -13,10 +13,10 @@ using UnityEngine;
 
 public class LanguageManager : MonoBehaviour {
 
-	[ShowOnly]
 	[SerializeField]
 	private int _activeLanguageIndex;
-	[SerializeField]
+    [ShowOnly]
+    [SerializeField]
 	private string _activeLanguage;
 	[SerializeField]
 	private GameObject[] _resetOnLanguageChange;
