@@ -53,7 +53,7 @@ public class MenuGameModePanel : MonoBehaviour {
 		if (tT != null) {
 			descriptionLangText = tT.GetComponent<LanguageText> ();
 		}
-		tT = transform.FindChild ("BottomSection/Difficulties");
+		tT = transform.Find ("BottomSection/Difficulties");
 		if (tT != null) {
 			difficultiesPanel = tT.gameObject;
 		}
